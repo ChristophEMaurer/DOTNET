@@ -427,16 +427,13 @@ FodyWeavers.xsd
 *.msm
 *.msp
 
-common/
 csharp-controls/
-ElegantRibbon3.3SourceCode/
 Kinect/
-ListView/
 ML/
+OCR/
 operationen/
 Robot/
-Station/
-Sudoku\packages/
+Sudoku/
 TCPIP-ClientServer/
 Utm2Gpx/
 Wordpress2Doc/
