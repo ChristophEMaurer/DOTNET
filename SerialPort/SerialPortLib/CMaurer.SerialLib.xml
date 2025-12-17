@@ -1,0 +1,177 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CMaurer.SerialLib</name>
+    </assembly>
+    <members>
+        <member name="T:CMaurer.SerialLib.QueuedSerialPort">
+            <summary>
+            Represents a queue of commands, which are sent to the serial port by a worker thread.
+            Every command must have a response, or a timeout will occur.
+            <example>
+            This is a simple example of a client sending one string to the serial port
+            and waiting for a response:
+            <br>
+            <code>
+            public void SendAndWaitForResponseSample()
+            {
+                QueuedSerialPort serial = new QueuedSerialPort();
+            
+                serial.PortName = "COM1";
+                serial.BaudRate = 58000;
+                serial.Parity = Parity.None;
+                serial.DataBits = 8;
+                serial.StopBits = StopBits.One;
+                serial.ReadTimeout = 300;
+            
+                serial.Start();
+            
+                // Send a text and wait for the response.
+                string response = serial.SendCommandAndWait("version");
+            
+                // Tell the microprocessor to perform a reset. In this case, it will reset without 
+                // sending a response beforehand, so we don't wait.
+                response = serial.SendCommand("reset");
+                
+                serial.Stop();
+            }
+            </code>
+            </br>
+            </example> 
+            </summary>
+        </member>
+        <member name="T:CMaurer.SerialLib.QueuedSerialPort.CommandItem">
+            <summary>
+            Represents a string that is sent to a serial port.
+            The sender of the command can choose to wait for or to ignore the result.
+            In any case, after writing to the serial port, an answer is always expected.
+            If no answer arrives, a TimeoutException is thrown.
+            </summary>
+        </member>
+        <member name="F:CMaurer.SerialLib.QueuedSerialPort.CommandItem._command">
+            <summary>
+            The plain text that is sent to the serial port.
+            </summary>
+        </member>
+        <member name="F:CMaurer.SerialLib.QueuedSerialPort.CommandItem._response">
+            <summary>
+            If the sender chooses to wait when sending a command, this will be the answer.
+            </summary>
+        </member>
+        <member name="F:CMaurer.SerialLib.QueuedSerialPort.CommandItem._are">
+            <summary>
+            If the sender chooses to wait for the result of a command, the sender will wait until 
+            this AutoResetEvent is signaled, which occurs when the result is read from the serial port.
+            </summary>
+        </member>
+        <member name="M:CMaurer.SerialLib.QueuedSerialPort.CommandItem.#ctor(System.String)">
+            <summary>
+            Creates an instance of a CommandItem with the specified plain text. 
+            Initializes the response to the empty string.
+            </summary>
+            <param name="command">The plain text.</param>
+        </member>
+        <member name="M:CMaurer.SerialLib.QueuedSerialPort.#ctor">
+            <summary>
+            Initializes a new instance. Creates an instance of a serial port and 
+            an empty queue.
+            </summary>
+        </member>
+        <member name="P:CMaurer.SerialLib.QueuedSerialPort.PortName">
+            <summary>
+            Gets or sets the port for communications, including but not limited to all available COM ports.
+            </summary>
+        </member>
+        <member name="P:CMaurer.SerialLib.QueuedSerialPort.BaudRate">
+            <summary>
+            Gets or sets the serial baud rate.
+            </summary>
+        </member>
+        <member name="P:CMaurer.SerialLib.QueuedSerialPort.Parity">
+            <summary>
+            Gets or sets the parity-checking protocol.
+            </summary>
+        </member>
+        <member name="P:CMaurer.SerialLib.QueuedSerialPort.DataBits">
+            <summary>
+            Gets or sets the standard length of data bits per byte.
+            </summary>
+        </member>
+        <member name="P:CMaurer.SerialLib.QueuedSerialPort.StopBits">
+            <summary>
+            Gets or sets the standard number of stopbits per byte.
+            </summary>
+        </member>
+        <member name="P:CMaurer.SerialLib.QueuedSerialPort.ReadTimeout">
+            <summary>
+            Gets or sets the number of milliseconds before a time-out occurs when a read operation does not finish.
+            </summary>
+        </member>
+        <member name="M:CMaurer.SerialLib.QueuedSerialPort.WorkerThread">
+            <summary>
+            When the serial port is active, it polls the queue for commands.
+            If there is a command, it sends the command and immediately waits for a response.
+            If the command is waited on by the sender, its AutoResetEvent is signaled, which causes the 
+            waiting sender of the command to continue execution.
+            Because this is a thread, we cannot throw an exception, so if a timeout occurs,
+            an empty string is returned.
+            </summary>
+        </member>
+        <member name="M:CMaurer.SerialLib.QueuedSerialPort.Start">
+            <summary>
+            Overloaded. Opens the serial port with the current settings for BaudRate etc. and
+            starts the thread that handles the commands.
+            If the port is already started, an <see cref="!:InvalidOperationExeption"/> is thrown.
+            </summary>
+        </member>
+        <member name="M:CMaurer.SerialLib.QueuedSerialPort.Start(System.String,System.Int32)">
+            <summary>
+            Overloaded. Opens the serial port using the specified port name and baud rate, and the current values 
+            for the other settings and 
+            starts the thread that handles the commands.
+            </summary>
+            <param name="portName">The port to use (for example, COM1). </param>
+            <param name="baudRate">The baud rate.</param>
+            <exception cref="!:System.InvalidOperationExeption">Thrown if the port has already been started.</exception>
+        </member>
+        <member name="M:CMaurer.SerialLib.QueuedSerialPort.Stop">
+            <summary>
+            Closes the serial port and shuts down the worker thread.
+            If the serial port is already closed, an <see cref="!:InvalidOperationExeption"/> Exception is thrown.
+            </summary>
+        </member>
+        <member name="M:CMaurer.SerialLib.QueuedSerialPort.SendCommand(System.String)">
+            <summary>
+            Sends a plain text to the serial port without waiting for a result. 
+            There has to be a response or else a
+            <see cref="T:System.TimeoutException"/> will be thrown.
+            </summary>
+            <param name="command">The plain text.</param>
+        </member>
+        <member name="M:CMaurer.SerialLib.QueuedSerialPort.SendCommandAndWait(System.String)">
+            <summary>
+            Sends a plain text to the serial port and waits for the response. There has to be a response or else a
+            <see cref="T:System.TimeoutException"/> will be thrown.
+            </summary>
+            <param name="command">The plain text.</param>
+            <returns>The reponse.</returns>
+        </member>
+        <member name="M:CMaurer.SerialLib.QueuedSerialPort.EnqueueCommand(CMaurer.SerialLib.QueuedSerialPort.CommandItem)">
+            <summary>
+            Enqueues the command.
+            Access to the queue containing the commands is handled by using
+            the lock statement.
+            </summary>
+            <param name="commandItem">The plain text to send to the serial port. If the sender 
+            wants to wait, the _are member has to be set to an unsignaled instance of an <see cref="T:System.Threading.AutoResetEvent"/></param>
+        </member>
+        <member name="M:CMaurer.SerialLib.QueuedSerialPort.DequeueCommand">
+            <summary>
+            Dequeues a command if there is one in the command queue.
+            Access to the queue containing the commands is handled by using
+            the lock statement.
+            </summary>
+            <returns>The first <see cref="T:CMaurer.SerialLib.QueuedSerialPort.CommandItem"/> on the queue.</returns>
+        </member>
+    </members>
+</doc>

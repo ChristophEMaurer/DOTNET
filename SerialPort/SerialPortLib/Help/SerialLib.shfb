@@ -1,0 +1,38 @@
+﻿<project schemaVersion="1.3.3.1">
+    <assemblies>
+        <assembly assemblyPath="D:\Daten\Develop\DOT.NET\SerialPort\SerialPortLib\bin\Debug\CMaurer.SerialLib.dll" xmlCommentsPath="D:\Daten\Develop\DOT.NET\SerialPort\SerialPortLib\bin\Debug\CMaurer.SerialLib.xml" commentsOnly="False" />
+    </assemblies>
+    <namespaceSummaries>
+        <namespaceSummaryItem name="" isDocumented="False" />
+        <namespaceSummaryItem name="CMaurer.SerialLib" isDocumented="True">The CMaurer.SerialLib namespace contains the QueuedSerialPort class which provides queued access to a serial port.</namespaceSummaryItem>
+    </namespaceSummaries>
+    <contentPlacement>AboveNamespaces</contentPlacement>
+    <projectSummary />
+    <sandcastlePath />
+    <hhcPath />
+    <hxcompPath />
+    <outputPath>.\</outputPath>
+    <helpFileFormat>HtmlHelp1x</helpFileFormat>
+    <cleanIntermediates>True</cleanIntermediates>
+    <purgeDuplicateTopics>True</purgeDuplicateTopics>
+    <cppCommentsFixup>False</cppCommentsFixup>
+    <frameworkVersion>2.0.50727</frameworkVersion>
+    <binaryTOC>True</binaryTOC>
+    <includeFavorites>True</includeFavorites>
+    <preliminary>False</preliminary>
+    <rootNSContainer>False</rootNSContainer>
+    <helpTitle>Christoph Maurer's SerialPortLib</helpTitle>
+    <htmlHelpName>CMaurer.SerialPortLib</htmlHelpName>
+    <language>en-US</language>
+    <copyrightHref />
+    <copyrightText>Copyright 2007 Christoph Maurer</copyrightText>
+    <feedbackEMailAddress />
+    <headerText />
+    <projectLinks>Local</projectLinks>
+    <sdkLinks>Msdn</sdkLinks>
+    <presentationStyle>Prototype</presentationStyle>
+    <namingMethod>Guid</namingMethod>
+    <syntaxFilters>CSharp</syntaxFilters>
+    <missingTags>Summary, Parameter, Returns, AutoDocumentCtors</missingTags>
+    <visibleItems>InheritedMembers, InheritedFrameworkMembers, Protected, SealedProtected</visibleItems>
+</project>

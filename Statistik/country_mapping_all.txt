@@ -1,0 +1,374 @@
+Afghanistan
+Egypt
+Ägypten|Egypt
+Albania
+Albanien|Albania
+Algeria
+Algerien|Algeria
+Amerikanische Jungferninseln
+Amerikanisch-Samoa
+Andorra
+Angola
+Anguilla
+Antigua and Barbuda
+Antigua und Barbuda|Antigua and Barbuda
+Äquatorialguinea|Aequatorialguinea
+Argentina
+Argentinien|Argentina
+Armenia
+Armenien|Armenia
+Aruba
+Azerbaijan
+Aserbaidschan|Azerbaijan
+Ethiopia
+Äthiopien|Ethiopia
+Australia
+Australien|Australia
+Austria
+Österreich|Austria
+Bahamas
+Bahrain
+Bangladesch|Bangladesh
+Bangladesh
+Barbados
+Belarus
+Belgien|Belgium
+Belgium
+Belize
+Benin
+Bermuda
+Bhutan
+Bolivia
+Bolivien|Bolivia
+Bosnia and Herzegovina
+Bosnien und Herzegowina|Bosnia and Herzegovina
+Botsuana|Botswana
+Botswana
+Brasilien|Brazil
+Brazil
+Britische Jungferninseln
+Brunei
+Brunei Darussalam|Brunei
+Bulgaria
+Bulgarien|Bulgaria
+Burkina Faso
+Burundi
+Côte d'Ivoire|Ivory Coast
+C&ocirc;te d'Ivoire|Ivory Coast
+Ivory Coast
+Cabo Verde
+Cambodia
+Kambodscha|Cambodia
+Cameroon
+Kamerun|Cameroon
+Canada
+Canada
+Kanada|Canada
+CAR
+Central African Republic
+Channel Islands
+Chile
+China
+Comoros
+CookCookinseln
+Costa Rica
+Cura&ccedil;ao|Curaceao
+Curaçao|Curaceao
+Cyprus
+Czech Republic (Czechia)|Czechia
+Czechia
+Dänemark|Denmark
+Denmark
+Diamond Princess
+Djibouti
+Dominica
+Dominican Republic
+Dominikanische Republik|Dominican Republic
+DR Congo
+DRC|DR Congo
+Dschibuti
+Ecuador
+El Salvador
+Equatorial Guinea
+Eritrea
+Estland
+Estonia
+Eswatini
+Europäische Union|European Union
+Faeroe Islands
+Färöer|Faeroe Islands
+Fidschi|Fiji
+Fiji
+Finland
+Finnland|Finland
+France
+Frankreich|France
+French Guiana
+Französisch-Guayana|French Guiana
+French Polynesia
+Französisch-Polynesien|French Polynesia
+Gabon|Gabun
+Gabun
+Gambia
+Gazastreifen
+Georgia
+Georgien|Georgia
+Germany|Deutschland
+Deutschland
+Ghana
+Gibraltar
+Griechenland|Greece
+Greece
+Greenland
+Grönland|Greenland
+Grenada
+Großbritannien|Greatbritain
+Guadeloupe
+Guam
+Guatemala
+Guernsey
+Guinea
+Guinea-Bissau
+Guyana
+Haiti
+Honduras
+Hong Kong
+Hongkong|Hong Kong
+Hungary
+Iceland
+India
+Indien|India
+Indonesia
+Indonesien|Indonesia
+Insel Man
+Irak|Iraq
+Iraq
+Iran
+Ireland
+Irland|Ireland
+Island
+Israel
+Italien|Italy
+Italy
+Jamaica
+Jamaika|Jamaica
+Japan
+Jemen
+Jersey
+Jordan
+Jordanien|Jordan
+Kaimaninseln|Cayman Islands
+Cayman Islands
+Kazakhstan
+Kasachstan|Kazakhstan
+Katar
+Kenia|Kenya
+Kenya
+Kirgisistan
+Kiribati
+Kolumbien|Colombia
+Colombia
+Komoren
+Kongo|Congo
+Congo
+Kongo, Demokratische Republik
+Korea, Demokratische Volksrepublik|North Korea
+Korea, Republik|South Korea
+Kosovo
+Kroatien|Croatia
+Croatia
+Kuba|Cuba
+Cuba
+Kuwait
+Kyrgyzstan
+Laos
+Latvia
+Lebanon
+Libanon|Lebanon
+Lesotho
+Lettland
+Liberia
+Libya
+Libyen|Libya
+Liechtenstein
+Litauen|Lithuania
+Lithuania
+Luxembourg
+Luxemburg|Luxembourg
+Macao
+Macau|Macao
+Madagascar
+Madagaskar|Madagascar
+Malawi
+Malaysia
+Maldives
+Malediven|Maldives
+Mali
+Malta
+Marokko
+Marshallinseln
+Martinique
+Mauretanien|Mauritania
+Mauritania
+Mauritius
+Mayotte
+Mexico
+Mexiko|Mexico
+Mikronesien
+Moldau|Moldova
+Moldova
+Monaco
+Mongolei|Mongolia
+Mongolia
+Montenegro
+Montserrat
+Morocco
+Mosambik|Mozambique
+Mozambique
+Myanmar
+Namibia
+Nauru
+Nepal
+Niederlande|Netherlands
+Niederlande
+New Caledonia
+Neukaledonien|New Caledonia
+Neuseeland|New Zealand
+New Zealand
+Nicaragua
+Niederländischendische Antillen|Niederlaendische Antillen
+Niger
+Nigeria
+Nördlicherdliche Marianen|Noerdliche Marianen
+North Macedonia
+Nordmazedonien|North Macedonia
+North Korea
+Norway
+Norwegen|Norway
+Oman
+Pakistan
+Palau
+Palestine
+Panama
+Papua New Guinea
+Papua-Neuguinea|Papua New Guinea
+Paraguay
+Peru
+Philippinen|Philippines
+Philippines
+Poland
+Polen|Poland
+Portugal
+Puerto Rico
+Qatar
+R&eacute;union|Reunion
+Réunion|Reunion
+Romania
+Rumänien|Romania
+Ruanda
+Russia
+Russische Föderation|Russia
+Rwanda
+South Korea
+S. Korea|South Korea
+Saint Lucia
+Saint Martin
+Salomonen
+Sambia
+Samoa
+San Marino
+Sao Tome &amp; Principe|San Tom and Principe
+São Tomé und Príncipe|San Tom and Principe
+Saudi Arabia
+Saudi-Arabien|Saudi Arabia
+Schweiz|Switzerland
+Switzerland
+Senegal
+Serbia
+Serbien|Serbia
+Seychellen|Seychelles
+Seychelles
+Sierra Leone
+Simbabwe
+Singapore
+Singapur|Singapore
+Sint Maarten
+Slovakia
+Slowakei|Slovakia
+Slovenia
+Slowenien|Slovenia
+Solomon Islands
+Somalia
+South Sudan
+Spain
+Spanien|Spain
+Sri Lanka
+St. Barth
+St. Barthélemy|St. Barth
+St. Helena, Ascension und Tristan da Cunha
+St. Kitts und Nevis
+St. Lucia
+St. Martin
+St. Pierre und Miquelon
+St. Vincent Grenadines
+St. Vincent &amp; Grenadines|St. Vincent Grenadines
+St. Vincent und die Grenadinen|St. Vincent Grenadines
+State of Palestine
+Südafrika|South Africa
+South Africa
+Sudan
+Südsudan
+Suriname
+Sweden|Schweden
+Schweden
+Syria
+Syrien|Syria
+Tajikistan
+Tadschikistan|Tajikistan
+Taiwan
+Tansania
+Tanzania|Tansania
+Thailand
+Timor-Leste
+Togo
+Tonga
+Trinidad and Tobago
+Trinidad und Tobago|Trinidad and Tobago
+Tschad|Chad
+Chad
+Tschechische Republik
+Tunesien|Tunisia
+Tunisia
+Türkei|Turkey
+Turkey
+Turkmenistan
+Turks- und Caicosinseln
+Tuvalu
+U.S. Virgin Islands
+UAE
+Uganda
+UK|United Kingdom
+United Kingdom
+Ukraine
+Ungarn
+United Arab Emirates
+USA
+United States|USA
+Vereinigte Staaten|USA
+Uruguay
+Usbekistan
+Uzbekistan|Usbekistan
+Vanuatu
+Vatican City
+Venezuela
+Vereinigte Arabische Emirate
+Vietnam
+Wallis und Futuna
+Western Sahara
+Westsahara|Western Sahara
+Westjordanland
+Yemen
+Zambia
+Zentralafrikanische Republik
+Zimbabwe
+Zypern
