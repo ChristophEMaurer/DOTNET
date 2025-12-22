@@ -25,7 +25,7 @@ namespace BitcoinLib
 
         public static TxOut Parse(BinaryReader input)
         {
-            UInt64 amount = Tools.ReadInt64LittleEndian(input);
+            UInt64 amount = Tools.ReadUInt64LittleEndian(input);
             Script script = Script.Parse(input);
 
             TxOut txout = new TxOut(amount, script);

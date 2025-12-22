@@ -7,6 +7,8 @@ using System.Numerics;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices.ComTypes;
 using System.Security.Cryptography;
+using System.Text;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace BitcoinLib.Test
 {
@@ -579,6 +581,56 @@ tb1qerzrlxcfu24davlur5sqmgzzgsal6wusda40er
             bool success = tx.Verify();
 
             AssertTrue(success);
+        }
+
+        public static void test_chapter_9_ex_1_is_coinbase()
+        {
+            string raw_tx = "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff5e03d71b07254d696e656420627920416e74506f6f6c20626a31312f4542312f4144362f43205914293101fabe6d6d678e2c8c34afc36896e7d9402824ed38e856676ee94bfdb0c6c4bcd8b2e5666a0400000000000000c7270000a5e00e00ffffffff01faf20b58000000001976a914338c84849423992471bffb1a54a8d9b1d69dc28a88ac00000000";
+            Tx tx = Tx.Parse(raw_tx);
+            bool success = tx.IsCoinbase();
+
+            AssertTrue(success);
+        }
+
+        public static void test_chapter_9_165()
+        {
+            byte[] raw = Tools.HexStringToBytes("4d04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73");
+            Script script = Script.Parse(raw);
+
+            OpItem item = script._cmds[2];
+
+            string text = Encoding.UTF8.GetString(item._element);
+            ConsoleOutWriteLine(text);
+
+            string want = "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks";
+
+            AssertTrue(want.Equals(text));
+        }
+
+        public static void test_chapter_9_166()
+        {
+            byte[] raw = Tools.HexStringToBytes("5e03d71b07254d696e656420627920416e74506f6f6c20626a31312f4542312f4144362f43205914293101fabe6d6d678e2c8c34afc36896e7d9402824ed38e856676ee94bfdb0c6c4bcd8b2e5666a0400000000000000c7270000a5e00e00");
+            Script script = Script.Parse(raw);
+            OpItem item = script._cmds[0];
+            int height = (int)Op.DecodeNum(item._element);
+            ConsoleOutWriteLine("coinbase height=" + height);
+
+            AssertTrue(height == 465879);
+        }
+
+        public static void test_chapter_9_ex_2_coinbase_height()
+        {
+            string raw_tx = "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff5e03d71b07254d696e656420627920416e74506f6f6c20626a31312f4542312f4144362f43205914293101fabe6d6d678e2c8c34afc36896e7d9402824ed38e856676ee94bfdb0c6c4bcd8b2e5666a0400000000000000c7270000a5e00e00ffffffff01faf20b58000000001976a914338c84849423992471bffb1a54a8d9b1d69dc28a88ac00000000";
+            Tx tx = Tx.Parse(raw_tx);
+            int height = tx.CoinbaseHeight();
+            ConsoleOutWriteLine("coinbase height=" + height);
+            AssertEqual(height, 465879);
+            
+            raw_tx = "0100000001813f79011acb80925dfe69b3def355fe914bd1d96a3f5f71bf8303c6a989c7d1000000006b483045022100ed81ff192e75a3fd2304004dcadb746fa5e24c5031ccfcf21320b0277457c98f02207a986d955c6e0cb35d446a89d3f56100f4d7f67801c31967743a9c8e10615bed01210349fc4e631e3624a545de3f89f5d8684c7b8138bd94bdd531d2e213bf016b278afeffffff02a135ef01000000001976a914bc3b654dca7e56b04dca18f2566cdaf02e8d9ada88ac99c39800000000001976a9141c4bc762dd5423e332166702cb75f40df79fea1288ac19430600";
+            tx = Tx.Parse(raw_tx);
+            height = tx.CoinbaseHeight();
+            ConsoleOutWriteLine("coinbase height=" + height);
+            AssertTrue(tx.CoinbaseHeight() == 0);
         }
     }
 }

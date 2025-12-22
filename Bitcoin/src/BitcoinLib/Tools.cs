@@ -70,7 +70,7 @@ namespace BitcoinLib
             return bi;
         }
 
-        public static UInt16 ReadInt16LittleEndian(BinaryReader input)
+        public static UInt16 ReadUInt16LittleEndian(BinaryReader input)
         {
             UInt32 result = 0;
 
@@ -82,7 +82,7 @@ namespace BitcoinLib
             return (UInt16) result;
         }
 
-        public static UInt32 ReadInt32LittleEndian(BinaryReader input)
+        public static UInt32 ReadUInt32LittleEndian(BinaryReader input)
         {
             UInt32 result = 0;
 
@@ -96,7 +96,21 @@ namespace BitcoinLib
             return result;
         }
 
-        public static UInt64 ReadInt64LittleEndian(BinaryReader input)
+        public static UInt32 ReadUInt32BigEndian(BinaryReader input)
+        {
+            UInt32 result = 0;
+
+            UInt32 b1 = input.ReadByte();
+            UInt32 b2 = input.ReadByte();
+            UInt32 b3 = input.ReadByte();
+            UInt32 b4 = input.ReadByte();
+
+            result = (b1 << 24) | (b2 << 16) | (b3 << 8) | b4;
+
+            return result;
+        }
+
+        public static UInt64 ReadUInt64LittleEndian(BinaryReader input)
         {
             UInt64 result = 0;
 
@@ -224,6 +238,12 @@ namespace BitcoinLib
             return result;
         }
 
+        public static void ReadBytes(BinaryReader input, byte[] data, int length)
+        {
+            input.BaseStream.ReadExactly(data, 0, length);
+        }
+
+
         /// <summary>
         /// Two rounds of SHA256
         /// </summary>
@@ -254,10 +274,6 @@ namespace BitcoinLib
             // Ergebnis auslesen
             byte[] hash = new byte[digest.GetDigestSize()];
             digest.DoFinal(hash, 0);
-
-
-            //HashAlgorithm alg = RIPEMD160.Create();
-            //byte[] result1 = alg.ComputeHash(data);
 
             return hash;
         }
@@ -383,12 +399,17 @@ namespace BitcoinLib
             return hex;
         }
 
-        // value =  0xaaBBccDD
-        // data =   0  1  2  3
-        //          dd cc bb aa
-        // 01, 1    -> 01
-        // 01, 4    -> 01 00 00 00
-        
+
+        /// <summary>
+        /// value =  0xaaBBccDD
+        /// data =   0  1  2  3
+        ///          dd cc bb aa
+        /// 01, 1    -> 01
+        /// 01, 4    -> 01 00 00 00      /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="data"></param>
+        /// <param name="len"></param>
         public static void UIntToLittleEndian(UInt64 value, List<byte> data, int len)
         {
             int count = 0;
@@ -406,6 +427,14 @@ namespace BitcoinLib
                 data.Add(0);
                 count++;
             }
+        }
+
+        public static void UInt32ToBigEndian(UInt32 value, List<byte> data)
+        {
+            data.Add((byte)(value >> 24));
+            data.Add((byte)(value >> 16));
+            data.Add((byte)(value >> 8));
+            data.Add((byte)value);
         }
 
         public static void Reverse(byte[] data)
@@ -580,6 +609,19 @@ namespace BitcoinLib
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.Out.WriteLine(text);
             Console.ForegroundColor = _consoleDefaultForegroundColor;
+        }
+
+        public static void SerializeLittleEndian(List<byte> list, byte[] data, int length)
+        {
+            for (int i = length - 1; i >= 0; i--)
+            {
+                list.Add(data[i]);
+            }
+        }
+
+        public static void SerializeBigEndian(List<byte> list, byte[] data)
+        {
+            list.AddRange(data);
         }
     }
 }

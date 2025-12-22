@@ -226,7 +226,7 @@ namespace BitcoinLib
                     // op_pushdata2: ee
                     // Anything over 520 is not allowed
                     //
-                    uint n = Tools.ReadInt16LittleEndian(input);
+                    uint n = Tools.ReadUInt16LittleEndian(input);
                     if (n <= 75)
                     {
                         string text = "Less than 76 bytes (" + n + ") specified with op_pushdata2, should use value 1 <= n <= 75";
@@ -248,7 +248,7 @@ namespace BitcoinLib
                     // Anything over 520 it not allowed, dont know why this command even exists!
                     // You could still specify n <= 520 with this command
                     //
-                    uint n = Tools.ReadInt16LittleEndian(input);
+                    uint n = Tools.ReadUInt16LittleEndian(input);
                     byte[] bytes = input.ReadBytes((int) n);
                     if (n < 76)
                     {

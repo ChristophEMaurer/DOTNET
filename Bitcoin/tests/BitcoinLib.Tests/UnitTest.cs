@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Numerics;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using System.Diagnostics;
-using System.Reflection;
 
 namespace BitcoinLib.Test
 {
@@ -45,6 +46,19 @@ namespace BitcoinLib.Test
             }
         }
 
+        public static void AssertEqual(UInt32 a, UInt32 b)
+        {
+            // dont use a == b , it will not call the child classes operator == and a and b are always not equal
+            bool success = (a == b);
+            Debug.Assert(success);
+        }
+
+        public static void AssertEqual(BigInteger a, BigInteger b)
+        {
+            bool success = (a == b);
+            Debug.Assert(success);
+        }
+
         public static void AssertEqual(byte[] b1, byte[] b2)
         {
             bool success = true;
@@ -57,7 +71,7 @@ namespace BitcoinLib.Test
             {
                 for (int i = 0; i < b1.Length; i++)
                 {
-                    if (b1[i] != b2 [i])
+                    if (b1[i] != b2[i])
                     {
                         success = false;
                         break;

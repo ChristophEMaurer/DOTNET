@@ -97,7 +97,7 @@ namespace BitcoinLib
         }
         public static Tx Parse(BinaryReader input, bool testnet = false)
         {
-            UInt32 version = Tools.ReadInt32LittleEndian(input);
+            UInt32 version = Tools.ReadUInt32LittleEndian(input);
 
             // if the next byte is 0, then we have all the witness data.
             // if the next byte is not 0, then there is no witness data and it belongs to the vin data.
@@ -163,7 +163,7 @@ namespace BitcoinLib
                 witnesses = new ByteArray[0];
             }
 
-            UInt32 locktime = Tools.ReadInt32LittleEndian(input);
+            UInt32 locktime = Tools.ReadUInt32LittleEndian(input);
 
             Tx tx = new Tx(version, witness_marker, flags, txins, txouts, locktime, testnet);
 
@@ -385,6 +385,38 @@ namespace BitcoinLib
 
             bool success = VerifyInput(inputIndex);
             return success;
+        }
+
+        public bool IsCoinbase()
+        {
+            if (_txIns.Count != 1)
+            {
+                return false; 
+            }
+            TxIn txIn = _txIns[0];
+            if (!txIn._prev_tx.SequenceEqual(new byte[32]))
+            { 
+                return false; 
+            }
+            if (txIn._prev_index != 0xffffffff)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public int CoinbaseHeight()
+        {
+            if (!IsCoinbase())
+            {
+                return 0;
+            }
+            OpItem item = _txIns[0]._script_sig._cmds[0];
+
+            int height = (int) Op.DecodeNum(item._element);
+
+            return height;
         }
     }
 }

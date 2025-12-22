@@ -50,11 +50,11 @@ namespace BitcoinLib
             byte[] prev_tx = input.ReadBytes(32);
             Tools.Reverse(prev_tx);
 
-            UInt32 prev_index = Tools.ReadInt32LittleEndian(input);
+            UInt32 prev_index = Tools.ReadUInt32LittleEndian(input);
 
             Script script = Script.Parse(input);
 
-            UInt32 sequence = Tools.ReadInt32LittleEndian(input);
+            UInt32 sequence = Tools.ReadUInt32LittleEndian(input);
 
             return new TxIn(prev_tx, prev_index, script, sequence);
         }
