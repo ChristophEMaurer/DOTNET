@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Numerics;
 using System.Reflection;
 using System.Security.Cryptography;
@@ -14,31 +15,59 @@ namespace BitcoinLib
 {
     public class Tools
     {
-        public static ConsoleColor _consoleDefaultForegroundColor = Console.ForegroundColor;
-
-        public static void CallStaticMethod(string strClass, string strFunction)
+        public static bool LOGGING = true;
+        public static object? CallStaticMethod(string strClass, string strFunction, object parameter = null)
         {
+            object? returnValue = null;
             bool success = false;
+
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 var type = assembly.GetType(strClass);
                 if (type != null)
                 {
-                    var method = type.GetMethod(strFunction, BindingFlags.Public | BindingFlags.Static);
+                    Type[] paramTypes;
+                    object?[] args;
+
+                    if (parameter == null)
+                    {
+                        paramTypes = Type.EmptyTypes;
+                        args = Array.Empty<object>();
+                    }
+                    else
+                    {
+                        paramTypes = new[] { parameter.GetType() };
+                        args = new[] { parameter };
+                    }
+
+                    var method = type.GetMethod(strFunction, BindingFlags.Public | BindingFlags.Static, paramTypes);
+
                     if (method != null)
                     {
-                        Tools.ConsoleOutWriteHeader(string.Format("Calling function {0}::{1}()", strClass, strFunction));
-                        method.Invoke(null, null);
-                        success = true;
-                        break;
+                        if (parameter != null)
+                        {
+                            Tools.ConsoleOutWriteHeader(string.Format("Tools::CallStaticMethod(): Calling function {0}::{1}({2})", strClass, strFunction, parameter));
+                            returnValue = method.Invoke(null, args);
+                            success = true;
+                            break;
+                        }
+                        else
+                        {
+                            Tools.ConsoleOutWriteHeader(string.Format("Tools::CallStaticMethod(): Calling function {0}::{1}()", strClass, strFunction));
+                            method.Invoke(null, null);
+                            success = true;
+                            break;
+                        }
                     }
                 }
             }
 
             if (!success)
             {
-                throw new Exception(string.Format("Error: Function {0}::{1}() not found!!!", strClass, strFunction));
+                throw new Exception(string.Format("Tools::CallStaticMethod(): Error: Function {0}::{1}({2}) not found!!!", strClass, strFunction, parameter));
             }
+
+            return returnValue;
         }
 
         /// <summary>
@@ -46,11 +75,11 @@ namespace BitcoinLib
         /// </summary>
         /// <param name="strFullyQualifiedName">Full name such as BitcoinLib.OpTest</param>
         /// <returns></returns>
-        public static object GetInstance(string strFullyQualifiedName)
+        /*public static object GetInstance(string strFullyQualifiedName)
         {
             Type t = Type.GetType(strFullyQualifiedName);
             return Activator.CreateInstance(t);
-        }
+        }*/
 
         /// <summary>
         /// Creates a BigInteger from a hex string that must start with a zero 0 such as
@@ -243,6 +272,16 @@ namespace BitcoinLib
             input.BaseStream.ReadExactly(data, 0, length);
         }
 
+        /// <summary>
+        /// Two rounds of SHA256. The hex string is converted to a byte array first.
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns>Returns an array of 32 byte</returns>
+        public static byte[] Hash256(string data)
+        {
+            byte[] bytes = Tools.HexStringToBytes(data);
+            return Hash256(bytes);
+        }
 
         /// <summary>
         /// Two rounds of SHA256
@@ -254,6 +293,19 @@ namespace BitcoinLib
             HashAlgorithm alg = System.Security.Cryptography.SHA256.Create();
             byte[] result1 = alg.ComputeHash(data);
             byte[] result2 = alg.ComputeHash(result1);
+
+            return result2;
+        }
+
+        /// <summary>
+        /// returns the first four bytes of the double SHA256 hash in big endian without reversing anything
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static byte[] Hash256FirstFourBytes(byte[] data)
+        {
+            byte[] result1 = Hash256(data);
+            byte[] result2 = result1.Take(4).ToArray();
 
             return result2;
         }
@@ -429,6 +481,12 @@ namespace BitcoinLib
             }
         }
 
+        public static void UInt16ToBigEndian(UInt32 value, List<byte> data)
+        {
+            data.Add((byte)(value >> 8));
+            data.Add((byte)value);
+        }
+
         public static void UInt32ToBigEndian(UInt32 value, List<byte> data)
         {
             data.Add((byte)(value >> 24));
@@ -437,10 +495,28 @@ namespace BitcoinLib
             data.Add((byte)value);
         }
 
+        /// <summary>
+        /// Reverse the bytes in the array. This changes the original!
+        /// </summary>
+        /// <param name="data"></param>
         public static void Reverse(byte[] data)
         {
             Array.Reverse(data);
         }
+
+        /// <summary>
+        /// This creates a reversed copy of the byte array
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns>The reversed bytes</returns>
+        public static byte[] ReverseCopy(byte[] data)
+        {
+            byte[] reversed = (byte[])data.Clone();
+            Array.Reverse(reversed);
+
+            return reversed;
+        }
+
 
 
         public static BigInteger Pow(BigInteger x, BigInteger exp)
@@ -593,22 +669,22 @@ namespace BitcoinLib
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
         }
-        public static void ConsoleColorDefault()
-        {
-            Console.ForegroundColor = _consoleDefaultForegroundColor;
-        }
 
         public static void ConsoleOutWriteHeader(string text)
         {
+            ConsoleColor oldColor = Console.ForegroundColor;
+
             Console.ForegroundColor = ConsoleColor.Blue;
-            Console.Out.WriteLine(text);
-            Console.ForegroundColor = _consoleDefaultForegroundColor;
+            Console.WriteLine(text);
+            Console.ForegroundColor = oldColor;
         }
         public static void ConsoleOutWriteWarning(string text)
         {
+            ConsoleColor oldColor = Console.ForegroundColor;
+
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Out.WriteLine(text);
-            Console.ForegroundColor = _consoleDefaultForegroundColor;
+            Console.WriteLine(text);
+            Console.ForegroundColor = oldColor;
         }
 
         public static void SerializeLittleEndian(List<byte> list, byte[] data, int length)
@@ -622,6 +698,23 @@ namespace BitcoinLib
         public static void SerializeBigEndian(List<byte> list, byte[] data)
         {
             list.AddRange(data);
+        }
+
+        public static byte[] ReadExactly(NetworkStream reader, int count)
+        {
+            byte[] buffer = new byte[count];
+            int offset = 0;
+
+            while (offset < count)
+            {
+                int read = reader.Read(buffer, offset, count - offset);
+                if (read == 0)
+                    throw new EndOfStreamException("Stream closed early");
+
+                offset += read;
+            }
+
+            return buffer;
         }
     }
 }

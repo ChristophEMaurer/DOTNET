@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
 using System.IO;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Security.Authentication;
 
 namespace BitcoinLib
 {
@@ -10,6 +12,8 @@ namespace BitcoinLib
     /// </summary>
     public class TxFetcher
     {
+        static readonly HttpClient _http = new HttpClient();
+
         public static string UrlTestnet = "https://blockstream.info/testnet/api";
         public static string UrlRealnet = "https://blockstream.info/api";
   
@@ -26,6 +30,8 @@ namespace BitcoinLib
         /// </summary>
         private static Dictionary<string, Tx> _cache = new Dictionary<string, Tx>();
 
+        //private static readonly HttpClient _client = new HttpClient();
+
         static TxFetcher()
         {
             Console.WriteLine("Using " + TxFetcher.UrlTestnet);
@@ -35,7 +41,7 @@ namespace BitcoinLib
             Console.WriteLine("");
 
             //
-            // "C:\\cmaurer\\cmaurer\\privat\\develop\\DOT.NET\\Bitcoin\\bin\\Debug"
+            // "D:\Daten\Develop\DOTNET\Bitcoin\tests\BitcoinLib.Tests\bin\Debug\net8.0-windows\BitcoinLibTest.exe"
             //
             string folder = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
@@ -117,17 +123,49 @@ namespace BitcoinLib
                         }
                     }
                 }
+                Tools.ConsoleOutWriteHeader("...done");
             }
         }
 
+
+        public static string GetUrlContentNew(string url)
+        {
+            string data = "";
+
+            try
+            {
+                data = _http.GetStringAsync(url).GetAwaiter().GetResult();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("ERROR retrieving " + url);
+            }
+
+            return data;
+        }
         public static string GetUrlContent(string url)
         {
             string data = "";
-            using (WebClient client = new WebClient())
-            {
-                data = client.DownloadString(url);
-            }
+            int tries = 5;
 
+            while (tries-- > 0)
+            {
+                try
+                {
+                    using (WebClient client = new WebClient())
+                    {
+
+                        Console.Out.WriteLine("Retrieving URL:" + url);
+                        data = client.DownloadString(url);
+                        break;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.Out.WriteLine("ERROR!!!");
+                }
+            }
+        
             return data;
         }
 
@@ -138,6 +176,7 @@ namespace BitcoinLib
                 string url = string.Format("{0}/tx/{1}/hex", GetUrl(testnet), tx_id);
 
                 Console.WriteLine("Fetching: " + url);
+
                 string response = GetUrlContent(url);
 
                 // get rid of newlines \n at the end of the response
@@ -146,24 +185,8 @@ namespace BitcoinLib
 
                 byte[] raw = Tools.HexStringToBytes(response);
 
-                Tx tx = null;
+                Tx tx = Tx.Parse(new BinaryReader(new MemoryStream(raw)), testnet);
 
-                //
-                // index 4 contains the witness marker. Out Tx class can handle that , so we don't have to check for this.
-                //
-                //if (raw[4] == 0x00)
-                //{
-                    //
-                    //
-                    // this cuts out the 2 bytes at index 4 and 5: witness marker and flags
-                  //  byte[] raw2 = ArrayHelpers.JoinArrays(raw, 0, 4, raw, 6, -1);
-                  //  tx = Tx.Parse(new BinaryReader(new MemoryStream(raw2)), testnet);
-                //}
-                //else
-                //{
-                    tx = Tx.Parse(new BinaryReader(new MemoryStream(raw)), testnet);
-                //}
-                
                 //
                 // We get the full tx data from the itnernet so that we can verify all of it.
                 // Dont trust anyone!

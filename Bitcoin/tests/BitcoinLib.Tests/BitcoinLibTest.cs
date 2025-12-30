@@ -1,3 +1,4 @@
+using BitcoinLib.Test;
 using System;
 
 namespace BitcoinLib.Test
@@ -25,10 +26,10 @@ namespace BitcoinLib.Test
             Tools.CallStaticMethod("BitcoinLib.Test.SignatureTest", "test_chapter_7_p132");
             Tools.CallStaticMethod("BitcoinLib.Test.SignatureTest", "test_chapter_7_p134_mod_tx");
             Tools.CallStaticMethod("BitcoinLib.Test.SignatureTest", "test_chapter_7_p134_verify");
-            
+
             Tools.CallStaticMethod("BitcoinLib.Test.OpTest", "test_encode_decode_num");
             Tools.CallStaticMethod("BitcoinLib.Test.OpTest", "test_op_checkmultisig");
-            
+
             Tools.CallStaticMethod("BitcoinLib.Test.TxInTest", "test_get_url_content");
 
             Tools.CallStaticMethod("BitcoinLib.Test.TxTest", "test_parse_version");
@@ -69,6 +70,7 @@ namespace BitcoinLib.Test
             Tools.CallStaticMethod("BitcoinLib.Test.ToolsTest", "test_sha1_collision");
             Tools.CallStaticMethod("BitcoinLib.Test.ToolsTest", "test_from_bytes");
             Tools.CallStaticMethod("BitcoinLib.Test.ToolsTest", "test_from_lstrip");
+            Tools.CallStaticMethod("BitcoinLib.Test.ToolsTest", "test_reverse");
 
             Tools.CallStaticMethod("BitcoinLib.Test.Base58EncodingTests", "test1_encode");
             Tools.CallStaticMethod("BitcoinLib.Test.Base58EncodingTests", "test2_decode");
@@ -79,7 +81,7 @@ namespace BitcoinLib.Test
             Tools.CallStaticMethod("BitcoinLib.Test.Base58EncodingTests", "test7_ExtractHash160");
             Tools.CallStaticMethod("BitcoinLib.Test.Base58EncodingTests", "test_p2pkh_address");
             Tools.CallStaticMethod("BitcoinLib.Test.Base58EncodingTests", "test_p2sh_address");
-            
+
             Tools.CallStaticMethod("BitcoinLib.Test.ScriptTest", "test_parse");
             Tools.CallStaticMethod("BitcoinLib.Test.ScriptTest", "test_serialize");
 
@@ -87,16 +89,42 @@ namespace BitcoinLib.Test
 
             Tools.CallStaticMethod("BitcoinLib.Test.Ripemd160Test", "test_ripemd160");
 
-            Tools.CallStaticMethod("BitcoinLib.Test.BlockTest", "test_block_parse");
-            Tools.CallStaticMethod("BitcoinLib.Test.BlockTest", "test_block_serialize");
-            Tools.CallStaticMethod("BitcoinLib.Test.BlockTest", "test_block_hash");
-            Tools.CallStaticMethod("BitcoinLib.Test.BlockTest", "test_block_p168_bip");
-            Tools.CallStaticMethod("BitcoinLib.Test.BlockTest", "test_block_bits_to_target");
-            Tools.CallStaticMethod("BitcoinLib.Test.BlockTest", "test_block_target_to_bits");
-            Tools.CallStaticMethod("BitcoinLib.Test.BlockTest", "test_block_p173_difficulty");
-            Tools.CallStaticMethod("BitcoinLib.Test.BlockTest", "test_block_checkpow");
-            Tools.CallStaticMethod("BitcoinLib.Test.BlockTest", "test_block_calculate_new_bits");
+            Tools.CallStaticMethod("BitcoinLib.Test.BlockHeaderTest", "test_block_header_parse");
+            Tools.CallStaticMethod("BitcoinLib.Test.BlockHeaderTest", "test_block_header_serialize");
+            Tools.CallStaticMethod("BitcoinLib.Test.BlockHeaderTest", "test_block_header_hash");
+            Tools.CallStaticMethod("BitcoinLib.Test.BlockHeaderTest", "test_block_header_p168_bip");
+            Tools.CallStaticMethod("BitcoinLib.Test.BlockHeaderTest", "test_block_header_bits_to_target");
+            Tools.CallStaticMethod("BitcoinLib.Test.BlockHeaderTest", "test_block_header_target_to_bits");
+            Tools.CallStaticMethod("BitcoinLib.Test.BlockHeaderTest", "test_block_header_p173_difficulty");
+            Tools.CallStaticMethod("BitcoinLib.Test.BlockHeaderTest", "test_block_header_checkpow");
+            Tools.CallStaticMethod("BitcoinLib.Test.BlockHeaderTest", "test_block_header_calculate_new_bits");
+            Tools.CallStaticMethod("BitcoinLib.Test.BlockHeaderTest", "test_validate_merkle_root");
 
+            Tools.CallStaticMethod("BitcoinLib.Test.NetworkEnvelopeTest", "test_parse");
+            Tools.CallStaticMethod("BitcoinLib.Test.NetworkEnvelopeTest", "test_serialize");
+
+            Tools.CallStaticMethod("BitcoinLib.Test.VersionMessageTest", "test_serialize");
+
+            Tools.CallStaticMethod("BitcoinLib.Test.PingMessageTest", "test_serialize");
+
+            Tools.CallStaticMethod("BitcoinLib.Test.PongMessageTest", "test_serialize");
+
+            Tools.CallStaticMethod("BitcoinLib.Test.SimpleNodeTest", "test_handshake");
+            Tools.CallStaticMethod("BitcoinLib.Test.SimpleNodeTest", "test_getheaders");
+            Tools.CallStaticMethod("BitcoinLib.Test.SimpleNodeTest", "test_headers");
+
+            Tools.CallStaticMethod("BitcoinLib.Test.GetHeadersTest", "test_serialize");
+
+            Tools.CallStaticMethod("BitcoinLib.Test.HeadersTest", "test_parse");
+
+            Tools.CallStaticMethod("BitcoinLib.Test.MerkleBlockTest", "test_merkle_parent");
+            Tools.CallStaticMethod("BitcoinLib.Test.MerkleBlockTest", "test_merkle_parent_level");
+            Tools.CallStaticMethod("BitcoinLib.Test.MerkleBlockTest", "test_merkle_root");
+
+            Tools.CallStaticMethod("BitcoinLib.Test.MerkleTreeTest", "test_merkle_9");
+            Tools.CallStaticMethod("BitcoinLib.Test.MerkleTreeTest", "test_merkle_16");
+
+            
         }
 
         public static void RunChapters()
@@ -110,6 +138,7 @@ namespace BitcoinLib.Test
             chapter_7();
             chapter_8();
             chapter_9();
+            chapter_10();
         }
 
         public static void chapter_1()
@@ -199,10 +228,14 @@ namespace BitcoinLib.Test
             Tools.CallStaticMethod("BitcoinLib.Test.TxTest", "test_chapter_9_165");
             Tools.CallStaticMethod("BitcoinLib.Test.TxTest", "test_chapter_9_166");
             Tools.CallStaticMethod("BitcoinLib.Test.TxTest", "test_chapter_9_ex_2_coinbase_height");
-            Tools.CallStaticMethod("BitcoinLib.Test.BlockTest", "test_chapter_9_p167_blockid");
-            Tools.CallStaticMethod("BitcoinLib.Test.BlockTest", "test_block_p174_new_target");
-            Tools.CallStaticMethod("BitcoinLib.Test.BlockTest", "test_chapter_9_new_bits");
-            Tools.CallStaticMethod("BitcoinLib.Test.BlockTest", "test_chapter_9_ex_12");
+            Tools.CallStaticMethod("BitcoinLib.Test.BlockHeaderTest", "test_chapter_9_p167_blockid");
+            Tools.CallStaticMethod("BitcoinLib.Test.BlockHeaderTest", "test_block_header_p174_new_target");
+            Tools.CallStaticMethod("BitcoinLib.Test.BlockHeaderTest", "test_chapter_9_new_bits");
+            Tools.CallStaticMethod("BitcoinLib.Test.BlockHeaderTest", "test_chapter_9_ex_12");
+        }
+        public static void chapter_10()
+        {
+            Tools.CallStaticMethod("BitcoinLib.Test.NetworkEnvelopeTest", "test_chapter_10_ex_2");
         }
     }
 }

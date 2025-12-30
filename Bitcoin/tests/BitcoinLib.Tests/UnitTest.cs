@@ -46,6 +46,7 @@ namespace BitcoinLib.Test
             }
         }
 
+
         public static void AssertEqual(UInt32 a, UInt32 b)
         {
             // dont use a == b , it will not call the child classes operator == and a and b are always not equal

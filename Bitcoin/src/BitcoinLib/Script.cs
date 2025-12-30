@@ -408,13 +408,16 @@ namespace BitcoinLib
 
         private void DumpStacks(OpItems cmds, OpItems stack, OpItems altstack)
         {
+            ConsoleColor oldColor = Console.ForegroundColor;
+
             Tools.ConsoleColorBlue();
             Console.WriteLine("Dumping script stacks###################################################################");
             DumpStack("Script commands:", cmds, false);
             Tools.ConsoleColorYellow();
             DumpStack("Stack:", stack, true);
             DumpStack("AltStack:", altstack, true);
-            Tools.ConsoleColorDefault();
+
+            Console.ForegroundColor = oldColor;
         }
 
         /// <summary>

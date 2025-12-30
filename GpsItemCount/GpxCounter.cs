@@ -44,8 +44,14 @@ namespace GpsItemCount
                 foreach (XmlNode track in tracks)
                 {
                     trackCount++;
+                    string name = "name";
+                    
                     XmlNode nodeName = track.SelectSingleNode("./x:name", xmlnsm);
-                    string name = nodeName.InnerText;
+                    if (nodeName != null)
+                    {
+                        name = nodeName.InnerText;
+                    }
+
                     XmlNodeList trkPoints = track.SelectNodes("./x:trkseg/x:trkpt", xmlnsm);
                     int count = trkPoints.Count;
                     _countTrackpoints += count;

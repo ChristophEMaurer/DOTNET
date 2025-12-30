@@ -186,5 +186,20 @@ a82be331fea48037b8b5d71f0e332edf93ac3500eb4ddc0decc1a864790c782c76215660dd3097
             Console.WriteLine("Public address=" + address);
             
         }
+
+        public static void test_reverse()
+        {
+            byte[] data = { 0x12, 0x34, 0x56, 0x78 };
+            byte[] expected = { 0x78, 0x56, 0x34, 0x12 };
+
+            Tools.Reverse(data);
+            AssertEqual(expected, data);
+
+            data = new byte[] { 0x12, 0x34, 0x56, 0x78 };
+            expected = new byte[] { 0x78, 0x56, 0x34, 0x12 };
+            byte[] calculated = Tools.ReverseCopy(data);
+            AssertEqual(expected, calculated);
+
+        }
     }
 }
