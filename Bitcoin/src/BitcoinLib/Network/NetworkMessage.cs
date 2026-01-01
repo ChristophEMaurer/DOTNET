@@ -13,12 +13,13 @@ namespace BitcoinLib
     {
         public static Dictionary<string, string> CommandToClassMapping = new Dictionary<string, string>
         {
-            { "version",    "BitcoinLib.Network.VersionMessage" },
-            { "verack",     "BitcoinLib.Network.VerAckMessage" },
-            { "getheaders", "BitcoinLib.Network.GetHeadersMessage" },
-            { "headers",    "BitcoinLib.Network.HeadersMessage" },
-            { "ping",       "BitcoinLib.Network.PingMessage" },
-            { "pong",       "BitcoinLib.Network.PongMessage" }
+            { "version",        "BitcoinLib.Network.VersionMessage" },
+            { "verack",         "BitcoinLib.Network.VerAckMessage" },
+            { "getheaders",     "BitcoinLib.Network.GetHeadersMessage" },
+            { "headers",        "BitcoinLib.Network.HeadersMessage" },
+            { "ping",           "BitcoinLib.Network.PingMessage" },
+            { "pong",           "BitcoinLib.Network.PongMessage" },
+            { "merkleblock",    "BitcoinLib.Network.MerkleBlockMessage" },
         };
 
         public string _command;

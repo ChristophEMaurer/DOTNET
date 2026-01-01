@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
+// 31.12.2025 16:27 this text was typed on the branew new keybaord Logitech Signature slim sollar+ K980
+
 namespace BitcoinLib
 {
     public class MerkleTree
@@ -62,7 +64,7 @@ namespace BitcoinLib
                 {
                     if (hash != null)
                     {
-                        treeString += "[" + BitConverter.ToString(hash).Replace("-", string.Empty).Substring(0, 8) + "...] ";
+                        treeString += "[" + BitConverter.ToString(hash).Replace("-", string.Empty).Substring(0, 8).ToLower() + "...] ";
                     }
                     else
                     {
@@ -80,50 +82,172 @@ namespace BitcoinLib
             _currentDepth--;
             _currentIndex /= 2;
         }
+
+        /// <summary>
+        /// Moves the current position to the left child node in the binary tree traversal.
+        /// </summary>
         public void Left()
         {
             _currentDepth++;
             _currentIndex *= 2;
         }
+
+        /// <summary>
+        /// Advances the current position to the right child node in a binary tree traversal.
+        /// </summary>
         public void Right()
         {
             _currentDepth++;
             _currentIndex = _currentIndex * 2 + 1;
         }
 
+        /// <summary>
+        /// Gets the root node value as a byte array.
+        /// </summary>
+        /// <returns>A byte array containing the value of the root node.</returns>
         public byte[] Root()
         {
-            return _nodes[0][0];
+            byte[] node = _nodes[0][0];
+
+            return node;
         }
 
+        /// <summary>
+        /// Sets the current node to the specified byte array value.
+        /// </summary>
+        /// <param name="value">The byte array to assign to the current node. Cannot be null.</param>
         public void SetCurentNode(byte[] value)
         {
             _nodes[_currentDepth][_currentIndex] = value;
         }
 
+        /// <summary>
+        /// Retrieves the data for the current node in the traversal.
+        /// </summary>
+        /// <returns>A byte array containing the data of the current node.</returns>
         public byte[] GetCurrentNode()
         {
-            return _nodes[_currentDepth][_currentIndex];
+            byte[] node = _nodes[_currentDepth][_currentIndex];
+
+            return node;
         }
 
+        /// <summary>
+        /// Retrieves the left child node of the current node in the binary tree. The current position is not changed.
+        /// </summary>
+        /// <returns></returns>
         public byte[] GetLeftNode()
         {
-            return _nodes[_currentDepth + 1][_currentIndex * 2];
+            byte[] node = _nodes[_currentDepth + 1][_currentIndex * 2];
+
+            return node;
         }
 
+        /// <summary>
+        /// Retrieves the byte array representing the right child node at the current position in the tree structure. The current position is not changed.
+        /// </summary>
+        /// <returns>A byte array containing the data of the right child node at the current depth and index.</returns>
         public byte[] GetRightNode()
         {
-            return _nodes[_currentDepth + 1][_currentIndex * 2 + 1];
+            byte[] node = _nodes[_currentDepth + 1][_currentIndex * 2 + 1];
+
+            return node;
         }
 
+        /// <summary>
+        /// Determines whether the current node is a leaf node based on its depth.
+        /// </summary>
+        /// <returns>true if the current node is at the maximum depth and has no child nodes; otherwise, false.</returns>
         public bool IsLeaf()
         {
-            return _currentDepth == _maxDepth;
+            bool isLeaf = _currentDepth == _maxDepth;
+
+            return isLeaf;
         }
 
+        /// <summary>
+        /// Determines whether the current node has a right child node.
+        /// </summary>
+        /// <returns>true if the current node has a right child node; otherwise, false.</returns>
         public bool HasRightNode()
         {
-            return (_currentIndex * 2 + 1) < _nodes[_currentDepth + 1].Length;
+            bool hasRightNode = (_currentIndex * 2 + 1) < _nodes[_currentDepth + 1].Length;
+
+            return hasRightNode;
+        }
+
+        public void PopulateTree(byte[] bits, byte[][] hashes)
+        {
+            // populate until we have the root
+            while (Root() == null)
+            {
+                if (IsLeaf())
+                {
+                    // if we are a leaf, we know this position's hash
+                    // the bit is either 0 or one, but for a leaf, the hash is always present
+                    byte bit = bits[0];
+                    bits = bits[1..];
+                    byte[] hash = hashes[0];
+                    hashes = hashes[1..];
+
+                    SetCurentNode(hash);
+                    Up();
+                }
+                else
+                {
+                    byte[] leftHash = GetLeftNode();
+                    if (leftHash == null)
+                    {
+                        // if the next flag bit is 0, the next hash is our current node
+                        byte bit = bits[0];
+                        bits = bits[1..];
+                        if (bit == 0)
+                        {
+                            byte[] hash = hashes[0];
+                            hashes = hashes[1..];
+                            SetCurentNode(hash);
+                            // sub-tree doesn't need calculation, go up
+                            Up();
+                        }
+                        else
+                        {
+                            Left();
+                        }
+                    }
+                    else if (this.HasRightNode())
+                    {
+                        byte[] rightHash = GetRightNode();
+                        if (rightHash == null)
+                        {
+                            Right();
+                        }
+                        else
+                        {
+                            SetCurentNode(MerkleBlock.MerkleParent(leftHash, rightHash));
+                            // we've completed this sub-tree, go up
+                            Up();
+                        }
+                    }
+                    else
+                    {
+                        SetCurentNode(MerkleBlock.MerkleParent(leftHash, leftHash));
+                        // we've completed this sub-tree, go up
+                        Up();
+                    }
+                }
+            }
+
+            if (hashes.Length != 0)
+            {
+                throw new Exception("Merkle tree population error: unused hashes remain after populating the tree: " + hashes.Length);
+            }
+            foreach (byte b in bits)
+            {
+                if (b != 0)
+                {
+                    throw new Exception("Merkle tree population error: unused flag bits with value 1 remain after populating the tree.");
+                }
+            }   
         }
     }
 }

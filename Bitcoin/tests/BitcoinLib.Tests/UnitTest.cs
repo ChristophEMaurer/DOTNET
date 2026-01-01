@@ -62,25 +62,21 @@ namespace BitcoinLib.Test
 
         public static void AssertEqual(byte[] b1, byte[] b2)
         {
-            bool success = true;
-
-            if (b1.Length != b2.Length)
-            {
-                success = false;
-            }
-            else
-            {
-                for (int i = 0; i < b1.Length; i++)
-                {
-                    if (b1[i] != b2[i])
-                    {
-                        success = false;
-                        break;
-                    }
-                }
-            }
+            bool success = b1.SequenceEqual(b2);
 
             Debug.Assert(success);
+        }
+
+        public static bool AssertEqual(byte[][] a, byte[][] b)
+        {
+            if (a == null || b == null || a.Length != b.Length)
+                return false;
+
+            for (int i = 0; i < a.Length; i++)
+                if (!a[i].SequenceEqual(b[i]))
+                    return false;
+
+            return true;
         }
 
         public static void AssertEqual(List<byte> b1, byte[] b2)

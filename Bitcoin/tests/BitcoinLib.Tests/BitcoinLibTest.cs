@@ -123,7 +123,16 @@ namespace BitcoinLib.Test
 
             Tools.CallStaticMethod("BitcoinLib.Test.MerkleTreeTest", "test_merkle_9");
             Tools.CallStaticMethod("BitcoinLib.Test.MerkleTreeTest", "test_merkle_16");
+            Tools.CallStaticMethod("BitcoinLib.Test.MerkleTreeTest", "test_merkle_tree_p201");
+            Tools.CallStaticMethod("BitcoinLib.Test.MerkleTreeTest", "test_merkle_tree_p203");
+            Tools.CallStaticMethod("BitcoinLib.Test.MerkleTreeTest", "test_merkle_tree_p204");
+            Tools.CallStaticMethod("BitcoinLib.Test.MerkleTreeTest", "test_merkle_tree_populate_1");
+            Tools.CallStaticMethod("BitcoinLib.Test.MerkleTreeTest", "test_merkle_tree_populate_2");
 
+            
+            Tools.CallStaticMethod("BitcoinLib.Test.MerkleBlockMessageTest", "test_parse");
+            Tools.CallStaticMethod("BitcoinLib.Test.MerkleBlockMessageTest", "test_flags_and_bitfield");
+            Tools.CallStaticMethod("BitcoinLib.Test.MerkleBlockMessageTest", "test_is_Valid");
             
         }
 

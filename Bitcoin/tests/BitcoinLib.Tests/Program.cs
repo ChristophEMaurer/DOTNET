@@ -35,11 +35,7 @@ namespace BitcoinLib.Test
 
             if (true)
             {
-                MerkleTreeTest.test_merkle_tree();
-
-                MerkleTree tree = new MerkleTree(9);
-                Console.WriteLine(tree.ToString());
-
+                Tools.CallStaticMethod("BitcoinLib.Test.MerkleBlockMessageTest", "test_is_Valid");
             }
             else
             {
