@@ -84,6 +84,7 @@ namespace BitcoinLib.Test
 
             Tools.CallStaticMethod("BitcoinLib.Test.ScriptTest", "test_parse");
             Tools.CallStaticMethod("BitcoinLib.Test.ScriptTest", "test_serialize");
+            Tools.CallStaticMethod("BitcoinLib.Test.ScriptTest", "test_address");
 
             Tools.CallStaticMethod("BitcoinLib.Test.BIP39.BIP39Test", "test_bip39_mnemonic");
 
@@ -112,6 +113,7 @@ namespace BitcoinLib.Test
             Tools.CallStaticMethod("BitcoinLib.Test.SimpleNodeTest", "test_handshake");
             Tools.CallStaticMethod("BitcoinLib.Test.SimpleNodeTest", "test_getheaders");
             Tools.CallStaticMethod("BitcoinLib.Test.SimpleNodeTest", "test_headers");
+            Tools.CallStaticMethod("BitcoinLib.Test.SimpleNodeTest", "test_get_transaction_of_interest");
 
             Tools.CallStaticMethod("BitcoinLib.Test.GetHeadersTest", "test_serialize");
 
@@ -133,7 +135,17 @@ namespace BitcoinLib.Test
             Tools.CallStaticMethod("BitcoinLib.Test.MerkleBlockMessageTest", "test_parse");
             Tools.CallStaticMethod("BitcoinLib.Test.MerkleBlockMessageTest", "test_flags_and_bitfield");
             Tools.CallStaticMethod("BitcoinLib.Test.MerkleBlockMessageTest", "test_is_Valid");
-            
+
+            Tools.CallStaticMethod("BitcoinLib.Test.BloomFilterTest", "test_chapter_12_p212");
+            Tools.CallStaticMethod("BitcoinLib.Test.BloomFilterTest", "test_chapter_12_p215");
+            Tools.CallStaticMethod("BitcoinLib.Test.BloomFilterTest", "test_add");
+
+            Tools.CallStaticMethod("BitcoinLib.Test.MurmurHash3Test", "test_murmur3_1");
+            Tools.CallStaticMethod("BitcoinLib.Test.MurmurHash3Test", "test_murmur3_2");
+
+            Tools.CallStaticMethod("BitcoinLib.Test.FilterLoadMessageTest", "test_filterload");
+
+            Tools.CallStaticMethod("BitcoinLib.Test.GetDataMessageTest", "test_serialize");
         }
 
         public static void RunChapters()
@@ -148,6 +160,8 @@ namespace BitcoinLib.Test
             chapter_8();
             chapter_9();
             chapter_10();
+            chapter_11();
+            chapter_12();
         }
 
         public static void chapter_1()
@@ -246,6 +260,18 @@ namespace BitcoinLib.Test
         {
             Tools.CallStaticMethod("BitcoinLib.Test.NetworkEnvelopeTest", "test_chapter_10_ex_2");
         }
+
+        public static void chapter_11()
+        {
+            Tools.CallStaticMethod("BitcoinLib.Test.MerkleTreeTest", "test_chapter_11_ex_5");
+        }
+        public static void chapter_12()
+        {
+            Tools.CallStaticMethod("BitcoinLib.Test.BloomFilterTest", "test_chapter_12_ex_1");
+            Tools.CallStaticMethod("BitcoinLib.Test.BloomFilterTest", "test_chapter_12_ex_2");
+        }
+        
+
     }
 }
 

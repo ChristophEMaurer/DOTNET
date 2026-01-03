@@ -47,7 +47,7 @@ namespace BitcoinLib.Network
             {
                 if (hash_stop.Length != 32)
                 {
-                    throw new ArgumentException("hash_stop must be 32 bytes long, but legnth is " + hash_stop.Length);
+                    throw new ArgumentException("hash_stop must be 32 bytes long, but length is " + hash_stop.Length);
                 }
                 _hash_stop = hash_stop;
             }

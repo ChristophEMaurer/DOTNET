@@ -368,10 +368,8 @@ namespace BitcoinLib.Test
             byte[] raw = Tools.HexStringToBytes("00000020fcb19f7895db08cadc9573e7915e3919fb76d59868a51d995201000000000000acbcab8bcc1af95d8d563b77d24c3d19b18f1486383d75a5085c4e86c86beed691cfa85916ca061a00000000");
 
             BlockHeader header = BlockHeader.Parse(raw);
-            header._tx_hashes = hashes;
-            bool success = header.ValidateMerkleRoot();
+            bool success = header.ValidateMerkleRoot(hashes);
             AssertTrue(success);
-
         }
     }
 }

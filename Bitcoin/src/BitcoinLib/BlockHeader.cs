@@ -9,6 +9,11 @@ using System.Threading.Tasks;
 
 namespace BitcoinLib
 {
+    /// <summary>
+    /// This block header is either part of the full block or the merkle block.
+    /// The full block contains this header and all transactions.
+    /// The merkle block contains this header and enough transaction hashes to validate that the merkleRoot is correct.
+    /// </summary>
     public class BlockHeader
     {
         public const int TWO_WEEKS = 14 * 24 * 60 * 60; // 1.209.600 seconds <==> 2 weeks
@@ -16,15 +21,38 @@ namespace BitcoinLib
         // MAX_TARGET = 0xFFFF * 256^(0x1D - 3)
         public static readonly BigInteger MAX_TARGET = new BigInteger(0xFFFF) * BigInteger.Pow(256, 0x1D - 3);
 
-        public UInt32 _version;         // LE bytes are reversed when read into this UInt32
-        public byte[] _prevBlockHash;   // LE bytes are reversed when read into this byte array
-        public byte[] _merkleRoot;      // LE bytes are reversed when read into this byte array
-        public UInt32 _timestamp;       // LE bytes are reversed when read into this UInt32
-        public UInt32 _bits;            // LE bytes are reversed when read into this UInt32
-        public UInt32 _nonce;           // LE bytes are reversed when read into this UInt32
-        public byte[][] _tx_hashes;
+        /// <summary>
+        /// 4 bytes, LE
+        /// </summary>
+        public UInt32 _version;
 
-        public BlockHeader(UInt32 version, byte[] prev_block, byte[] merkle_root, UInt32 timestamp, UInt32 bits, UInt32 nonce, byte[][] tx_hashes = null)
+        /// <summary>
+        /// 32 bytes, LE. Points to the previous block in the blockchain
+        /// </summary>
+        public byte[] _prevBlockHash;
+
+        /// <summary>
+        /// 32 bytes, LE.
+        /// This is the merkleRoot of all transactions.
+        /// </summary>
+        public byte[] _merkleRoot;
+
+        /// <summary>
+        /// 4 bytes, LE
+        /// </summary>
+        public UInt32 _timestamp;
+
+        /// <summary>
+        /// 4 byte, LE
+        /// </summary>
+        public UInt32 _bits;
+
+        /// <summary>
+        /// 4 byte, LE
+        /// </summary>
+        public UInt32 _nonce;
+
+        public BlockHeader(UInt32 version, byte[] prev_block, byte[] merkle_root, UInt32 timestamp, UInt32 bits, UInt32 nonce)
         {
             _version = version;
             _prevBlockHash = (byte[])prev_block.Clone();
@@ -32,7 +60,6 @@ namespace BitcoinLib
             _timestamp = timestamp;
             _bits = bits;
             _nonce = nonce;
-            _tx_hashes = tx_hashes;
         }
 
         public static BlockHeader Parse(byte[] raw)
@@ -310,15 +337,10 @@ namespace BitcoinLib
             return newBits;
         }
 
-        public bool ValidateMerkleRoot()
+        public bool ValidateMerkleRoot(byte[][] hashes)
         {
-            if (_tx_hashes == null)
-            {
-                return false;
-            }
-
             // reverse the hashes of all transactions
-            byte[][] reversed = _tx_hashes.Select(hash => hash.Reverse().ToArray()).ToArray();
+            byte[][] reversed = hashes.Select(hash => hash.Reverse().ToArray()).ToArray();
 
             byte[] root = MerkleBlock.MerkleRoot(reversed);
             Array.Reverse(root);

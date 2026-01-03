@@ -81,6 +81,5 @@ namespace BitcoinLib.Test
 
             AssertEqual(got, want);
         }
-
     }
 }

@@ -114,9 +114,9 @@ a82be331fea48037b8b5d71f0e332edf93ac3500eb4ddc0decc1a864790c782c76215660dd3097
             string address = "mnrVtF8DWjMu839VW3rBfgYaAfKk8983Xf";
             string strExpected = "1976a914507b27411ccf7f16f10297de6cef3f291623eddf88ac";
 
-            byte[] hash160 = Base58Encoding.VerifyAndRemoveNetworkprefixAndCheckSum(address);
+            byte[] hash160 = Base58Encoding.DecodeH160(address);
 
-            Script scriptPubKey = Script.CreateP2pkhScript(hash160);
+            Script scriptPubKey = Script.Create_P2PKH_Script(hash160);
 
             byte[] bScriptPubKey2 = scriptPubKey.serialize();
             string strScriptPubKey2 = Tools.BytesToHexString(bScriptPubKey2);
@@ -146,6 +146,30 @@ a82be331fea48037b8b5d71f0e332edf93ac3500eb4ddc0decc1a864790c782c76215660dd3097
             Script script = new Script(stack);
             bool success = script.Evaluate(z);
             AssertTrue(success);
+        }
+
+        public static void test_address()
+        {
+            string address_1 = "1BenRpVUFK65JFWcQSuHnJKzc4M8ZP8Eqa";
+            byte[] h160 = Base58Encoding.DecodeH160(address_1);
+
+            Script script = Script.Create_P2PKH_Script(h160);
+            string actual = script.Address(false);
+            AssertEqual(address_1, actual);
+
+            string address_2 = "mrAjisaT4LXL5MzE81sfcDYKU3wqWSvf9q";
+            actual = script.Address(true);
+            AssertEqual(address_2, actual);
+
+            string address_3 = "3CLoMMyuoDQTPRD3XYZtCvgvkadrAdvdXh";
+            h160 = Base58Encoding.DecodeH160(address_3);
+            script = Script.Create_P2SH_Script(h160);
+            actual = script.Address(false);
+            AssertEqual(address_3, actual);
+
+            string address_4 = "2N3u1R6uwQfuobCqbCgBkpsgBxvr1tZpe7B";
+            actual = script.Address(true);
+            AssertEqual(address_4, actual);
         }
     }
 }

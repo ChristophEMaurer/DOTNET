@@ -139,9 +139,10 @@ namespace BitcoinLib.Network
             string command = Encoding.ASCII.GetString(reader.ReadBytes(12)).TrimEnd('\0');
             UInt32 payloadSize = Tools.ReadUInt32LittleEndian(reader);
             UInt32 checksum = Tools.ReadUInt32BigEndian(reader);
-            if (Tools.LOGGING)
+
+            if (Tools.LOGGING > 1)
             {
-                Console.WriteLine($"NetworkEnvelope.ParseHeader: magic={magic:X8}, command={command}, payloadSize={payloadSize}, checksum={checksum:X8}");
+                Tools.WriteLine($"NetworkEnvelope.ParseHeader: magic={magic:X8}, command={command}, payloadSize={payloadSize}, checksum={checksum:X8}");
             }
 
             NetworkEnvelope env = new NetworkEnvelope(magic, command, payloadSize, checksum, false);
@@ -157,33 +158,32 @@ namespace BitcoinLib.Network
         /// <exception cref="Exception"></exception>
         public void ParsePayload(BinaryReader reader)
         {
-            if (Tools.LOGGING)
+            if (Tools.LOGGING > 2)
             {
-                Console.WriteLine($"NetworkEnvelope.ParsePayload: _payloadSize={_payloadSize}");
+                Tools.WriteLine($"NetworkEnvelope.ParsePayload: _payloadSize={_payloadSize}");
             }
             int payloadSize = (int)_payloadSize;
             _payload = reader.ReadBytes(payloadSize);
 
-            if (Tools.LOGGING)
+            if (Tools.LOGGING > 2)
             {
                 string strPayloadHex = Tools.BytesToHexString(_payload);
-                Console.WriteLine($"NetworkEnvelope.ParsePayload: byte[] _payload: {_payload.Length} bytes");
-                //Console.WriteLine($"NetworkEnvelope.ParsePayload: strPayloadHex: {strPayloadHex}");
+                Tools.WriteLine($"NetworkEnvelope.ParsePayload: byte[] _payload: {_payload.Length} bytes");
+                //Tools.WriteLine($"NetworkEnvelope.ParsePayload: strPayloadHex: {strPayloadHex}");
             }
             byte[] bCalculatedChecksum = Tools.Hash256FirstFourBytes(_payload);
             UInt32 calculatedChecksum = BinaryPrimitives.ReadUInt32BigEndian(bCalculatedChecksum);
 
-            if (Tools.LOGGING)
+            if (Tools.LOGGING > 2)
             {
-                Console.WriteLine($"NetworkEnvelope.ParsePayload: calculatedChecksum={calculatedChecksum:x8}");
+                Tools.WriteLine($"NetworkEnvelope.ParsePayload: calculatedChecksum={calculatedChecksum:x8}");
             }
             if (_checksum != calculatedChecksum)
             {
-                Console.WriteLine($"NetworkEnvelope.ParsePayload: calculatedChecksum={calculatedChecksum:x8}, _checksum={_checksum}");
+                Tools.WriteLine($"NetworkEnvelope.ParsePayload: calculatedChecksum={calculatedChecksum:x8}, _checksum={_checksum}");
                 throw new Exception("Checksum does not match");
             }
         }
-
 
         public byte[] serialize()
         {

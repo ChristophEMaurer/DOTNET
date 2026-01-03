@@ -9,7 +9,7 @@ namespace BitcoinLib
     /// <summary>
     /// NetworkMessage is the payload of a NetworkEnvelope. It contains the length, the command and the actual data depending on the command.
     /// </summary>
-    public  class NetworkMessage
+    public class NetworkMessage
     {
         public static Dictionary<string, string> CommandToClassMapping = new Dictionary<string, string>
         {
@@ -20,6 +20,9 @@ namespace BitcoinLib
             { "ping",           "BitcoinLib.Network.PingMessage" },
             { "pong",           "BitcoinLib.Network.PongMessage" },
             { "merkleblock",    "BitcoinLib.Network.MerkleBlockMessage" },
+            { "filterload",     "BitcoinLib.Network.FilterloadMessage" },
+            { "feefilter",      "BitcoinLib.Network.FeeFilterMessage" },
+            { "tx",             "BitcoinLib.Tx" },
         };
 
         public string _command;

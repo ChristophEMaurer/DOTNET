@@ -27,8 +27,10 @@ namespace BitcoinLib
     ///
 
     /// </summary>
-    public class Tx
+    public class Tx : NetworkMessage
     {
+        public static string Command = "tx";
+
         public UInt32 _version;
         public byte _witnessMarker;
         public byte _flags;
@@ -37,12 +39,13 @@ namespace BitcoinLib
         public UInt32 _locktime;
         public bool _testnet = false;
 
-        public Tx(UInt32 version, List<TxIn> txIns, List<TxOut> txOuts, UInt32 locktime, bool testnet = false)
-            : this(version, 0, 0, txIns, txOuts, locktime, testnet)
+        public Tx(UInt32 version, List<TxIn> txIns, List<TxOut> txOuts, UInt32 locktime)
+            : this(version, 0, 0, txIns, txOuts, locktime)
         {
         }
 
-        public Tx(UInt32 version, byte witnessMarker, byte flags, List<TxIn> txIns, List<TxOut> txOuts, UInt32 locktime, bool testnet = false)
+        public Tx(UInt32 version, byte witnessMarker, byte flags, List<TxIn> txIns, List<TxOut> txOuts, UInt32 locktime) :
+            base(Command)
         {
             _version = version;
             _witnessMarker = witnessMarker;
@@ -50,7 +53,6 @@ namespace BitcoinLib
             _txIns = txIns;
             _txOuts = txOuts;
             _locktime = locktime;
-            _testnet = testnet;
         }
 
         public override string ToString()
@@ -89,13 +91,20 @@ namespace BitcoinLib
             return text;
         }
 
-        public static Tx Parse(string data, bool testnet = false)
+        public static Tx Parse(string data)
         {
-            Tx tx = Tx.Parse(new BinaryReader(new MemoryStream(Tools.HexStringToBytes(data))), testnet);
+            Tx tx = Tx.Parse(new BinaryReader(new MemoryStream(Tools.HexStringToBytes(data))));
 
             return tx;
         }
-        public static Tx Parse(BinaryReader input, bool testnet = false)
+
+        public static Tx Parse(byte[] raw)
+        {
+            BinaryReader reader = new BinaryReader(new MemoryStream(raw));
+            return Parse(reader);
+        }
+
+        public static Tx Parse(BinaryReader input)
         {
             UInt32 version = Tools.ReadUInt32LittleEndian(input);
 
@@ -165,7 +174,7 @@ namespace BitcoinLib
 
             UInt32 locktime = Tools.ReadUInt32LittleEndian(input);
 
-            Tx tx = new Tx(version, witness_marker, flags, txins, txouts, locktime, testnet);
+            Tx tx = new Tx(version, witness_marker, flags, txins, txouts, locktime);
 
             return tx;
         }
@@ -317,7 +326,7 @@ namespace BitcoinLib
             Script script_pubkey = txIn.GetPreviousScriptPubKey(_testnet);
             Script redeemScript = null;
 
-            if (script_pubkey.IsPtshScriptPubkey())
+            if (script_pubkey.Is_P2SH_ScriptPubkey())
             {
                 OpItem cmd = txIn._script_sig._cmds.Peek();
                 byte[] bLen = Tools.EncodeVarIntToBytes(cmd.Length);

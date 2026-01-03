@@ -15,7 +15,15 @@ namespace BitcoinLib
 {
     public class Tools
     {
-        public static bool LOGGING = true;
+        /// <summary>
+        /// 0 - nothing
+        /// 1 - some
+        /// 2 - some more
+        /// 3 - everything
+        /// </summary>
+        public static int LOGGING = 0;
+        public static bool LOGGING_TIME = false;
+
         public static object? CallStaticMethod(string strClass, string strFunction, object parameter = null)
         {
             object? returnValue = null;
@@ -47,15 +55,29 @@ namespace BitcoinLib
                         if (parameter != null)
                         {
                             Tools.ConsoleOutWriteHeader(string.Format("Tools::CallStaticMethod(): Calling function {0}::{1}({2})", strClass, strFunction, parameter));
+                            DateTime start = DateTime.Now;
                             returnValue = method.Invoke(null, args);
                             success = true;
+                            DateTime end = DateTime.Now;
+                            TimeSpan duration = end - start;
+                            if (LOGGING >0)
+                            {
+                                Console.WriteLine("Time taken: " + duration.ToString(@"hh\:mm\:ss\.fff"));
+                            }
                             break;
                         }
                         else
                         {
                             Tools.ConsoleOutWriteHeader(string.Format("Tools::CallStaticMethod(): Calling function {0}::{1}()", strClass, strFunction));
+                            DateTime start = DateTime.Now;
                             method.Invoke(null, null);
                             success = true;
+                            DateTime end = DateTime.Now;
+                            TimeSpan duration = end - start;
+                            if (LOGGING_TIME)
+                            {
+                                Console.WriteLine("Time taken: " + duration.ToString(@"hh\:mm\:ss\.fff"));
+                            }
                             break;
                         }
                     }
@@ -190,37 +212,41 @@ namespace BitcoinLib
             return strData;
         }
 
+        public static void EncodeVarInt(List<byte> data, int value)
+        {
+            EncodeVarInt(data, (UInt64)value);
+        }
+
         public static void EncodeVarInt(List<byte> data, UInt64 value)
         {
             if (value < 0xfd)
             {
                 data.Add((byte)value);
             }
-            else if (value < 0x10000)
+            else if (value <= 0xFFFF)
             {
-                data.Add(0xFD);
-                data.Add((byte)(value & 0x00FF));
-                data.Add((byte)(value & 0xFF00));
+                data.Add(0xFD); // Prefix für 2-Byte Zahl
+                byte[] b = BitConverter.GetBytes((ushort)value); // 2 Byte Little Endian
+                if (!BitConverter.IsLittleEndian) Array.Reverse(b);
+                data.AddRange(b);
             }
-            else if (value < 0x100000000)
+            else if (value <= 0xFFFFFFFF)
             {
-                data.Add(0xFE);
-                data.Add((byte)(value & 0x000000FF));
-                data.Add((byte)(value & 0x0000FF00));
-                data.Add((byte)(value & 0x00FF0000));
-                data.Add((byte)(value & 0xFF000000));
+                data.Add(0xFE); // Prefix für 4-Byte Zahl
+                byte[] b = BitConverter.GetBytes((uint)value); // 4 Byte Little Endian
+                if (!BitConverter.IsLittleEndian) Array.Reverse(b);
+                data.AddRange(b);
             }
             else if (value <= 0xFFFFFFFFFFFFFFFF)
             {
-                data.Add(0xFF);
-                data.Add((byte)(value & 0x00000000000000FF));
-                data.Add((byte)(value & 0x000000000000FF00));
-                data.Add((byte)(value & 0x0000000000FF0000));
-                data.Add((byte)(value & 0x00000000FF000000));
-                data.Add((byte)(value & 0x000000FF00000000));
-                data.Add((byte)(value & 0x0000FF0000000000));
-                data.Add((byte)(value & 0x00FF000000000000));
-                data.Add((byte)(value & 0xFF00000000000000));
+                data.Add(0xFF); // Prefix für 8-Byte Zahl
+                byte[] b = BitConverter.GetBytes(value); // 8 Byte Little Endian
+                if (!BitConverter.IsLittleEndian) Array.Reverse(b);
+                data.AddRange(b);
+            }
+            else
+            {
+                throw new Exception("Value is too large for varint: " + value);
             }
         }
 
@@ -717,6 +743,11 @@ namespace BitcoinLib
             return buffer;
         }
 
-
+        public static void WriteLine(string text)
+        {
+            Console.Write(DateTime.Now.ToString("HH.mm.ss.fff"));
+            Console.Write(":");
+            Console.WriteLine(text);
+        }
     }
 }

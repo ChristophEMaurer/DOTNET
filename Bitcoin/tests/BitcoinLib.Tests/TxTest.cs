@@ -272,16 +272,16 @@ LOCK_TIME 00000000
             // we pay 0,33 BTC back to mzx5YhAH9kNHtcN481u6WkjeHjYtVeKVh2 who received the initial 0,44 BTC in the previous transaction output at index 13
             //
             UInt64 change_amount = (UInt64)(0.33 * 100000000);
-            byte[] change_h160 = Base58Encoding.VerifyAndRemoveNetworkprefixAndCheckSum("mzx5YhAH9kNHtcN481u6WkjeHjYtVeKVh2");
-            Script change_script = Script.CreateP2pkhScript(change_h160);
+            byte[] change_h160 = Base58Encoding.DecodeH160("mzx5YhAH9kNHtcN481u6WkjeHjYtVeKVh2");
+            Script change_script = Script.Create_P2PKH_Script(change_h160);
             TxOut change_output = new TxOut(change_amount, change_script);
 
             //
             // we pay 0,1 BTC to address mnrVtF8DWjMu839VW3rBfgYaAfKk8983Xf - don't know who that is and we also don't have that private key
             //
             UInt64 target_amount = (UInt64)(0.1 * 100000000);
-            byte[] target_h160 = Base58Encoding.VerifyAndRemoveNetworkprefixAndCheckSum("mnrVtF8DWjMu839VW3rBfgYaAfKk8983Xf");
-            Script target_script = Script.CreateP2pkhScript(target_h160);
+            byte[] target_h160 = Base58Encoding.DecodeH160("mnrVtF8DWjMu839VW3rBfgYaAfKk8983Xf");
+            Script target_script = Script.Create_P2PKH_Script(target_h160);
             TxOut target_output = new TxOut(target_amount, target_script);
 
             List<TxIn> inputs = new List<TxIn>();
@@ -290,7 +290,8 @@ LOCK_TIME 00000000
             outputs.Add(change_output);
             outputs.Add(target_output);
 
-            Tx tx = new Tx(1, 0, 0, inputs, outputs, 0, true);
+            Tx tx = new Tx(1, 0, 0, inputs, outputs, 0);
+            tx._testnet = true;
 
             Console.WriteLine("tx=");
             string strTx = tx.ToString();
@@ -301,7 +302,8 @@ LOCK_TIME 00000000
         {
             PrivateKey private_key = new PrivateKey(Tools.MakeBigIntegerBase10("8675309"));
             string strTx = "010000000199a24308080ab26e6fb65c4eccfadf76749bb5bfa8cb08f291320b3c21e56f0d0d00000000ffffffff02408af701000000001976a914d52ad7ca9b3d096a38e752c2018e6fbc40cdf26f88ac80969800000000001976a914507b27411ccf7f16f10297de6cef3f291623eddf88ac00000000";
-            Tx tx = Tx.Parse(strTx, true);
+            Tx tx = Tx.Parse(strTx);
+            tx._testnet = true;
             Console.WriteLine("tx:");
             Console.WriteLine(tx.ToString());
 
@@ -392,12 +394,12 @@ tb1qerzrlxcfu24davlur5sqmgzzgsal6wusda40er
 
             TxIn input = new TxIn(prev_tx, prev_index);
 
-            byte[] h160_target = Base58Encoding.VerifyAndRemoveNetworkprefixAndCheckSum(target_address);
-            Script script_pubkey_target = Script.CreateP2pkhScript(h160_target);
+            byte[] h160_target = Base58Encoding.DecodeH160(target_address);
+            Script script_pubkey_target = Script.Create_P2PKH_Script(h160_target);
             TxOut target_output = new TxOut(target_satoshis, script_pubkey_target);
 
-            byte[] h160_change = Base58Encoding.VerifyAndRemoveNetworkprefixAndCheckSum(change_address);
-            Script script_pubkey_change = Script.CreateP2pkhScript(h160_change);
+            byte[] h160_change = Base58Encoding.DecodeH160(change_address);
+            Script script_pubkey_change = Script.Create_P2PKH_Script(h160_change);
             TxOut change_output = new TxOut(change_satoshis, script_pubkey_change);
 
             List<TxIn> inputs = new List<TxIn>();
@@ -406,7 +408,8 @@ tb1qerzrlxcfu24davlur5sqmgzzgsal6wusda40er
             outputs.Add(target_output);
             outputs.Add(change_output);
 
-            Tx tx = new Tx(1, inputs, outputs, 0, true);
+            Tx tx = new Tx(1, inputs, outputs, 0);
+            tx._testnet = true;
             bool success = tx.SignInputPtpkh(0, priv);
 
             Console.WriteLine("tx.SignInput(0, priv)=" + success);
@@ -465,8 +468,8 @@ tb1qerzrlxcfu24davlur5sqmgzzgsal6wusda40er
             TxIn input_1 = new TxIn(prev_tx_1, prev_index_1);
             TxIn input_2 = new TxIn(prev_tx_2, prev_index_2);
 
-            byte[] h160_target = Base58Encoding.VerifyAndRemoveNetworkprefixAndCheckSum(target_address);
-            Script script_pubkey_target = Script.CreateP2pkhScript(h160_target);
+            byte[] h160_target = Base58Encoding.DecodeH160(target_address);
+            Script script_pubkey_target = Script.Create_P2PKH_Script(h160_target);
             TxOut target_output = new TxOut(target_satoshis, script_pubkey_target);
 
             List<TxIn> inputs = new List<TxIn>();
@@ -475,7 +478,8 @@ tb1qerzrlxcfu24davlur5sqmgzzgsal6wusda40er
             inputs.Add(input_2);
             outputs.Add(target_output);
 
-            Tx tx = new Tx(1, inputs, outputs, 0, true);
+            Tx tx = new Tx(1, inputs, outputs, 0);
+            tx._testnet = true;
             bool success = tx.SignInputPtpkh(0, priv);
             success = tx.SignInputPtpkh(1, priv);
             

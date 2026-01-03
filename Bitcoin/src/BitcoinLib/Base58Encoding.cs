@@ -23,16 +23,16 @@ namespace BitcoinLib
         /// <returns></returns>
         private static byte[] AddCheckSum(byte[] data)
         {
-#if CONTRACT
-            Contract.Requires<ArgumentNullException>(data != null);
-            Contract.Ensures(Contract.Result<byte[]>().Length == data.Length + CheckSumSizeInBytes);
-#endif
             byte[] checkSum = GetCheckSum(data);
             byte[] dataWithCheckSum = ArrayHelpers.ConcatArrays(data, checkSum);
+
             return dataWithCheckSum;
         }
 
         /// <summary>
+        /// Input:  [0x00/0x6F] [hash160] [checksum]
+        /// Output: [0x00/0x6F] [hash160]
+        /// 
         /// removes the last 4 bytes which belong to the checksum, calculates the hash256 on the remaining data
         /// and checks if the hash256 ends with the supplied 4 bytes
         /// </summary>
@@ -40,11 +40,6 @@ namespace BitcoinLib
         /// <returns>Returns null if the checksum is invalid, otherwise returns the  [0x00/0x6F] [hash160] with the checksum removed</returns>
         private static byte[] VerifyAndRemoveCheckSum(byte[] data)
         {
-#if CONTRACT
-
-            Contract.Requires<ArgumentNullException>(data != null);
-            Contract.Ensures(Contract.Result<byte[]>() == null || Contract.Result<byte[]>().Length + CheckSumSizeInBytes == data.Length);
-#endif
             // data: [0x00/0x6F] [data] [4 bytes checksum]
             // result: [0x00/0x6F] [data]
             byte[] result = ArrayHelpers.SubArray(data, 0, data.Length - CheckSumSizeInBytes);
@@ -62,12 +57,12 @@ namespace BitcoinLib
         }
 
         /// <summary>
-        /// removes the last 4 bytes which belong to the checksum, calculates the hash256 on the remaining data
-        /// and checks if the hash256 ends with the supplied 4 bytes
+        /// Input:  [0x00/0x6F] [hash160] [4 bytes checksum]
+        /// Output: [hash160]
         /// </summary>
         /// <param name="data">data is  [0x00/0x6F] [hash160] [4 bytes checksum]</param>
         /// <returns>Returns null if the checksum is invalid, otherwise returns the [hash160] with the checksum and the network prefix removed</returns>
-        public static byte[] VerifyAndRemoveNetworkprefixAndCheckSum(string base58Text)
+        public static byte[] DecodeH160(string base58Text)
         {
             // data: [0x00/0x6F] [hash160] [4 bytes checksum]
             byte[] data = Decode(base58Text);
@@ -83,11 +78,14 @@ namespace BitcoinLib
 
             if (givenCheckSum.SequenceEqual(correctCheckSum))
             {
+                // [hash160]
                 byte[] bHash160 = ArrayHelpers.SubArray(data, 1, data.Length - CheckSumSizeInBytes - 1);
                 return bHash160;
             }
             else
+            {
                 return null;
+            }
         }
 
         /// <summary>
@@ -97,11 +95,6 @@ namespace BitcoinLib
         /// <returns></returns>
         public static string Encode(byte[] data)
         {
-#if CONTRACT
-            Contract.Requires<ArgumentNullException>(data != null);
-            Contract.Ensures(Contract.Result<string>() != null);
-#endif
-
             // Decode byte[] to BigInteger
             BigInteger intData = 0;
             for (int i = 0; i < data.Length; i++)
@@ -133,10 +126,6 @@ namespace BitcoinLib
         /// <returns></returns>
         public static string EncodeWithCheckSum(byte[] data)
         {
-#if CONTRACT
-            Contract.Requires<ArgumentNullException>(data != null);
-            Contract.Ensures(Contract.Result<string>() != null);
-#endif
             return Encode(AddCheckSum(data));
         }
 
@@ -148,10 +137,6 @@ namespace BitcoinLib
         /// <exception cref="FormatException"></exception>
         public static byte[] Decode(string base58Text)
         {
-#if CONTRACT
-            Contract.Requires<ArgumentNullException>(base58Text != null);
-            Contract.Ensures(Contract.Result<byte[]>() != null);
-#endif
             // Decode Base58 string to BigInteger 
             BigInteger intData = 0;
             for (int i = 0; i < base58Text.Length; i++)
@@ -176,19 +161,15 @@ namespace BitcoinLib
         }
 
         /// <summary>
-        /// 
-        /// Throws `FormatException` if s is not a valid Base58 string, or the checksum is invalid
+        /// Input:  [0x00/0x6F] [hash160] [checksum]
+        /// Output: [0x00/0x6F] [hash160]
         /// </summary>
         /// <param name="base58Text"></param>
         /// <exception cref="FormatException"></exception>
         /// <param name="data">data with network prefix and checksum postfix</param>
         /// <returns>Returns null if the checksum is invalid, otherwise returns the  [0x00/0x6F] [hash160] with the checksum removed</returns>
-        public static byte[] DecodeWithCheckSum(string base58Text)
+        public static byte[] DecodeRemoveCheckSum(string base58Text)
         {
-#if CONTRACT
-            Contract.Requires<ArgumentNullException>(base58Text != null);
-            Contract.Ensures(Contract.Result<byte[]>() != null);
-#endif
             var dataWithCheckSum = Decode(base58Text);
             var dataWithoutCheckSum = VerifyAndRemoveCheckSum(dataWithCheckSum);
             if (dataWithoutCheckSum == null)
@@ -204,10 +185,6 @@ namespace BitcoinLib
         /// <returns></returns>
         private static byte[] GetCheckSum(byte[] data)
         {
-#if CONTRACT
-            Contract.Requires<ArgumentNullException>(data != null);
-            Contract.Ensures(Contract.Result<byte[]>() != null);
-#endif
             SHA256 sha256 = new SHA256Managed();
             byte[] hash1 = sha256.ComputeHash(data);
             byte[] hash2 = sha256.ComputeHash(hash1);
@@ -226,7 +203,7 @@ namespace BitcoinLib
         /// <param name="h160"></param>
         /// <param name="testnet"></param>
         /// <returns></returns>
-        public static string H160ToP2pkhAddress(byte[] h160, bool testnet = false)
+        public static string H160To_P2PKH_Address(byte[] h160, bool testnet = false)
         {
             byte[] data;
 
@@ -249,7 +226,7 @@ namespace BitcoinLib
         /// <param name="h160"></param>
         /// <param name="testnet"></param>
         /// <returns></returns>
-        public static string H160ToP2shAddress(byte[] h160, bool testnet = false)
+        public static string H160To_P2SH_Address(byte[] h160, bool testnet = false)
         {
             byte[] data;
 

@@ -12,6 +12,13 @@ namespace BitcoinLib.Test
 {
     public class MerkleTreeTest : UnitTest
     {
+        public static void test_chapter_11_ex_5()
+        {
+            MerkleTree tree = new MerkleTree(27);
+
+            Console.WriteLine(tree.ToString());
+        }
+
         public static void test_merkle_16()
         {
             MerkleTree tree = new MerkleTree(16);
@@ -141,7 +148,7 @@ namespace BitcoinLib.Test
         /// </summary>
         public static void test_merkle_tree_p204()
         {
-            // 16 lines
+            // 17 lines
             string[] strHashes = [
                 "9745f7173ef14ee4155722d1cbf13304339fd00d900b759c6f9d58579b5765fb",
                 "5573c8ede34936c29cdfdfe743f7f5fdfbd4f54ba0705259e62f39917065cb9b",

@@ -8,6 +8,10 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BitcoinLib
 {
+    /// <summary>
+    /// A full Block message is sent from a full node to a client if the client requested data with getdata (without a bloom filter)
+    /// A Block is the payload of a network message.
+    /// </summary>
     public class Block
     {
         public static byte[] GENESIS_BLOCK = Tools.HexStringToBytes("0100000000000000000000000000000000000000000000000000000000000000000000003ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a29ab5f49ffff001d1dac2b7c");
@@ -48,7 +52,5 @@ namespace BitcoinLib
             
             return block;
         }
-
-
     }
 }

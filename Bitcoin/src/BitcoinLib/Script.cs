@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Security.Policy;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BitcoinLib
 {
@@ -527,7 +528,7 @@ namespace BitcoinLib
                     // add the element to the stack
                     stack.Add(cmd);
 
-                    if (IsPtshScriptPubkey(cmds))
+                    if (Is_P2SH_ScriptPubkey(cmds))
                     {
                         // Pay-to-Script Hash
                         byte[] scriptLen = Op.EncodeNum(cmd.Length);
@@ -581,9 +582,9 @@ namespace BitcoinLib
         /// pattern
         /// </summary>
         /// <returns></returns>
-        public bool IsPtpkhScriptPubkey()
+        public bool Is_P2PKH_ScriptPubkey()
         {
-            return IsPtpkhScriptPubkey(_cmds);
+            return Is_P2PKH_ScriptPubkey(_cmds);
         }
 
         /// <summary>
@@ -593,11 +594,11 @@ namespace BitcoinLib
         /// </summary>
         /// <param name="cmds">The script commands</param>
         /// <returns></returns>
-        private bool IsPtpkhScriptPubkey(OpItems cmds)
+        private bool Is_P2PKH_ScriptPubkey(OpItems cmds)
         {
             //
             // there should be exactly 5 cmds
-            // OP_DUP, OP_HASH160, 20-byte hash, OP_EQUALVERIFY, OP_CHECKSIG
+            // OP_DUP 0x76, OP_HASH160 0xa9, 20-byte hash, OP_EQUALVERIFY 0x88, OP_CHECKSIG 0xac
             //
             if (cmds.Count == 5)
             {
@@ -621,9 +622,9 @@ namespace BitcoinLib
         /// Returns whether this follows the OP_HASH160<20 byte hash> OP_EQUAL pattern.
         /// </summary>
         /// <returns></returns>
-        public bool IsPtshScriptPubkey()
+        public bool Is_P2SH_ScriptPubkey()
         {
-            return IsPtshScriptPubkey(_cmds);
+            return Is_P2SH_ScriptPubkey(_cmds);
         }
 
         /// <summary>
@@ -632,7 +633,7 @@ namespace BitcoinLib
         /// </summary>
         /// <param name="cmds"></param>
         /// <returns></returns>
-        private bool IsPtshScriptPubkey(OpItems cmds)
+        private bool Is_P2SH_ScriptPubkey(OpItems cmds)
         {
             //
             //  there should be exactly 3 cmds
@@ -662,8 +663,19 @@ namespace BitcoinLib
             return script;
         }
 
-        public static Script CreateP2pkhScript(byte[] hash160)
+
+        /// <summary>
+        /// Creates the P2PKH pay-to-public-key-hash script:
+        /// [OP_DUP 0x76] [OP_HASH160 0xa9] [20-byte hash] [OP_EQUALVERIFY 0x88] [OP_CHECKSIG 0xa]
+        /// </summary>
+        /// <param name="hash160"></param>
+        /// <returns></returns>
+        public static Script Create_P2PKH_Script(byte[] hash160)
         {
+            if (hash160.Length != 20)
+            {
+                throw new Exception($"Script Create_P2PKH_Script(byte[]hash160) length must be 20 but is {hash160.Length}");
+            }
             //
             // 0x76: OP_DUP
             // 0xa9: OP_HASH160
@@ -687,6 +699,113 @@ namespace BitcoinLib
             Script script = new Script(opItems);
 
             return script;
+        }
+
+        /// <summary>
+        /// Creates the P2SH pay-to-script-hash script: [OP_HASH160 0xa9] [hash160 20 bytes] [OP_EQUALVERIFY 0x88]
+        /// </summary>
+        /// <param name="hash160"></param>
+        /// <returns></returns>
+        public static Script Create_P2SH_Script(byte[] hash160) // TODO
+        {
+            if (hash160.Length != 20)
+            {
+                throw new ArgumentException("Script Create_P2SH_Script: hash160 must be 20 bytes, is " + hash160.Length);
+            }
+
+            //
+            // 0xa9: OP_HASH160
+            // hash160
+            // 0x88: OP_EQUALVERIFY
+            //
+            OpItem op_hash160 = new OpItem(0xa9);
+            OpItem data = new OpItem(hash160);
+            OpItem op_equal = new OpItem(0x87);
+
+            OpItems opItems = new OpItems();
+            opItems.Add(op_hash160);
+            opItems.Add(data);
+            opItems.Add(op_equal);
+
+            Script script = new Script(opItems);
+
+            return script;
+        }
+
+
+        /// <summary>
+        /// Creates the P2WPKH pay-to-witness-public-key-hash Script from a hash160 of 20 bytes.
+        /// [OP_0 0x00] [h160]
+        /// </summary>
+        /// <param name="hash160"></param>
+        /// <returns></returns>
+        public static Script Create_P2WPKH_Script(byte[] hash160)
+        {
+            if (hash160.Length != 20)
+            {
+                throw new ArgumentException("Script Create_P2WPKH_Script: hash160 must be 20 bytes, is " + hash160.Length);
+            }
+
+            OpItem op_0 = new OpItem(0x00);
+            OpItem data = new OpItem(hash160);
+
+            OpItems opItems = new OpItems();
+            opItems.Add(op_0);
+            opItems.Add(data);
+
+            Script script = new Script(opItems);
+
+            return script;
+        }
+
+        /// <summary>
+        /// Creates the P2WSH pay-to-witness-script-hash Script from a hash256 of 32 bytes.
+        /// [OP_0 0x00] [h256]
+        /// </summary>
+        /// <param name="hash256"></param>
+        /// <returns></returns>
+        public static Script Create_P2WSH_Script(byte[] hash256)
+        {
+            if (hash256.Length != 32)
+            {
+                throw new ArgumentException("Script Create_P2WSH_Script: hash256 must be 32 bytes, is " + hash256.Length);
+            }
+
+            OpItem op_0 = new OpItem(0x00);
+            OpItem data = new OpItem(hash256);
+
+            OpItems opItems = new OpItems();
+            opItems.Add(op_0);
+            opItems.Add(data);
+
+            Script script = new Script(opItems);
+
+            return script;
+        }
+
+
+        public string Address(bool testnet = false)
+        {
+            string address;
+
+            if (Is_P2PKH_ScriptPubkey())
+            {
+                // p2pkh
+                byte[] h160 = _cmds[2]._element;
+                address = Base58Encoding.H160To_P2PKH_Address(h160, testnet);
+            }
+            else if (Is_P2SH_ScriptPubkey())
+            {
+                // p2sh
+                byte[] h160 = _cmds[1]._element;
+                address = Base58Encoding.H160To_P2SH_Address(h160, testnet);
+            }
+            else
+            {
+                throw new Exception("Unknown ScriptPubKey");
+            }
+                
+            return address;
         }
     }
 }

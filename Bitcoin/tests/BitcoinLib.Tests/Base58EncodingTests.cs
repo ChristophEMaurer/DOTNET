@@ -65,18 +65,18 @@ namespace BitcoinLib.Test
 
         public static void test5_DecodeBitcoinAddress()
         {
-            var actualBytes = Base58Encoding.DecodeWithCheckSum(addressText);
+            var actualBytes = Base58Encoding.DecodeRemoveCheckSum(addressText);
             AssertEqual(BitConverter.ToString(addressBytes), BitConverter.ToString(actualBytes));
         }
 
         public static void test6_DecodeBrokenBitcoinAddress()
         {
-            UnitTest.AssertException(typeof(FormatException), () => Base58Encoding.DecodeWithCheckSum(brokenAddressText));
+            UnitTest.AssertException(typeof(FormatException), () => Base58Encoding.DecodeRemoveCheckSum(brokenAddressText));
         }
 
         public static void test7_ExtractHash160()
         {
-            byte[] hash160 = Base58Encoding.VerifyAndRemoveNetworkprefixAndCheckSum(addressText);
+            byte[] hash160 = Base58Encoding.DecodeH160(addressText);
 
             AssertEqual(BitConverter.ToString(hash160), BitConverter.ToString(addressBytesHash160));
         }
@@ -85,11 +85,11 @@ namespace BitcoinLib.Test
             byte[] h160 = Tools.HexStringToBytes("74d691da1574e6b3c192ecfb52cc8984ee7b6c56");
 
             string want = "1BenRpVUFK65JFWcQSuHnJKzc4M8ZP8Eqa";
-            string address = Base58Encoding.H160ToP2pkhAddress(h160, false);
+            string address = Base58Encoding.H160To_P2PKH_Address(h160, false);
             AssertEqual(address, want);
 
             want = "mrAjisaT4LXL5MzE81sfcDYKU3wqWSvf9q";
-            address = Base58Encoding.H160ToP2pkhAddress(h160, true);
+            address = Base58Encoding.H160To_P2PKH_Address(h160, true);
             AssertEqual(address, want);
         }
         public static void test_p2sh_address()
@@ -97,11 +97,11 @@ namespace BitcoinLib.Test
             byte[] h160 = Tools.HexStringToBytes("74d691da1574e6b3c192ecfb52cc8984ee7b6c56");
 
             string want = "3CLoMMyuoDQTPRD3XYZtCvgvkadrAdvdXh";
-            string address = Base58Encoding.H160ToP2shAddress(h160, false);
+            string address = Base58Encoding.H160To_P2SH_Address(h160, false);
             AssertEqual(address, want);
 
             want = "2N3u1R6uwQfuobCqbCgBkpsgBxvr1tZpe7B";
-            address = Base58Encoding.H160ToP2shAddress(h160, true);
+            address = Base58Encoding.H160To_P2SH_Address(h160, true);
             AssertEqual(address, want);
         }
     }

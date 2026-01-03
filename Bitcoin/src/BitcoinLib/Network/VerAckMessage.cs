@@ -16,7 +16,6 @@ namespace BitcoinLib.Network
         {
         }
 
-
         public static VerAckMessage Parse(byte[] raw)
         {
             return new VerAckMessage();

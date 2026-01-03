@@ -430,6 +430,7 @@ FodyWeavers.xsd
 csharp-controls/
 Kinect/
 ML/
+MurmurHash/
 Robot/
 TCPIP-ClientServer/
 Utm2Gpx/

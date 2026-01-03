@@ -182,7 +182,7 @@ namespace BitcoinLib
         {
             byte[] h160 = Hash160(compressed);
 
-            return Base58Encoding.H160ToP2pkhAddress(h160, testnet);
+            return Base58Encoding.H160To_P2PKH_Address(h160, testnet);
         }
 
         /// <summary>

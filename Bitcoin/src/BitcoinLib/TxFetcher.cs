@@ -162,7 +162,7 @@ namespace BitcoinLib
                 }
                 catch (Exception e)
                 {
-                    Console.Out.WriteLine("ERROR!!!");
+                    Console.Out.WriteLine("ERROR!!!: " + e.Message);
                 }
             }
         
@@ -185,10 +185,11 @@ namespace BitcoinLib
 
                 byte[] raw = Tools.HexStringToBytes(response);
 
-                Tx tx = Tx.Parse(new BinaryReader(new MemoryStream(raw)), testnet);
+                Tx tx = Tx.Parse(new BinaryReader(new MemoryStream(raw)));
+                tx._testnet = testnet;
 
                 //
-                // We get the full tx data from the itnernet so that we can verify all of it.
+                // We get the full tx data from the internet so that we can verify all of it.
                 // Dont trust anyone!
                 //
                 if (tx.Id() != tx_id)
