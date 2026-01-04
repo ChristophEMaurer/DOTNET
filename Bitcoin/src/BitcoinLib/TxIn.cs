@@ -8,8 +8,13 @@ namespace BitcoinLib
     //  http://mainnet.programmingbitcoin.com/tx/ee51510d7bbabe28052038d1deb10c03ec74f06a79e21913c6fcf48d56217c87.hex
     //
 
+    /// <summary>
+    /// One Tx has n TxIn and m TxOut.
+    /// The difference between all TxIn and TxOut is the fee.
+    /// </summary>
     public class TxIn
     {
+
         public byte[] _prev_tx;
         public UInt32 _prev_index;
         public Script _script_sig;
@@ -18,7 +23,7 @@ namespace BitcoinLib
         //
         // _witness is populated and serialized by Tx
         //
-        public Witness _witness;
+        public byte[][] _witness;
 
         public TxIn(byte[] prev_tx, UInt32 prev_index, Script script, UInt32 sequence)
         {

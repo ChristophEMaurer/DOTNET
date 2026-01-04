@@ -31,7 +31,6 @@ namespace BitcoinLib.Network
             return msg;
         }
 
-
         /// <summary>
         /// We do not need the serialization for now because we never send merkleblock messages, we only receive them.
         /// </summary>

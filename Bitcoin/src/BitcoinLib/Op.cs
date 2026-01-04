@@ -42,6 +42,11 @@ namespace BitcoinLib
 
         public delegate bool OpFunction(OpItems cmds);
 
+        /// <summary>
+        /// Convert a number to a variable number of bytes, the lower the number, the less bytes are used.
+        /// </summary>
+        /// <param name="num"></param>
+        /// <returns></returns>
         static public byte[] EncodeNum(Int64 num)
         {
             List<byte> result = new List<byte>();
@@ -85,11 +90,22 @@ namespace BitcoinLib
             return result.ToArray();
         }
 
+        /// <summary>
+        /// Convert the element of an @OpItem to a variable number of bytes, the lower the number, the less bytes are used.
+        /// </summary>
+        /// <param name="num"></param>
+        /// <returns></returns>
         public static Int64 DecodeNum(OpItem item)
         {
             return DecodeNum(item._element);
         }
 
+        /// <summary>
+        /// Convert a variable number of bytes into a number. The bytes are in little endian and have ot be reversed.
+        /// 
+        /// </summary>
+        /// <param name="bytesLittleEndian"></param>
+        /// <returns></returns>
         public static Int64 DecodeNum(byte[] bytesLittleEndian)
         {
             Int64 result = 0;
@@ -128,40 +144,6 @@ namespace BitcoinLib
 
             return result;
         }
-
-        static public bool ItemIsOpcode(byte[] item, byte code)
-        {
-            bool success = false;
-
-            if ((item.Length == 1) && (item[0] == code))
-            {
-                success = true;
-            }
-
-            return success;
-        }
-
-/*        static public bool ItemIsOneOfOpcodes(OpItem item, byte[] codes)
-        {
-            bool success = false;
-
-            if (item.Length == 1)
-            {
-                byte bItem = item[0];
-
-                for (int i = 0; i < codes.Length; i++)
-                {
-                    if (bItem == codes[i])
-                    {
-                        success = true;
-                        break;
-                    }
-                }
-            }
-
-            return success;
-        }
-        */
 
         public static bool op_0(OpItems cmds)
         {
@@ -382,10 +364,7 @@ namespace BitcoinLib
             } 
             else
             {
-                // items[:0] = false_items
-
                 Debug.Assert(false);
-
             }
 
             return true;
@@ -1287,6 +1266,8 @@ namespace BitcoinLib
             for (int i = 0; i < m; i++)
             {
                 OpItem itemSig = stack.Pop();
+
+                // this removes the signature flag at the end: Signature.SIGHASH_*
                 itemSig.Pop();
                 derSignatures.Add(itemSig);
             }
@@ -1413,6 +1394,9 @@ namespace BitcoinLib
             return true;
         }
 
+        /// <summary>
+        /// See @Script for some op codes
+        /// </summary>
         public static Dictionary<uint, OpFunction> OpCodeFunctions = new Dictionary<uint, OpFunction>()
         {
             //
@@ -1504,7 +1488,6 @@ namespace BitcoinLib
             {   183,  new OpFunction(op_nop) },
             {   184,  new OpFunction(op_nop) },
             {   185,  new OpFunction(op_nop) },
-
         };
 
         public static Dictionary<int, string> OpCodeNames = new Dictionary<int, string>()

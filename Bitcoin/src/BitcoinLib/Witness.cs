@@ -2,13 +2,17 @@
 
 namespace BitcoinLib
 {
+    /// <summary>
+    /// Witness is the same as byte[][]
+    /// TODO: remove this Witness class and replace it by using byte[][]
+    /// </summary>
     public class Witness
     {
-        public ByteArray[] _stackitems;
+        public byte[][] _stackitems;
 
-        public Witness(int stackitems)
+        public Witness(UInt64 stackitems)
         {
-            _stackitems = new ByteArray[stackitems];
+            _stackitems = new byte[stackitems][];
         }
 
         public override string ToString()
@@ -22,9 +26,9 @@ namespace BitcoinLib
 
             for (int i = 0; i < _stackitems.Length; i++)
             {
-                ByteArray stackitem = _stackitems[i];
+                byte[] stackitem = _stackitems[i];
                 elements += String.Format("  data[{0}]: {1} bytes: {2}",
-                    i, stackitem._bytes.Length, Tools.BytesToHexString(stackitem._bytes));
+                    i, stackitem.Length, Tools.BytesToHexString(stackitem));
 
                 if (i < _stackitems.Length - 1)
                 {
@@ -35,7 +39,12 @@ namespace BitcoinLib
             return elements;
         }
 
-        public ByteArray this[int i]
+        public int Length
+        {
+            get { return _stackitems.Length; }
+        }
+
+        public byte[] this[UInt64 i]
         {
             get => _stackitems[i];
             set => _stackitems[i] = value;

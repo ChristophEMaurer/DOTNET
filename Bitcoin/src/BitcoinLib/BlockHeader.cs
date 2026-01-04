@@ -61,7 +61,6 @@ namespace BitcoinLib
             _bits = bits;
             _nonce = nonce;
         }
-
         public static BlockHeader Parse(byte[] raw)
         {
             return BlockHeader.Parse(new BinaryReader(new MemoryStream(raw)));
@@ -221,34 +220,6 @@ namespace BitcoinLib
             return ((uint)exponent << 24) | mantissa;
         }
         
-        public static UInt32 TargetToBitsOld(BigInteger target)
-        {
-            byte[] bytes = target.ToByteArray(isUnsigned: true, isBigEndian: true);
-
-            int exponent;
-            UInt32 coefficient;
-
-            if (bytes[0] > 0x7F)
-            {
-                exponent = bytes.Length + 1;
-                coefficient = (UInt32)(bytes[0] << 16 | bytes[1] << 8 | bytes[2]);
-            }
-            else
-            {
-                exponent = bytes.Length;
-                coefficient = (UInt32)(bytes[0] << 16);
-                if (bytes.Length > 1)
-                    coefficient |= (UInt32)(bytes[1] << 8);
-                if (bytes.Length > 2)
-                    coefficient |= bytes[2];
-            }
-
-            UInt32 bits = ((UInt32)exponent << 24) | coefficient;
-            UInt32 swapped = BinaryPrimitives.ReverseEndianness(bits);
-            
-            return bits;
-        }
-
         public BigInteger Target()
         {
             return BitsToTarget();
@@ -317,10 +288,13 @@ namespace BitcoinLib
         {
             // Begrenzen auf [1/4 .. 4] * TWO_WEEKS
             if (timeDifferential > TWO_WEEKS * 4)
+            {
                 timeDifferential = TWO_WEEKS * 4;
-
-            if (timeDifferential < TWO_WEEKS / 4)
+            }
+            else if (timeDifferential < TWO_WEEKS / 4)
+            {
                 timeDifferential = TWO_WEEKS / 4;
+            }
 
             // previous target
             BigInteger prevTarget = BitsToTarget(previousBits);
@@ -329,7 +303,9 @@ namespace BitcoinLib
 
             // Cap auf MAX_TARGET
             if (newTarget > MAX_TARGET)
+            {
                 newTarget = MAX_TARGET;
+            }
 
             // Zurück ins Compact-Format
             UInt32 newBits = TargetToBits(newTarget);

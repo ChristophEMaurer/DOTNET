@@ -41,6 +41,7 @@ namespace BitcoinLib.Network
 
             if (hash_stop == null)
             {
+                // create 32 null bytes.
                 _hash_stop = new byte[32];
             }
             else

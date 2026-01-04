@@ -96,6 +96,17 @@ namespace BitcoinLib.Test
             AssertTrue(tx._locktime == 410393);
         }
 
+        public static void test_serialize()
+        {
+            string raw = "0100000001813f79011acb80925dfe69b3def355fe914bd1d96a3f5f71bf8303c6a989c7d1000000006b483045022100ed81ff192e75a3fd2304004dcadb746fa5e24c5031ccfcf21320b0277457c98f02207a986d955c6e0cb35d446a89d3f56100f4d7f67801c31967743a9c8e10615bed01210349fc4e631e3624a545de3f89f5d8684c7b8138bd94bdd531d2e213bf016b278afeffffff02a135ef01000000001976a914bc3b654dca7e56b04dca18f2566cdaf02e8d9ada88ac99c39800000000001976a9141c4bc762dd5423e332166702cb75f40df79fea1288ac19430600";
+            
+            Tx tx = Tx.Parse(raw);
+            string actual = Tools.BytesToHexString(tx.serialize());
+
+            AssertTrue(actual.Equals(raw));
+        }
+
+
         public static void test_fee()
         {
             string raw = "0100000001813f79011acb80925dfe69b3def355fe914bd1d96a3f5f71bf8303c6a989c7d1000000006b483045022100ed81ff192e75a3fd2304004dcadb746fa5e24c5031ccfcf21320b0277457c98f02207a986d955c6e0cb35d446a89d3f56100f4d7f67801c31967743a9c8e10615bed01210349fc4e631e3624a545de3f89f5d8684c7b8138bd94bdd531d2e213bf016b278afeffffff02a135ef01000000001976a914bc3b654dca7e56b04dca18f2566cdaf02e8d9ada88ac99c39800000000001976a9141c4bc762dd5423e332166702cb75f40df79fea1288ac19430600";
@@ -126,15 +137,15 @@ namespace BitcoinLib.Test
             AssertTrue(raw2 == ser2);
 
             raw_tx ="0100000001813f79011acb80925dfe69b3def355fe914bd1d96a3f5f71bf8303c6a989c7d1000000006b483045022100ed81ff192e75a3fd2304004dcadb746fa5e24c5031ccfcf21320b0277457c98f02207a986d955c6e0cb35d446a89d3f56100f4d7f67801c31967743a9c8e10615bed01210349fc4e631e3624a545de3f89f5d8684c7b8138bd94bdd531d2e213bf016b278afeffffff02a135ef01000000001976a914bc3b654dca7e56b04dca18f2566cdaf02e8d9ada88ac99c39800000000001976a9141c4bc762dd5423e332166702cb75f40df79fea1288ac19430600";
-            tx = Tx.Parse(new BinaryReader(new MemoryStream(Tools.HexStringToBytes(raw_tx))));
+            tx = Tx.Parse(raw_tx);
             fee = tx.Fee();
             AssertTrue(fee == 40000);
         
             raw_tx = "0100000001c228021e1fee6f158cc506edea6bad7ffa421dd14fb7fd7e01c50cc9693e8dbe02000000fdfe0000483045022100c679944ff8f20373685e1122b581f64752c1d22c67f6f3ae26333aa9c3f43d730220793233401f87f640f9c39207349ffef42d0e27046755263c0a69c436ab07febc01483045022100eadc1c6e72f241c3e076a7109b8053db53987f3fcc99e3f88fc4e52dbfd5f3a202201f02cbff194c41e6f8da762e024a7ab85c1b1616b74720f13283043e9e99dab8014c69522102b0c7be446b92624112f3c7d4ffc214921c74c1cb891bf945c49fbe5981ee026b21039021c9391e328e0cb3b61ba05dcc5e122ab234e55d1502e59b10d8f588aea4632102f3bd8f64363066f35968bd82ed9c6e8afecbd6136311bb51e91204f614144e9b53aeffffffff05a08601000000000017a914081fbb6ec9d83104367eb1a6a59e2a92417d79298700350c00000000001976a914677345c7376dfda2c52ad9b6a153b643b6409a3788acc7f341160000000017a914234c15756b9599314c9299340eaabab7f1810d8287c02709000000000017a91469be3ca6195efcab5194e1530164ec47637d44308740420f00000000001976a91487fadba66b9e48c0c8082f33107fdb01970eb80388ac00000000";
-            tx = Tx.Parse(new BinaryReader(new MemoryStream(Tools.HexStringToBytes(raw_tx))));
+            tx = Tx.Parse(raw_tx);
 
             raw_tx = "010000000456919960ac691763688d3d3bcea9ad6ecaf875df5339e148a1fc61c6ed7a069e010000006a47304402204585bcdef85e6b1c6af5c2669d4830ff86e42dd205c0e089bc2a821657e951c002201024a10366077f87d6bce1f7100ad8cfa8a064b39d4e8fe4ea13a7b71aa8180f012102f0da57e85eec2934a82a585ea337ce2f4998b50ae699dd79f5880e253dafafb7feffffffeb8f51f4038dc17e6313cf831d4f02281c2a468bde0fafd37f1bf882729e7fd3000000006a47304402207899531a52d59a6de200179928ca900254a36b8dff8bb75f5f5d71b1cdc26125022008b422690b8461cb52c3cc30330b23d574351872b7c361e9aae3649071c1a7160121035d5c93d9ac96881f19ba1f686f15f009ded7c62efe85a872e6a19b43c15a2937feffffff567bf40595119d1bb8a3037c356efd56170b64cbcc160fb028fa10704b45d775000000006a47304402204c7c7818424c7f7911da6cddc59655a70af1cb5eaf17c69dadbfc74ffa0b662f02207599e08bc8023693ad4e9527dc42c34210f7a7d1d1ddfc8492b654a11e7620a0012102158b46fbdff65d0172b7989aec8850aa0dae49abfb84c81ae6e5b251a58ace5cfeffffffd63a5e6c16e620f86f375925b21cabaf736c779f88fd04dcad51d26690f7f345010000006a47304402200633ea0d3314bea0d95b3cd8dadb2ef79ea8331ffe1e61f762c0f6daea0fabde022029f23b3e9c30f080446150b23852028751635dcee2be669c2a1686a4b5edf304012103ffd6f4a67e94aba353a00882e563ff2722eb4cff0ad6006e86ee20dfe7520d55feffffff0251430f00000000001976a914ab0c0b2e98b1ab6dbf67d4750b0a56244948a87988ac005a6202000000001976a9143c82d7df364eb6c75be8c80df2b3eda8db57397088ac46430600";
-            tx = Tx.Parse(new BinaryReader(new MemoryStream(Tools.HexStringToBytes(raw_tx))));
+            tx = Tx.Parse(raw_tx);
             fee = tx.Fee();
             AssertTrue(fee == 140500);
 
@@ -208,7 +219,7 @@ LOCK_TIME 00000000
             AssertTrue(tx_id == tx.Id());
         }
 
-        public static void test_chapter_7_ex_1()
+        public static void test_sig_hash()
         {
             Tx tx = TxFetcher.Fetch("452c629d67e41baec3ac6f04fe744b4b9617f8f859c63b3002f8684e7a4fee03");
             BigInteger want = Tools.MakeBigInteger("27e0c5994dec7824e56dec6b2fcb342eb7cdb0d0957c2fce9882f715e85d81a6");
@@ -233,7 +244,7 @@ LOCK_TIME 00000000
             AssertEqual(want, z);
         }
 
-        public static void test_chapter_7_ex_2()
+        public static void test_verify_p2pkh()
         {
             // test_verify_p2pkh(self):
             Tx tx = TxFetcher.Fetch("452c629d67e41baec3ac6f04fe744b4b9617f8f859c63b3002f8684e7a4fee03");
@@ -244,7 +255,7 @@ LOCK_TIME 00000000
             AssertTrue(tx.Verify());
             AssertTrue(tx.Verify());
 
-            tx = TxFetcher.Fetch("5418099cc755cb9dd3ebc6cf1a7888ad53a1a3beb5a025bce89eb1bf7f1650a2", true, true);
+            tx = TxFetcher.Fetch("5418099cc755cb9dd3ebc6cf1a7888ad53a1a3beb5a025bce89eb1bf7f1650a2", true);
             AssertTrue(tx.Verify());
             AssertTrue(tx.Verify());
         }
@@ -290,7 +301,7 @@ LOCK_TIME 00000000
             outputs.Add(change_output);
             outputs.Add(target_output);
 
-            Tx tx = new Tx(1, 0, 0, inputs, outputs, 0);
+            Tx tx = new Tx(1, 0, 0, inputs, outputs, 0, false);
             tx._testnet = true;
 
             Console.WriteLine("tx=");
@@ -298,7 +309,7 @@ LOCK_TIME 00000000
             Console.WriteLine(strTx);
         }
 
-        public static void test_chapter_7_ex_3()
+        public static void test_sign_input()
         {
             PrivateKey private_key = new PrivateKey(Tools.MakeBigIntegerBase10("8675309"));
             string strTx = "010000000199a24308080ab26e6fb65c4eccfadf76749bb5bfa8cb08f291320b3c21e56f0d0d00000000ffffffff02408af701000000001976a914d52ad7ca9b3d096a38e752c2018e6fbc40cdf26f88ac80969800000000001976a914507b27411ccf7f16f10297de6cef3f291623eddf88ac00000000";
@@ -408,7 +419,7 @@ tb1qerzrlxcfu24davlur5sqmgzzgsal6wusda40er
             outputs.Add(target_output);
             outputs.Add(change_output);
 
-            Tx tx = new Tx(1, inputs, outputs, 0);
+            Tx tx = new Tx(1, inputs, outputs, 0, false);
             tx._testnet = true;
             bool success = tx.SignInputPtpkh(0, priv);
 
@@ -478,7 +489,7 @@ tb1qerzrlxcfu24davlur5sqmgzzgsal6wusda40er
             inputs.Add(input_2);
             outputs.Add(target_output);
 
-            Tx tx = new Tx(1, inputs, outputs, 0);
+            Tx tx = new Tx(1, inputs, outputs, 0, false);
             tx._testnet = true;
             bool success = tx.SignInputPtpkh(0, priv);
             success = tx.SignInputPtpkh(1, priv);
@@ -578,15 +589,47 @@ tb1qerzrlxcfu24davlur5sqmgzzgsal6wusda40er
             AssertTrue(success);
         }
 
-        public static void test_chapter_8_ex_5()
+        public static void test_verify_p2sh()
         {
             Tx tx = TxFetcher.Fetch("46df1a9484d0a81d03ce0ee543ab6e1a23ed06175c104a178268fad381216c2b");
 
-            bool success = tx.Verify();
-
-            AssertTrue(success);
+            AssertTrue(tx.Verify());
+            AssertTrue(tx.Verify()); // TODO: why does this second verify fail? test_verify_p2sh()
+            // bool success = combinedScript.Evaluate(z, witnessScript);
+            // combined script: die 01 hinten fehlt
         }
 
+        public static void test_verify_p2wpkh()
+        {
+            Tx tx = TxFetcher.Fetch("d869f854e1f8788bcff294cc83b280942a8c728de71eb709a2c29d10bfe21b7c", true);
+
+            AssertTrue(tx.Verify());
+            AssertTrue(tx.Verify());
+        }
+
+        public static void test_verify_p2sh_p2wpkh()
+        {
+            Tx tx = TxFetcher.Fetch("c586389e5e4b3acb9d6c8be1c19ae8ab2795397633176f5a6442a261bbdefc3a");
+
+            AssertTrue(tx.Verify());
+            AssertTrue(tx.Verify());
+        }
+
+        public static void test_verify_p2wsh()
+        {
+            Tx tx = TxFetcher.Fetch("78457666f82c28aa37b74b506745a7c7684dc7842a52a457b09f09446721e11c", true);
+
+            AssertTrue(tx.Verify());
+            AssertTrue(tx.Verify());
+        }
+
+        public static void test_verify_p2sh_p2wsh()
+        {
+            Tx tx = TxFetcher.Fetch("78457666f82c28aa37b74b506745a7c7684dc7842a52a457b09f09446721e11c", true);
+
+            AssertTrue(tx.Verify());
+            AssertTrue(tx.Verify());
+        }
         public static void test_chapter_9_ex_1_is_coinbase()
         {
             string raw_tx = "01000000010000000000000000000000000000000000000000000000000000000000000000ffffffff5e03d71b07254d696e656420627920416e74506f6f6c20626a31312f4542312f4144362f43205914293101fabe6d6d678e2c8c34afc36896e7d9402824ed38e856676ee94bfdb0c6c4bcd8b2e5666a0400000000000000c7270000a5e00e00ffffffff01faf20b58000000001976a914338c84849423992471bffb1a54a8d9b1d69dc28a88ac00000000";

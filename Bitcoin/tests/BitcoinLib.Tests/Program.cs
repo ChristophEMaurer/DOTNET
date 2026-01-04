@@ -1,4 +1,5 @@
 ﻿using BitcoinLib;
+using BitcoinLib.BIP39;
 using Org.BouncyCastle.Crypto.Digests;
 using System;
 using System;
@@ -26,15 +27,10 @@ namespace BitcoinLib.Test
 
 
     /*
-     * TODO: Base58 Decode()
-     *      string address_1 = "1BenRpVUFK65JFWcQSuHnJKzc4M8ZP8Eqa";
-            byte[] h160 = Base58Encoding.DecodeWithCheckSum(address_1);
-            gibt keine 20 byte zurück und hat ein 0 als erstes byte ???
-
-     * TODO: Script.Address and ScriptTest.test_address()
      * TODO: GetUrlContent() does not work from C#, works fine in Chrome or any other browser.
      * TODO: investigate the Murmur3 code!
      * TODO: BloomFilter is deprecated! what else?
+     * TODO: check that all python code exists in C#
      */
     public static class Program
     {
@@ -48,8 +44,9 @@ namespace BitcoinLib.Test
 
             if (false)
             {
-                Tools.LOGGING = 1;
-                Tools.CallStaticMethod("BitcoinLib.Test.SimpleNodeTest", "test_get_transaction_of_interest");
+                Tools.LOGGING = 3;
+
+                Tools.CallStaticMethod("BitcoinLib.Test.Ripemd160Test", "test_ripemd160_chatgpt");
             }
             else
             {

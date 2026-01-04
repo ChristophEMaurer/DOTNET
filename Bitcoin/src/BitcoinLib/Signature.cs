@@ -9,14 +9,14 @@ using System.Numerics;
 namespace BitcoinLib
 {
     /// <summary>
-    /// See Programming bitcoin p81
+    /// See Programming bitcoin p81.
+    /// The signature is calculated from the 
     /// </summary>
     public class Signature
     {
         public const int SIGHASH_ALL = 1;
         public const int SIGHASH_NONE = 2;
         public const int SIGHASH_SINGLE = 3;
-
 
         public BigInteger _r;
         public BigInteger _s;
@@ -44,14 +44,6 @@ namespace BitcoinLib
             }
             byte length = input[index++];
 
-            // (r, s): r and s could be small, so the total length can be much smaller
-            /*if (!allowAllLengthsForTesting)
-            {
-                if ((length != 0x45) && (length != 0x46))
-                {
-                    throw new Exception(string.Format("Signature::Parse(): bad length, read '{0}' instead of 0x45 or 0x46", length));
-                }
-            }*/
             if (length + 2 != input.Length)
             {
                 throw new ValueErrorException(string.Format("Signature::Parse(): bad length, read 0x{0:X} but should be 0x{1:X}", length, input.Length - 2));

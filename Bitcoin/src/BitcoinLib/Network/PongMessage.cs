@@ -37,7 +37,6 @@ namespace BitcoinLib.Network
             UInt64 nonce = BinaryPrimitives.ReadUInt64LittleEndian(data);
             _nonce = nonce;
         }
-
         public static PongMessage Parse(BinaryReader input)
         {
             UInt64 nonce = Tools.ReadUInt64LittleEndian(input);

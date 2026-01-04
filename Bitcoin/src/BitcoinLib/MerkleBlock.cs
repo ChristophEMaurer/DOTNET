@@ -8,12 +8,15 @@ using System.Threading.Tasks;
 namespace BitcoinLib
 {
     /// <summary>
-    /// A MerkleBlock message is sent from a full node to a client if the client requested data with getdata + bloom filter,
+    /// A MerkleBlock message is sent from a full node to a client if the client requested data with getdata + filterload (Bloom filter),
     /// the merkle block is the payload of the network message MerkleBlockMessage
     /// </summary>
 
     public class MerkleBlock
     {
+        /// <summary>
+        /// Both MerkleBlock and Block have the same header
+        /// </summary>
         public BlockHeader _blockHeader;
 
         /// <summary>
@@ -21,6 +24,9 @@ namespace BitcoinLib
         /// </summary>
         public UInt64 _totalTransactions;
 
+        /// <summary>
+        /// number of hashes following
+        /// </summary>
         public UInt64 _numHashes;
 
         /// <summary>

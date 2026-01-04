@@ -214,7 +214,6 @@ namespace BitcoinLib.Network
         {
             return _payload;
         }
-
         public override string ToString() 
         {
             return $"NetworkEnvelope(Command={_command}, PayloadSize={_payloadSize}, Checksum={_checksum})";

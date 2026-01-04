@@ -221,6 +221,5 @@ namespace BitcoinLib
 
             return s256_point;
         }
-
     }
 }

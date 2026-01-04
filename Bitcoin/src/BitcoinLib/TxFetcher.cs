@@ -9,6 +9,8 @@ namespace BitcoinLib
 {
     /// <summary>
     /// Reads transaction from the internet, caches the data and stores that cache in a file.
+    /// For some reason, WebClient.DownloadString(url) stopped working, so I created the cache file manually by copying the cache file from the python code.
+    /// Also, you can paste the url into any browser and then copy the resulting serialized tx into the cache file.
     /// </summary>
     public class TxFetcher
     {
@@ -97,6 +99,34 @@ namespace BitcoinLib
             }
         }
 
+        private static bool DataIsValid(string id, string serialized, Tx tx)
+        {
+            bool success = true;
+
+            string computed;
+            if (tx._isSegWit)
+            {
+                computed = tx.Id();
+            }
+            else
+            {
+                byte[] h256 = Tools.Hash256(Tools.HexStringToBytes(serialized));
+                Tools.Reverse(h256);
+                computed = Tools.BytesToHexString(h256);
+            }
+
+            if (!computed.Equals(id))
+            {
+                Console.WriteLine("TxFetcher.DataIsValid(): ID mismatch");
+                Console.WriteLine("id   = " + id);
+                Console.WriteLine("computed= " + computed);
+
+                success = false;
+            }
+
+            return success;
+        }
+
         private static void LoadCache()
         {
             _cache.Clear();
@@ -116,10 +146,16 @@ namespace BitcoinLib
                         String[] arLine = line.Split(new string[] { ":" }, StringSplitOptions.None);
                         if (arLine.Length == 2)
                         {
-                            string s1 = arLine[0];
-                            string s2 = arLine[1];
-                            Tx tx = Tx.Parse(new BinaryReader(new MemoryStream(Tools.HexStringToBytes(s2))));
-                            _cache.Add(s1, tx);
+                            string tx_id = arLine[0];
+                            string tx_serialized = arLine[1];
+                            Tx tx = Tx.Parse(tx_serialized);
+
+                            if (!DataIsValid(tx_id, tx_serialized, tx))
+                            {
+                                throw new Exception($"TxFetcher.LoadCache(): mismatch");
+                            }
+
+                            _cache.Add(tx_id, tx);
                         }
                     }
                 }
@@ -183,18 +219,16 @@ namespace BitcoinLib
                 response = response.Trim();
                 Console.WriteLine("Received: " + response);
 
-                byte[] raw = Tools.HexStringToBytes(response);
-
-                Tx tx = Tx.Parse(new BinaryReader(new MemoryStream(raw)));
+                Tx tx = Tx.Parse(response);
                 tx._testnet = testnet;
 
                 //
                 // We get the full tx data from the internet so that we can verify all of it.
                 // Dont trust anyone!
                 //
-                if (tx.Id() != tx_id)
+                if (!DataIsValid(tx_id, response, tx))
                 {
-                    throw new Exception(String.Format("not the same id: {0} vs{1}", tx.Id(), tx_id));
+                    throw new Exception($"TxFetcher.LoadCache(): mismatch");
                 }
 
                 if (_cache.ContainsKey(tx_id))

@@ -8,7 +8,7 @@ namespace BitcoinLib
     public class PrivateKey
     {
         /// <summary>
-        /// The private key is a lage natural number: 1..2**256
+        /// The private key is a large natural number: 1..2**256
         /// </summary>
         public BigInteger _secret;
 
@@ -65,7 +65,7 @@ namespace BitcoinLib
         }
 
         /// <summary>
-        /// WIF = Wallet Import Format this serialized the private key
+        /// WIF = Wallet Import Format: this serializes the private key
         /// </summary>
         /// <param name="compressed"></param>
         /// <param name="testnet"></param>
@@ -91,35 +91,21 @@ namespace BitcoinLib
             return wif;
         }
 
+
         /// <summary>
         /// TODO: implement DeterminicsticK
         /// https://tools.ietf.org/html/rfc6979
+        /// This code was given to me by ChatGPT
         /// </summary>
         /// <param name="z">The message hash</param>
         /// <returns></returns>
-        public BigInteger DeterministicK_old(BigInteger z)
+        public BigInteger DeterministicK(BigInteger z)
         {
-            //
             // todo page 71 
             // implement RFC 6979
             //
             // search for hmac.cs from NBitcoin: "D:\Daten\Develop\crypto\NBitcoin-5.0.68\NBitcoin\BouncyCastle\crypto\macs\HMac.cs"
             //
-            //BigInteger k = 1234567890;
-            BigInteger k = BigInteger.Pow(2, 140) + BigInteger.Pow(2, 31) + 1234567890 + z;
-
-            // k = Tools.MakeBigIntegerBase10("24894178918147754510669305196745204969483053052570959134901113177497970986727"); // TODO make same as in python cpde
-            
-            return k;
-        }
-
-        /// <summary>
-        /// This was given to me by ChatGPT
-        /// </summary>
-        /// <param name="z"></param>
-        /// <returns></returns>
-        public BigInteger DeterministicK(BigInteger z)
-        {
             // z = z mod n (wie im Python-Code)
             z = (z % S256Field.N + S256Field.N) % S256Field.N;
 

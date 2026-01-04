@@ -2,17 +2,18 @@
 {
     /// <summary>
     /// Dont remember why we need a class instead of using byte[]
+    /// 03.01.2026: removed all usage of this class
     /// </summary>
     public class ByteArray
     {
-        public byte[] _bytes;
+        private byte[] _bytes;
 
-        public ByteArray(int len)
+        private ByteArray(int len)
         {
             _bytes = new byte[len];
         }
 
-        public byte this[int dataIndex]
+        private byte this[int dataIndex]
         {
             get => _bytes[dataIndex];
             set => _bytes[dataIndex] = value;

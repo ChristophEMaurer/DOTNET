@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ByteArray.cs" />
+    <Compile Remove="ReaderWriter.cs" />
+    <Compile Remove="Witness.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\BouncyCastle\BouncyCastle.csproj" />
   </ItemGroup>
 

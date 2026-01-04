@@ -3,7 +3,7 @@
 namespace BitcoinLib
 {
     /*
-     * A field is a finite number of integers such as F9 = { 1,2,3,,5,6,7,8,9}
+     * A field is a finite number of integers such as F9 = { 1,2,3,4,5,6,7,8,9 }
      * A FieldElement is one of these numbers. _prime is the order of the field and as addition etc.
      * are defined with modulo _prime, the definition of a FieldElement must contain the number and the order
      * so that the result can be wrapped around into the field.
@@ -16,8 +16,8 @@ namespace BitcoinLib
 
         /// <summary>
         /// If _prime is -1, then we do normal arithmetic without mod.
-        /// This means we do not have a field. This is the order of the field.
-        /// The order is the number of values in the field.
+        /// This means we do not have a field. The prime is the order of the field.
+        /// The order is also the number of values in the field.
         /// </summary>
         public BigInteger _prime;
 
@@ -32,6 +32,10 @@ namespace BitcoinLib
             _prime = prime;
         }
 
+        /// <summary>
+        /// FieldElement_9(5) : value 5 in a field with prime/order 9
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             string text = string.Format("FieldElement_{0}({1})", _prime, _num);
@@ -75,7 +79,6 @@ namespace BitcoinLib
             }
             return a.OperatorEqual(b);
         }
-
         public static bool operator !=(FieldElement a, FieldElement b)
         {
             return !(a == b);
@@ -243,7 +246,6 @@ namespace BitcoinLib
             FieldElement c = new FieldElement(num, _prime);
             return c;
         }
-
         public static FieldElement Pow(FieldElement a, BigInteger exponent)
         {
             return a.OperatorPow(exponent);

@@ -11,6 +11,9 @@ namespace BitcoinLib
     /// </summary>
     public class NetworkMessage
     {
+        /// <summary>
+        /// list of all network messages implemented here.
+        /// </summary>
         public static Dictionary<string, string> CommandToClassMapping = new Dictionary<string, string>
         {
             { "version",        "BitcoinLib.Network.VersionMessage" },
@@ -35,7 +38,6 @@ namespace BitcoinLib
         {
             return new byte[0];
         }
-
         public static string GetClassNameForCommand(string command)
         {
             if (CommandToClassMapping.ContainsKey(command))

@@ -27,7 +27,6 @@ namespace BitcoinLib.Network
 
             return ping;
         }
-
         public override byte[] Serialize()
         {
             List<byte> data = new List<byte>();

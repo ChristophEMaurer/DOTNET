@@ -89,7 +89,6 @@ namespace BitcoinLib.Network
             _latestBlock = latestBlock;
             _relay = relay;
         }
-
         public VersionMessage(string userAgent = "/Christoph:0.1/") :
             this(70015, 0, 0,
                 0, new byte[4], 8333,
@@ -99,7 +98,6 @@ namespace BitcoinLib.Network
             // /programmingbitcoin:0.1/
             // /Christoph:0.0/
         }
-
 
         public override byte[] Serialize()
         {

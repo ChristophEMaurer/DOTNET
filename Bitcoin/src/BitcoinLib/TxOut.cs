@@ -7,6 +7,10 @@ namespace BitcoinLib
     public class TxOut
     {
         public UInt64 _amount;
+
+        /// <summary>
+        /// If someone wants to spend this amount, then their TxIn must contain a signature must match this _script_pubkey.
+        /// </summary>
         public Script _script_pubkey;
 
         public TxOut(UInt64 amount, Script script)

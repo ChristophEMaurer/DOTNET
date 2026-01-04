@@ -14,6 +14,8 @@ namespace BitcoinLib
     /// </summary>
     public class Script
     {
+        // See Op.cs for all op codes
+        public const byte OP_0 = 0;
         public const byte OP_IF = 99;
         public const byte OP_NOTIF = 100;
         public const byte OP_TOALTSTACK = 107;
@@ -21,9 +23,11 @@ namespace BitcoinLib
         public const byte OP_DUP = 118;
         public const byte OP_EQUAL = 135;
         public const byte OP_EQUALVERIFY = 136;
+        public const byte OP_HASH160 = 169;
         public const byte OP_CHECKSIG = 172;
         public const byte OP_CHECKSIGVERIFY = 173;
-        public const byte OP_HASH160 = 169;
+        public const byte OP_CHECKMULTISIG = 174;
+        public const byte OP_CHECKMULTISIGVERIFY = 175;
         
         public static bool DebugDumpStacks = false;
         //
@@ -86,13 +90,39 @@ namespace BitcoinLib
             _cmds.Add(opItem);
         }
 
+        /// <summary>
+        /// Create a Script with two items/elements
+        /// </summary>
+        /// <param name="data1"></param>
+        /// <param name="data2"></param>
         public Script(byte[] data1, byte[] data2)
         {
             _cmds = new OpItems();
+
             OpItem opItem = new OpItem(data1);
             _cmds.Add(opItem);
             opItem = new OpItem(data2);
             _cmds.Add(opItem);
+        }
+
+        /// <summary>
+        /// A witness consists of n items, each item is a byte[].
+        /// 
+        ///      [item_1_length]     varint     witness[0]
+        ///      [item_1_bytes]      bytes      witness[1]
+        ///      [item_2_length]     varint     witness[2]
+        ///      [item_2_bytes]      bytes      witness[3]
+        ///      
+        /// <summary>
+        /// <param name="witness"></param>
+        public Script(byte[][] witness)
+        {
+            _cmds = new OpItems();
+
+            for (int i = 0; i < witness.Length; i++)
+            {
+                OpItem opItem = new OpItem(witness[i]);
+            }
         }
 
         public override string ToString()
@@ -426,7 +456,7 @@ namespace BitcoinLib
         /// </summary>
         /// <param name="z">the private key</param>
         /// <returns></returns>
-        public bool Evaluate(BigInteger z) // TODO
+        public bool Evaluate(BigInteger z, Script witness) // TODO add witness stuff
         {
             OpItem cmd;
 
@@ -497,7 +527,7 @@ namespace BitcoinLib
                             return false;
                         }
                     }
-                    else if (opCode == 174)
+                    else if (opCode == OP_CHECKMULTISIG)
                     {
                         if (!Op.op_checkmultisig(stack, z))
                         {
@@ -505,7 +535,7 @@ namespace BitcoinLib
                             return false;
                         }
                     }
-                    else if (opCode == 175)
+                    else if (opCode == OP_CHECKMULTISIGVERIFY)
                     {
                         if (!Op.op_checkmultisigverify(stack, z))
                         {
@@ -531,6 +561,8 @@ namespace BitcoinLib
                     if (Is_P2SH_ScriptPubkey(cmds))
                     {
                         // Pay-to-Script Hash
+                        // [OP_HASH160 (0xa9)] [20-byte hash] [OP_EQUAL (0x87)]
+                        //
                         byte[] scriptLen = Op.EncodeNum(cmd.Length);
                         byte[] redeemScript = ArrayHelpers.ConcatArrays(scriptLen, cmd._element);
 
@@ -555,6 +587,31 @@ namespace BitcoinLib
                         Script script = Script.Parse(redeemScript);
                         cmds.AddRange(script._cmds);
                     }
+                    if (Is_P2WPKH_ScriptPubkey(stack))
+                    {
+                        // [OP_0(0x00)][hash160 20 bytes]
+                        byte[] h160 = stack.Pop(0)._element;
+                        stack.Pop();
+                        cmds.AddRange(witness._cmds);
+                        Script script = Script.Parse(h160);
+                        cmds.AddRange(script._cmds);
+                    }
+                    if (Is_P2WSH_ScriptPubkey(stack))
+                    {
+                        // [OP_0 (0x00)] [hash256 32 bytes]
+                        byte[] s256 = stack.Pop()._element;
+                        stack.Pop();
+                        cmds.AddRange(witness._cmds.Take(witness._cmds.Count - 1));
+                        byte[] witness_script = witness._cmds[witness._cmds.Count - 1]._element;
+                        byte[] sha256 = Tools.SHA256(witness_script);
+                        if (!sha256.SequenceEqual(s256))
+                        {
+                            Console.WriteLine($"bad sha256 {Tools.BytesToHexString(s256)} vs {Tools.BytesToHexString(sha256)}");
+                            return false;
+                        }
+                        Script temp = new Script(witness_script);
+                        cmds.AddRange(temp._cmds);
+                    }
                 }
             }
             
@@ -578,7 +635,7 @@ namespace BitcoinLib
 
         /// <summary>
         /// Returns whether this follows the
-        /// OP_DUP OP_HASH160<20 byte hash> OP_EQUALVERIFY OP_CHECKSIG
+        /// [OP_DUP] [OP_HASH160 <20 byte hash>] [OP_EQUALVERIFY] [OP_CHECKSIG]
         /// pattern
         /// </summary>
         /// <returns></returns>
@@ -589,7 +646,7 @@ namespace BitcoinLib
 
         /// <summary>
         /// Returns whether this follows the
-        /// OP_DUP OP_HASH160<20 byte hash> OP_EQUALVERIFY OP_CHECKSIG
+        /// [OP_DUP] [OP_HASH160 <20 byte hash>] [OP_EQUALVERIFY] [OP_CHECKSIG]
         /// pattern
         /// </summary>
         /// <param name="cmds">The script commands</param>
@@ -637,11 +694,14 @@ namespace BitcoinLib
         {
             //
             //  there should be exactly 3 cmds
-            // OP_HASH160 (0xa9), 20-byte hash, OP_EQUAL (0x87)
+            // [OP_HASH160 (0xa9)] [20-byte hash] [OP_EQUAL (0x87)]
             //
-            //if (cmds.Count == 3)
+            if (cmds.Count == 3)
             {
-                if (cmds[0].IsOpcode(Script.OP_HASH160) && cmds[1].IsElement() && (cmds[1].Length == 20) && cmds[2].IsOpcode(OP_EQUAL))
+                if (cmds[0].IsOpcode(Script.OP_HASH160) 
+                    && cmds[1].IsElement() 
+                    && (cmds[1].Length == 20) 
+                    && cmds[2].IsOpcode(OP_EQUAL))
                 {
                     return true;
                 }
@@ -650,6 +710,51 @@ namespace BitcoinLib
             return false;
         }
 
+        public bool Is_P2WPKH_ScriptPubkey()
+        {
+            return Is_P2WPKH_ScriptPubkey(_cmds);
+        }
+        private bool Is_P2WPKH_ScriptPubkey(OpItems cmds)
+        {
+            //
+            // there should be exactly 2 cmds
+            // [OP_0 (0x00)] [hash160 20 bytes]
+            //
+            if (cmds.Count == 2)
+            {
+                if (cmds[0].IsOpcode(Script.OP_0)
+                    && cmds[1].IsElement() 
+                    && (cmds[1].Length == 20))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool Is_P2WSH_ScriptPubkey()
+        {
+            return Is_P2WSH_ScriptPubkey(_cmds);
+        }
+        private bool Is_P2WSH_ScriptPubkey(OpItems cmds)
+        {
+            //
+            // there should be exactly 2 cmds
+            // [OP_0 (0x00)] [hash256 32 bytes]
+            //
+            if (cmds.Count == 2)
+            {
+                if (cmds[0].IsOpcode(Script.OP_0)
+                    && cmds[1].IsElement()
+                    && (cmds[1].Length == 32))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         //
         // return a new Script object created by combining this script with another one.

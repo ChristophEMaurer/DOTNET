@@ -6,12 +6,34 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-// 31.12.2025 16:27 this text was typed on the branew new keybaord Logitech Signature slim sollar+ K980
+// 31.12.2025 16:27 this text was typed on the brand new keybaord Logitech Signature Slim Solar+ K980
 
 namespace BitcoinLib
 {
     public class MerkleTree
     {
+        /*
+      total = 16 (leaf  nodes)
+      max depth = 4
+      node (_currentDepth, _currentIndex)
+
+        _nodes[0]                                                       abcdefghijklmnop (0/0) 
+        _nodes[1]                               abcdefgh (1/0)                                                  ijklmnop (1/1)
+        _nodes[2]                 abcd (2/0)                      efgh (2,1)                     ijkl (2,2)                        mnop (2,3)
+        _nodes[3]         ab (3, 0)       cd (3, 1)       ef (3, 2)       gh (3,3)        ij (3,4)        kl (3,5)          mn (3,6)          op (3,7)
+        _nodes[4]     a (4,0) b (4,1) c (4,2) d (4,3) e (4,4) f (4,5) g (4,6) h (4,7) i (4,8) j (4,09 k (4,10) l (4,11) m (4,12) n (4,13) o (4,14) p (4,15)
+
+        _nodes[1][0] = abcdefgh
+            _nodes[1][0][0] = a
+            _nodes[1][0][1] = b
+            _nodes[1][0][2] = c
+            ...
+        _nodes[1][1] = ijklmnop
+        Each node is a byte[] because a node is a hash value consisting of many bytes.
+         */
+        /// <summary>
+        /// _nodes[0]
+        /// </summary>
         public byte[][][] _nodes;
         public int _total;
         public int _maxDepth;
@@ -77,6 +99,9 @@ namespace BitcoinLib
             return treeString;
         }
 
+        /// <summary>
+        /// Go up to parent: 
+        /// </summary>
         public void Up()
         {
             _currentDepth--;

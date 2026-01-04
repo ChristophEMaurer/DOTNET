@@ -67,7 +67,6 @@ namespace BitcoinLib
             return c;
         }
 
-
         public static S256Field operator +(S256Field a, S256Field b)
         {
             FieldElement x = a.OperatorPlus(b);

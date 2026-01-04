@@ -1,10 +1,5 @@
 ﻿using Org.BouncyCastle.Crypto.Digests;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Net.Sockets;
 using System.Numerics;
 using System.Reflection;
@@ -681,7 +676,7 @@ namespace BitcoinLib
             return x;
         }
 
-        public static string EncodeBase58(byte[] data)
+        private static string EncodeBase58(byte[] data) // TODO delete this function
         {
             // https://gist.github.com/CodesInChaos/3175971
             throw new NotImplementedException("EncodeBase58");

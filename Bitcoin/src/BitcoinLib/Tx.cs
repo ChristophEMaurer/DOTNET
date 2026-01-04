@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Numerics;
+﻿using System.Numerics;
 
 namespace BitcoinLib
 {
@@ -18,7 +15,7 @@ namespace BitcoinLib
     ///Extended transaction serialization format:
     ///- int32_t nVersion
     ///- unsigned char witnessMarker = 0x00     -> if this byte is 0 then this is the witness marker and flags/CTxWitness must exist. If this byte is not 0, then it belongs to the vin data.
-    ///-unsigned char flags(!= 0)
+    ///- unsigned char flags(!= 0)
     ///- std::vector<CTxIn> vin
     ///- std::vector<CTxOut> vout
     ///- if (flags & 1):
@@ -32,19 +29,34 @@ namespace BitcoinLib
         public static string Command = "tx";
 
         public UInt32 _version;
+
+        /// <summary>
+        /// must be 0x01
+        /// </summary>
         public byte _witnessMarker;
+
+        /// <summary>
+        /// must be != 0
+        /// </summary>
         public byte _flags;
+
         public List<TxIn> _txIns;
         public List<TxOut> _txOuts;
         public UInt32 _locktime;
         public bool _testnet = false;
 
-        public Tx(UInt32 version, List<TxIn> txIns, List<TxOut> txOuts, UInt32 locktime)
-            : this(version, 0, 0, txIns, txOuts, locktime)
+        public bool _isSegWit;
+
+        public byte[] _hash_prevouts;
+        public byte[] _hash_sequence;
+        public byte[] _hash_outputs;
+
+        public Tx(UInt32 version, List<TxIn> txIns, List<TxOut> txOuts, UInt32 locktime, bool isSegWit)
+            : this(version, 0, 0, txIns, txOuts, locktime, isSegWit)
         {
         }
 
-        public Tx(UInt32 version, byte witnessMarker, byte flags, List<TxIn> txIns, List<TxOut> txOuts, UInt32 locktime) :
+        public Tx(UInt32 version, byte witnessMarker, byte flags, List<TxIn> txIns, List<TxOut> txOuts, UInt32 locktime, bool isSegWit) :
             base(Command)
         {
             _version = version;
@@ -53,6 +65,7 @@ namespace BitcoinLib
             _txIns = txIns;
             _txOuts = txOuts;
             _locktime = locktime;
+            _isSegWit = isSegWit;
         }
 
         public override string ToString()
@@ -106,6 +119,7 @@ namespace BitcoinLib
 
         public static Tx Parse(BinaryReader input)
         {
+            bool isSegWit = false;
             UInt32 version = Tools.ReadUInt32LittleEndian(input);
 
             // if the next byte is 0, then we have all the witness data.
@@ -116,6 +130,7 @@ namespace BitcoinLib
             byte flags = 0;
             if (witness_marker == 0)
             {
+                isSegWit = true;
                 witness_marker = input.ReadByte();
                 flags = input.ReadByte();
                 if (flags != 1)
@@ -138,7 +153,6 @@ namespace BitcoinLib
                 txouts.Add(TxOut.Parse(input));
             }
 
-            ByteArray[] witnesses;
             if ((flags & 0x01) != 0)
             {
                 //
@@ -147,38 +161,46 @@ namespace BitcoinLib
                 // https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki#transaction-id
                 // https://bitcoincore.org/en/segwit_wallet_dev/
                 //
+                // for each TxIn we have:
+                //
+                // [witness_item_count]     varint
+                //      [item_1_length]     varint
+                //      [item_1_bytes]      bytes
+                //      [item_2_length]     varint
+                //      [item_2_bytes]      bytes
+                //      ...
+                //
                 for (int i = 0; i < txins.Count; i++)
                 {
                     //
-                    // each input must have a witness. The witness can be 0.
+                    // each input must have a witness. The witness can be 0. 
+                    // A witness consists of n items, each item is a byte[]
                     //
                     UInt64 numStackitems = Tools.ReadVarInt(input);
-                    Witness witness = new Witness((int) numStackitems);
+                    byte[][] witness = new byte[numStackitems][];
                     txins[i]._witness = witness;
-                    for (int j = 0; j < (int)numStackitems; j++)
+                    for (UInt64 j = 0; j < numStackitems; j++)
                     {
                         UInt64 numBytes = Tools.ReadVarInt(input);
-                        ByteArray bytes = new ByteArray((int)numBytes);
+                        // if numBytes is 0, then we do new byte[0]
+                        byte[] bytes = new byte[numBytes];
+                        input.Read(bytes, 0, (int) numBytes);
                         txins[i]._witness[j] = bytes;
-                        for (int k = 0; k < (int)numBytes; k++)
-                        {
-                            bytes[k] = input.ReadByte();
-                        }
                     }
                 }
-            }
-            else
-            {
-                witnesses = new ByteArray[0];
             }
 
             UInt32 locktime = Tools.ReadUInt32LittleEndian(input);
 
-            Tx tx = new Tx(version, witness_marker, flags, txins, txouts, locktime);
+            Tx tx = new Tx(version, witness_marker, flags, txins, txouts, locktime, isSegWit);
 
             return tx;
         }
 
+        /// <summary>
+        /// Serializes the Tx: this may or may not include segwit data
+        /// </summary>
+        /// <returns></returns>
         public byte[] serialize()
         {
             List<byte> data = new List<byte>();
@@ -188,7 +210,36 @@ namespace BitcoinLib
             return bytes;
         }
 
+        /// <summary>
+        /// Serializes this Tx without SegWit data, this is used for creating the hash
+        /// </summary>
+        /// <returns></returns>
+        public byte[] serialize_legacy()
+        {
+            List<byte> data = new List<byte>();
+            serialize_legacy(data);
+            byte[] bytes = data.ToArray();
+
+            return bytes;
+        }
+
+        /// <summary>
+        /// Serializes the Tx: this may or may not include segwit data
+        /// </summary>
+        /// <param name="data"></param>
         public void serialize(List<byte> data)
+        {
+            if (_isSegWit)
+            {
+                serialize_segwit(data);
+            }
+            else
+            {
+                serialize_legacy(data);
+            }
+        }
+
+        public void serialize_legacy(List<byte> data)
         {
             Tools.UIntToLittleEndian(_version, data, 4);
 
@@ -207,6 +258,53 @@ namespace BitcoinLib
             Tools.UIntToLittleEndian(_locktime, data, 4);
         }
 
+        public void serialize_segwit(List<byte> data)
+        {
+            Tools.UIntToLittleEndian(_version, data, 4);
+
+            // add witness marker and flags
+            data.Add(_witnessMarker);
+            data.Add(_flags);
+
+            Tools.EncodeVarInt(data, (UInt64)_txIns.Count);
+            foreach (TxIn txin in _txIns)
+            {
+                txin.serialize(data);
+            }
+
+            Tools.EncodeVarInt(data, (UInt64)_txOuts.Count);
+            foreach (TxOut txout in _txOuts)
+            {
+                txout.serialize(data);
+            }
+
+            // add witness data from TxIns
+            foreach (TxIn txin in _txIns)
+            {
+                Tools.EncodeVarInt(data, (UInt64)txin._witness.Length);
+                for (int i = 0; i < txin._witness.Length; i++)
+                {
+                    //
+                    // 0
+                    // or
+                    // [len varint] [data]
+                    //
+                    if (txin._witness[i].Length == 0)
+                    {
+                        // we did new byte[0] in parse()
+                        data.Add(0);
+                    }
+                    else
+                    {
+                        Tools.EncodeVarInt(data, (UInt64)txin._witness[i].Length);
+                        data.AddRange(txin._witness[i]);
+                    }
+                }
+            }
+
+            Tools.UIntToLittleEndian(_locktime, data, 4);
+        }
+
         public string Id()
         {
             byte[] data = Hash();
@@ -218,7 +316,7 @@ namespace BitcoinLib
 
         public byte[] Hash()
         {
-            byte[] raw = serialize();
+            byte[] raw = serialize_legacy();
             byte[] data = Tools.Hash256(raw);
 
             string s1 = Tools.BytesToHexString(raw);
@@ -320,11 +418,14 @@ namespace BitcoinLib
             return z;
         }
 
-        public bool VerifyInput(int inputIndex)
+        public bool VerifyInput(int inputIndex) // TODO: add segwit stuff from chapter 13
         {
             TxIn txIn = _txIns[inputIndex];
             Script script_pubkey = txIn.GetPreviousScriptPubKey(_testnet);
             Script redeemScript = null;
+            BigInteger z;
+            byte[][] witness = null;
+            Script witnessScript = null;
 
             if (script_pubkey.Is_P2SH_ScriptPubkey())
             {
@@ -334,15 +435,65 @@ namespace BitcoinLib
                 byte[] raw_redeem = ArrayHelpers.ConcatArrays(itemLen._element, cmd._element);
 
                 redeemScript = Script.Parse(raw_redeem);
+
+                if (redeemScript.Is_P2WPKH_ScriptPubkey())
+                {
+                    z = sig_hash_bip143(inputIndex, redeemScript, null);
+                    witness = txIn._witness;
+                }
+                else if (redeemScript.Is_P2WSH_ScriptPubkey())
+                {
+                    byte[] bData = txIn._witness[txIn._witness.Length - 1];
+                    byte[] lenData = Tools.EncodeVarIntToBytes(bData.Length);
+                    byte[] raw_witness = ArrayHelpers.ConcatArrays(lenData, bData);
+                    Script tempScript = Script.Parse(raw_witness);
+                    z = sig_hash_bip143(inputIndex, null, tempScript);
+                    witness = txIn._witness;
+                }
+                else
+                {
+                    z = SigHash(inputIndex, redeemScript);
+                    witness = null;
+                }
             }
             else
             {
+                // ScriptPubkey might be a p2wpkh or p2wsh
                 // no redeem script
+                if (script_pubkey.Is_P2WPKH_ScriptPubkey())
+                {
+                    z = sig_hash_bip143(inputIndex, null, null);
+                    witness = txIn._witness;
+                }
+                else if (script_pubkey.Is_P2WSH_ScriptPubkey())
+                {
+                    byte[] bData = txIn._witness[txIn._witness.Length - 1];
+                    byte[] lenData = Tools.EncodeVarIntToBytes(bData.Length);
+                    byte[] raw_witness = ArrayHelpers.ConcatArrays(lenData, bData);
+                    Script tempScript = Script.Parse(raw_witness);
+                    z = sig_hash_bip143(inputIndex, null, tempScript);
+                    witness = txIn._witness;
+                }
+                else
+                {
+                    z = SigHash(inputIndex, null);
+                    witness = null;
+                }
             }
 
-            BigInteger z = SigHash(inputIndex, redeemScript);
             Script combinedScript = txIn._script_sig.Add(script_pubkey);
-            bool success = combinedScript.Evaluate(z);
+
+            if (witness != null)
+            {
+                witnessScript = new Script(witness);
+            }
+
+            if (Tools.LOGGING > 2)
+            {
+                Console.WriteLine($"Tx.VerifyInput({inputIndex}) z= {z.ToString()}");
+            }
+
+            bool success = combinedScript.Evaluate(z, witnessScript);
 
             return success;
         }
@@ -426,6 +577,123 @@ namespace BitcoinLib
             int height = (int) Op.DecodeNum(item._element);
 
             return height;
+        }
+
+        public byte[] HashPrevOuts()
+        {
+            if (_hash_prevouts == null)
+            {
+                List<byte> lst_all_prevouts = new List<byte>();
+
+                foreach (TxIn tx_in in _txIns)
+                {
+                    // previous hash
+                    var copy = (byte[])tx_in._prev_tx.Clone(); // Original bleibt unverändert
+                    Array.Reverse(copy);               // nur die Kopie wird gedreht
+                    lst_all_prevouts.AddRange(copy);
+
+                    // previous index
+                    Tools.UIntToLittleEndian(tx_in._prev_index, lst_all_prevouts, 4);
+                }
+
+                byte[] all_prevouts = lst_all_prevouts.ToArray();
+
+                _hash_prevouts = Tools.Hash256(all_prevouts);
+            }
+
+            return _hash_prevouts;
+        }
+
+        public byte[] hash_sequence()
+        {
+            if (_hash_sequence== null)
+            {
+                List<byte> lst_all_sequence = new List<byte>();
+
+                foreach (TxIn tx_in in _txIns)
+                {
+                    // add sequence
+                    Tools.UIntToLittleEndian(tx_in._sequence, lst_all_sequence, 4);
+                }
+
+                byte[] all_sequence = lst_all_sequence.ToArray();
+
+                _hash_sequence = Tools.Hash256(all_sequence);
+            }
+
+            return _hash_sequence;
+        }
+
+        
+        public byte[] HashOutputs()
+        {
+            if (_hash_outputs == null)
+            {
+                List<byte> lst_all_outputs = new List<byte>();
+
+                foreach (TxOut tx_out in _txOuts)
+                {
+                    tx_out.serialize(lst_all_outputs);
+                }
+
+                byte[] all_outputs = lst_all_outputs.ToArray();
+
+                _hash_outputs = Tools.Hash256(all_outputs);
+            }
+
+            return _hash_outputs;
+        }
+
+        public BigInteger sig_hash_bip143(int inputIndex, Script redeemScript, Script witnessScript)
+        {
+            TxIn txIn = _txIns[inputIndex];
+
+            // per BIP143 spec
+            List<byte> s = new List<byte>();
+
+            Tools.UIntToLittleEndian(_version, s, 4);
+            s.AddRange(HashPrevOuts());
+            s.AddRange(hash_sequence());
+
+            // previous hash and index
+            //List<byte> temp = new List<byte>();
+            var copy = (byte[])txIn._prev_tx.Clone();
+            Array.Reverse(copy);
+            s.AddRange(copy);
+            Tools.UIntToLittleEndian(txIn._prev_index, s, 4);
+
+            byte[] script_code;
+
+            if (witnessScript != null)
+            {
+                script_code = witnessScript.serialize();
+            }
+            else if (redeemScript != null)
+            {
+                script_code = Script.Create_P2PKH_Script(redeemScript._cmds[1]._element).serialize();
+            }
+            else
+            {
+                script_code = Script.Create_P2PKH_Script(txIn.GetPreviousScriptPubKey(_testnet)._cmds[1]._element).serialize();
+            }
+            s.AddRange(script_code);
+            Tools.UIntToLittleEndian(txIn.Value(), s, 8);
+            Tools.UIntToLittleEndian(txIn._sequence, s, 4);
+            s.AddRange(HashOutputs());
+            Tools.UIntToLittleEndian(_locktime, s, 4);
+            Tools.UIntToLittleEndian(Signature.SIGHASH_ALL, s, 4);
+
+            byte[] b = s.ToArray();
+            byte[] hash = Tools.Hash256(b);
+
+            BigInteger z = Tools.BigIntegerFromBytes(hash, "big");
+
+            if (Tools.LOGGING > 1)
+            {
+                Console.WriteLine("sig_hash_bip143() z = " + z.ToString());
+            }
+
+            return z;
         }
     }
 }

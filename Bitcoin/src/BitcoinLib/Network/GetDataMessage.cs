@@ -31,7 +31,6 @@ namespace BitcoinLib.Network
         /// </summary>
         public List<(UInt32 type, byte[] hash)> _items = new List<(UInt32 type, byte[] hash)> ();
 
-
         public GetDataMessage() :
             base(Command)
         {

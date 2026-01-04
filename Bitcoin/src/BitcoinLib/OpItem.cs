@@ -4,7 +4,8 @@ namespace BitcoinLib
     /// <summary>
     /// OPitem is either an opcode stored in an int
     /// or
-    /// an element stored in a byte array, the first byte is at index 0 - left to right in a hex string <=> index 0 to last index in the byte array
+    /// an element stored in a byte array, the first byte is at index 0.
+    /// Left to right in a hex string <=> index 0 to last index in the byte array
     /// </summary>
     public class OpItem
     {
@@ -26,7 +27,10 @@ namespace BitcoinLib
         /// <param name="other"></param>
         public OpItem(OpItem other)
         {
-            _element = (byte[])other._element.Clone();
+            if (other._element != null)
+            {
+                _element = (byte[])other._element.Clone();
+            }
             _opCode = other._opCode;
         }
 
@@ -75,8 +79,7 @@ namespace BitcoinLib
             }
             else
             {
-                byte[] raw = _element;
-                string name = Tools.BytesToHexString(raw);
+                string name = Tools.BytesToHexString(_element);
                 text = "Element: " + name;
             }
 
@@ -85,12 +88,18 @@ namespace BitcoinLib
 
         /// <summary>
         /// Return true if this is an opcode and not an element
+        /// If the opcode is a valid one, then it is an opcode
         /// </summary>
         /// <returns></returns>
         public bool IsOpcode()
         {
             return _opCode != OpCodeInvalid;
         }
+
+        /// <summary>
+        /// If the opcode is invalid, then we have an element
+        /// </summary>
+        /// <returns></returns>
         public bool IsElement()
         {
             return _opCode == OpCodeInvalid;
@@ -162,81 +171,45 @@ namespace BitcoinLib
         }
 
         /// <summary>
-        /// Compare two eleents, crashes for opcodes
+        /// Compare two eleemnts, crashes for opcodes.
         /// </summary>
         /// <param name="a"></param>
         /// <param name="b"></param>
-        /// <returns></returns>
+        /// <returns>true if both _elements have same length and content.</returns>
         public static bool operator ==(OpItem a, OpItem b)
         {
-            bool equal = true;
-
-            if (a.Length != b.Length)
-            {
-                equal = false;
-            }
-            else
-            {
-                for (int i = 0; i < a.Length; i++)
-                {
-                    if (a[i] != b[i])
-                    {
-                        equal = false;
-                        break;
-                    }
-                }
-            }
+            bool equal = a._element.SequenceEqual(b._element);
 
             return equal;
         }
 
         /// <summary>
-        /// Compare two eleents, crashes for opcodes
-        /// 
+        /// Compare two elements, crashes for opcodes
         /// </summary>
         /// <param name="a"></param>
         /// <param name="b"></param>
-        /// <returns></returns>
+        /// <returns>true if the length or content is different</returns>
         public static bool operator !=(OpItem a, OpItem b)
         {
-            bool not_equal = false;
-
-            if (a.Length != b.Length)
-            {
-                not_equal = true;
-            }
-            else
-            {
-                for (int i = 0; i < a.Length; i++)
-                {
-                    if (a[i] != b[i])
-                    {
-                        not_equal = true;
-                        break;
-                    }
-                }
-            }
+            bool not_equal = !a._element.SequenceEqual(b._element);
 
             return not_equal;
         }
 
         /// <summary>
-        /// return the last byte: the last one of the hex string which is the byte at the end of the array
+        /// Return the last byte of the byte array byte[].
+        /// The _element array must have at least one byte or the code will crash
         /// </summary>
         /// <returns></returns>
         public byte Pop()
         {
-            byte b = _element[_element.Length - 1];
-            byte[] newData = new byte[_element.Length - 1];
+            byte ret = _element[_element.Length - 1];
 
-            for (int i = 0; i < _element.Length - 1; i++)
-            {
-                newData[i] = _element[i];
-            }
+            byte[] newElement = new byte[_element.Length - 1];
+            Array.Copy(_element, newElement, newElement.Length);
+            _element = newElement;
 
-            _element = newData;
-
-            return b;
+            return ret;
         }
 
         public static bool operator <(int a, OpItem b)

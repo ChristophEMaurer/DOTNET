@@ -60,7 +60,7 @@ namespace BitcoinLib.Test
             Console.WriteLine("script_sig       =" + script_sig);
             Console.WriteLine("combined_script  =" + combined_script);
 
-            Console.WriteLine("p 118: op_checksig : " + combined_script.Evaluate(z));
+            Console.WriteLine("p 118: op_checksig : " + combined_script.Evaluate(z, null));
         }
 
         public static void test_chapter_6_ex_3()
@@ -70,7 +70,7 @@ namespace BitcoinLib.Test
             Script combined_script = script_sig.Add(script_pubkey);
 
             Console.WriteLine(combined_script);
-            Console.WriteLine("Result x*x + x = 6 (x=2):" + combined_script.Evaluate(0));
+            Console.WriteLine("Result x*x + x = 6 (x=2):" + combined_script.Evaluate(0, null));
         }
 
         public static void test_chapter_6_ex_4()
@@ -107,7 +107,7 @@ a82be331fea48037b8b5d71f0e332edf93ac3500eb4ddc0decc1a864790c782c76215660dd3097
 
             Script script_sig = new Script(c1, c2);
             Script combined_script = script_sig.Add(script_pubkey);
-            Console.WriteLine("SHA1 collision p128: " + combined_script.Evaluate(0));
+            Console.WriteLine("SHA1 collision p128: " + combined_script.Evaluate(0, null));
         }
         public static void test_chapter_7_p140()
         {
@@ -144,7 +144,7 @@ a82be331fea48037b8b5d71f0e332edf93ac3500eb4ddc0decc1a864790c782c76215660dd3097
             stack.Push(new OpItem(Script.OP_EQUAL));
 
             Script script = new Script(stack);
-            bool success = script.Evaluate(z);
+            bool success = script.Evaluate(z, null);
             AssertTrue(success);
         }
 

@@ -8,23 +8,28 @@ using System.Threading.Tasks;
 
 namespace BitcoinLib.BIP39
 {
+    /// <summary>
+    /// BIP39 
+    /// </summary>
     public class BIP39
     {
         /// <summary>
+        /// 2 ^11 = 2048
+        /// 
         /// army van defense carry jealous true garbage claim echo media make crunch    12 words
         /// 
         /// 00001100000 11110001001 00111001011 00100010111 01110111100 11101001010     12 x 11 bit = 132 bits
         /// 01011111100 00101001101 01000101111 10001010011 10000110100 00110100111
         /// 
-        /// checksum: 0111
+        /// checksum - last 4 bits: 0111
         ///
         /// entropy: all bits except the checksum grouped by bits of 8: 132 bits - 4 bit = 128 bits = 16 bytes
-        /// 00001100 00011110 00100100 11100101
-        /// 10010001 01110111 01111001 11010010
-        /// 10010111 11100001 01001101 01000101
-        /// 11110001 01001110 00011010 00011010
+        /// 00001100 00011110 00100100 11100101     0c1e24e5
+        /// 10010001 01110111 01111001 11010010     917779d2
+        /// 10010111 11100001 01001101 01000101     97e14d45
+        /// 11110001 01001110 00011010 00011010     f14e1a1a
         ///
-        /// entropy = 0c1e24e5917779d297e14d45f14e1a1a
+        /// entropy = 0c1e24e5 917779d2 97e14d45 f14e1a1a = 0c1e24e5917779d297e14d45f14e1a1a
         /// </summary>
         /// <param name="mnemonics"></param>
         public static bool MnemonicToEntropy(string mnemonic, out string strEntropy, out string strRelevantChecksumBits)
@@ -58,6 +63,7 @@ namespace BitcoinLib.BIP39
             {
                 Int32 index;
                 wordlist.WordExists(arMnemonics[i], out index);
+                // index is 0..2028 and is 11 bits and is the 11-bit-value of the word
                 mnemonicData[i] = index;
             }
 
