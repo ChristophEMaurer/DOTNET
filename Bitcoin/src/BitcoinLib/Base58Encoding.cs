@@ -202,7 +202,7 @@ namespace BitcoinLib
         /// </summary>
         /// <param name="h160"></param>
         /// <param name="testnet"></param>
-        /// <returns></returns>
+        /// <returns>a P2PKH address: 1...</returns>
         public static string H160To_P2PKH_Address(byte[] h160, bool testnet = false)
         {
             byte[] data;
@@ -225,7 +225,7 @@ namespace BitcoinLib
         /// </summary>
         /// <param name="h160"></param>
         /// <param name="testnet"></param>
-        /// <returns></returns>
+        /// <returns>a P2SH address: 2 for testnet, 3 for mainnet</returns>
         public static string H160To_P2SH_Address(byte[] h160, bool testnet = false)
         {
             byte[] data;

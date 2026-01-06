@@ -370,6 +370,12 @@ namespace BitcoinLib
             return true;
         }
 
+        /// <summary>
+        /// Anything other than a 0 is success.
+        /// A 0 means failure.
+        /// </summary>
+        /// <param name="stack"></param>
+        /// <returns></returns>
         public static bool op_verify(OpItems stack)
         {
             if (stack.Count < 1)
@@ -1190,6 +1196,9 @@ namespace BitcoinLib
         /// parse the serialized pubkey and signature into objects
         /// verify the signature using S256Point.verify()
         /// push an encoded 1 or 0 depending on whether the signature verified
+        /// Script              Stack
+        ///                     [pubkey]
+        /// [OP_CHECKSIG]       [signature]
         /// </summary>
         /// <param name="stack"></param>
         /// <param name="z"></param>
@@ -1234,6 +1243,13 @@ namespace BitcoinLib
             return success;
         }
 
+        /// <summary>
+        /// We have n public keys. the ScriptPubKey also says that m signature are required to unlock the output.
+        /// The ScriptSig has to supply those m signatures, and they must be in the order of the public keys.
+        /// </summary>
+        /// <param name="stack"></param>
+        /// <param name="z"></param>
+        /// <returns></returns>
         public static bool op_checkmultisig(OpItems stack, BigInteger z)
         {
             if (stack.Count < 1)
@@ -1274,7 +1290,7 @@ namespace BitcoinLib
 
             // OP_CHECKMULTISIG bug: remove dummy OP_0
             OpItem item = stack.Pop(); // TODO: check that this is OP_0
-            if (!item.IsZero())
+            if (!item.IsOpZero())
             {
                 return false;
             }

@@ -288,7 +288,7 @@ namespace BitcoinLib
         /// Check if this is OP_0 which is an empty byte array (an array of length 0)
         /// </summary>
         /// <returns></returns>
-        public bool IsZero()
+        public bool IsOpZero()
         {
             return (_element != null) && (_element.Length == 0);
         }

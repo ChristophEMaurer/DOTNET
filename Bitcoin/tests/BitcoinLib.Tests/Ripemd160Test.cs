@@ -1,6 +1,5 @@
 ﻿using BitcoinLib;
 using BitcoinLib.Crypto;
-using Org.BouncyCastle.Crypto.Digests;
 using System;
 using System.Collections.Generic;
 using System.Linq;

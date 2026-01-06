@@ -12,8 +12,4 @@
     <Compile Remove="Witness.cs" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\BouncyCastle\BouncyCastle.csproj" />
-  </ItemGroup>
-
 </Project>

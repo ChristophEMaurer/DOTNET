@@ -159,6 +159,9 @@ namespace BitcoinLib.Test
             Tools.CallStaticMethod("BitcoinLib.Test.FilterLoadMessageTest", "test_filterload");
 
             Tools.CallStaticMethod("BitcoinLib.Test.GetDataMessageTest", "test_serialize");
+
+            Tools.CallStaticMethod("BitcoinLib.Test.Bech32Test", "test_bech32");
+            
         }
 
         public static void RunChapters()

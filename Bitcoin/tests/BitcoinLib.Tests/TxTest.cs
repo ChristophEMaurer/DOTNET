@@ -244,6 +244,9 @@ LOCK_TIME 00000000
             AssertEqual(want, z);
         }
 
+        /// <summary>
+        /// 06.01.2026 debugged: OK
+        /// </summary>
         public static void test_verify_p2pkh()
         {
             // test_verify_p2pkh(self):
@@ -273,7 +276,7 @@ LOCK_TIME 00000000
             // This leaves a fee of 0,44 - (0,1 + 0,33) = 0,44 - 0,43 = 0,01 BTC
             //
 
-            Console.WriteLine("private key 8675309 ==> compressed/testnet ==> public ke/address mzx5YhAH9kNHtcN481u6WkjeHjYtVeKVh2");
+            Console.WriteLine("private key 8675309 ==> compressed/testnet ==> public key/address mzx5YhAH9kNHtcN481u6WkjeHjYtVeKVh2");
 
             byte[] prev_tx = Tools.HexStringToBytes("0d6fe5213c0b3291f208cba8bfb59b7476dffacc4e5cb66f6eb20a080843a299");
             UInt32 prev_index = 13;
@@ -589,25 +592,35 @@ tb1qerzrlxcfu24davlur5sqmgzzgsal6wusda40er
             AssertTrue(success);
         }
 
-        public static void test_verify_p2sh()
+        /// <summary>
+        /// 06.01.2026 debugged: OK
+        /// </summary>
+        public static void test_verify_p2sh() // OK
         {
             Tx tx = TxFetcher.Fetch("46df1a9484d0a81d03ce0ee543ab6e1a23ed06175c104a178268fad381216c2b");
 
             AssertTrue(tx.Verify());
-            AssertTrue(tx.Verify()); // TODO: why does this second verify fail? test_verify_p2sh()
-            // bool success = combinedScript.Evaluate(z, witnessScript);
-            // combined script: die 01 hinten fehlt
+            AssertTrue(tx.Verify());
         }
 
-        public static void test_verify_p2wpkh()
+        /// <summary>
+        /// 06.01.2026 debugged: OK
+        /// </summary>
+        public static void test_verify_p2wpkh() // OK!
         {
             Tx tx = TxFetcher.Fetch("d869f854e1f8788bcff294cc83b280942a8c728de71eb709a2c29d10bfe21b7c", true);
 
-            AssertTrue(tx.Verify());
+            string s = tx.ToString();
+            Console.WriteLine(s);
+
+            AssertTrue(tx.Verify()); // OK!
             AssertTrue(tx.Verify());
         }
 
-        public static void test_verify_p2sh_p2wpkh()
+        /// <summary>
+        /// 06.01.2026 debugged: OK
+        /// </summary>
+        public static void test_verify_p2sh_p2wpkh() // OK
         {
             Tx tx = TxFetcher.Fetch("c586389e5e4b3acb9d6c8be1c19ae8ab2795397633176f5a6442a261bbdefc3a");
 
@@ -615,7 +628,7 @@ tb1qerzrlxcfu24davlur5sqmgzzgsal6wusda40er
             AssertTrue(tx.Verify());
         }
 
-        public static void test_verify_p2wsh()
+        public static void test_verify_p2wsh() // ok
         {
             Tx tx = TxFetcher.Fetch("78457666f82c28aa37b74b506745a7c7684dc7842a52a457b09f09446721e11c", true);
 

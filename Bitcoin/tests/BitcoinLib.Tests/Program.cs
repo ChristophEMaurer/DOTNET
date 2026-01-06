@@ -1,6 +1,5 @@
 ﻿using BitcoinLib;
 using BitcoinLib.BIP39;
-using Org.BouncyCastle.Crypto.Digests;
 using System;
 using System;
 using System.Collections.Generic;
@@ -15,6 +14,8 @@ using System.Security.Cryptography;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
+
+using BitcoinLib;
 
 namespace BitcoinLib.Test
 {
@@ -42,11 +43,19 @@ namespace BitcoinLib.Test
         {
             Tools.LOGGING_TIME = false;
 
-            if (false)
+            if (true)
             {
                 Tools.LOGGING = 3;
 
-                Tools.CallStaticMethod("BitcoinLib.Test.Ripemd160Test", "test_ripemd160_chatgpt");
+                //Tools.CallStaticMethod("BitcoinLib.Test.TxTest", "test_verify_p2pkh"); // ok
+                //Tools.CallStaticMethod("BitcoinLib.Test.TxTest", "test_verify_p2sh"); // ok
+                //Tools.CallStaticMethod("BitcoinLib.Test.TxTest", "test_verify_p2wpkh"); // ok
+
+                //Tools.CallStaticMethod("BitcoinLib.Test.Bech32Test", "test_bech32"); // ok
+
+                //Tools.CallStaticMethod("BitcoinLib.Test.TxTest", "test_verify_p2sh_p2wpkh"); // OK
+                //Tools.CallStaticMethod("BitcoinLib.Test.TxTest", "test_verify_p2wsh"); //ok
+                Tools.CallStaticMethod("BitcoinLib.Test.TxTest", "test_verify_p2sh_p2wsh");
             }
             else
             {

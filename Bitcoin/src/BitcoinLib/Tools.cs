@@ -1,4 +1,4 @@
-﻿using Org.BouncyCastle.Crypto.Digests;
+﻿using BitcoinLib.Crypto;
 using System.Globalization;
 using System.Net.Sockets;
 using System.Numerics;
@@ -330,13 +330,13 @@ namespace BitcoinLib
 
             return result2;
         }
-
+        /*
         /// <summary>
         /// 1 x RIPEMD160
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public static byte[] RipeMD160(byte[] data)
+        public static byte[] RipeMD160_bouncyCastle(byte[] data)
         {
             // Digest erzeugen
             RipeMD160Digest digest = new RipeMD160Digest();
@@ -350,6 +350,24 @@ namespace BitcoinLib
 
             return hash;
         }
+        */
+
+
+        public static byte[] RipeMD160(byte[] data)
+        {
+            // Digest erzeugen
+            RIPEMD160 digest = new RIPEMD160();
+
+            // Daten einfügen
+            digest.BlockUpdate(data, 0, data.Length);
+
+            // hash auslesen
+            byte[] hash = new byte[digest.GetDigestSize()];
+            digest.DoFinal(hash, 0);
+
+            return hash;
+        }
+
 
         /// <summary>
         /// 1 x -SHA256

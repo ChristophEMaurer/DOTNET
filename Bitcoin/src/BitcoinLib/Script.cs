@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -122,6 +123,7 @@ namespace BitcoinLib
             for (int i = 0; i < witness.Length; i++)
             {
                 OpItem opItem = new OpItem(witness[i]);
+                _cmds.Add(opItem);
             }
         }
 
@@ -334,6 +336,7 @@ namespace BitcoinLib
         }
 
         /// <summary>
+        /// [len] [bytes]
         /// Serialized the length of the entire script plus the serial data itself.
         /// The length is the number of elements. One element is a byte or an array of bytes.
         /// </summary>
@@ -456,8 +459,13 @@ namespace BitcoinLib
         /// </summary>
         /// <param name="z">the private key</param>
         /// <returns></returns>
-        public bool Evaluate(BigInteger z, Script witness) // TODO add witness stuff
+        public bool Evaluate(BigInteger z, Script witness)
         {
+            if (Tools.LOGGING > 2)
+            {
+                Console.WriteLine($"Script.Evaluate() z = {z.ToString()}, witness={witness.ToString()}");
+            }
+
             OpItem cmd;
 
             //
@@ -560,48 +568,113 @@ namespace BitcoinLib
 
                     if (Is_P2SH_ScriptPubkey(cmds))
                     {
-                        // Pay-to-Script Hash
-                        // [OP_HASH160 (0xa9)] [20-byte hash] [OP_EQUAL (0x87)]
-                        //
+                        if (Tools.LOGGING > 0)
+                        {
+                            Console.WriteLine("Script.Evaluate(): P2SH");
+                        }
+                        /*
+                         See p 153
+                         this code is executed by test case TxTest.test_verify_p2sh() and works.
+                        
+                         Pay-to-Script-Hash special pattern:
+                         [OP_HASH160 (0xa9)] [20-byte hash] [OP_EQUAL (0x87)]
+                        
+                         We just added the redeemScript to the stack and have recognized the special p2sh pattern.
+                         we have:
+                                    Script              Stack
+                                                        <redeemScript>
+                                    OP_HASH160          <signature>
+                                    <hash>              <signature>
+                                    OP_EQUAL            0
+                        */
                         byte[] scriptLen = Op.EncodeNum(cmd.Length);
                         byte[] redeemScript = ArrayHelpers.ConcatArrays(scriptLen, cmd._element);
 
+                        // remove OP_HASH160
                         cmds.Pop(0);
+                        // get and remove the hash
                         byte[] h160 = cmds.Pop(0)._element;
+                        // remove OP_EQUAL
                         cmds.Pop(0);
+                        /*
+                                    Script              Stack
+                                                        <redeemScript>
+                                                        <signature>
+                                                        <signature>
+                                                        0
+                         */
+                        // calculate the hash value of the script which is on top of the stack
                         if (!Op.op_hash160(stack))
                         {
                             return false;
                         }
+                        // <hash> <signature> <signature> 0
                         stack.Add(new OpItem(h160));
+                        // <hash> <hash> <signature> <signature> 0
                         if (!Op.op_equal(stack))
                         {
                             return false;
                         }
+                        // 1 <signature> <signature> 0
                         // final result should be a 1
-                        if (! Op.op_verify(stack))
+                        if (!Op.op_verify(stack))
                         {
                             return false;
                         }
+                        // <signature> <signature> 0
                         // hashes match! now add the RedeemScript
                         Script script = Script.Parse(redeemScript);
                         cmds.AddRange(script._cmds);
+
+                        // now the redeemScript is the script and the
+                        // stack has whatever was necessary to match the redeem script
                     }
-                    if (Is_P2WPKH_ScriptPubkey(stack))
+                    if (Is_P2WPKH_ScriptPubkey(stack, true))
                     {
-                        // [OP_0(0x00)][hash160 20 bytes]
-                        byte[] h160 = stack.Pop(0)._element;
+                        if (Tools.LOGGING > 0)
+                        {
+                            Console.WriteLine("Script.Evaluate(): P2WPKH");
+                        }
+                        /*
+                         Stack:
+                         [hash160 20 bytes]
+                         [OP_0 (0x00)]
+
+                            witness contains the 2 elements:
+                            [signature]
+                            [pubkey]
+                         */
+
+                        // get the hash value
+                        byte[] h160 = stack.Pop()._element;
+                        // remove the OP_0: this is also the witness version
                         stack.Pop();
+
                         cmds.AddRange(witness._cmds);
-                        Script script = Script.Parse(h160);
+
+                        //
+                        // ChatGPT says that this should not be calculated via Script, but internally in a normal function
+                        // P2PKH
+                        // add the entire [OP_DUP 0x76] [OP_HASH160 0xa9] [20-byte hash] [OP_EQUALVERIFY 0x88] [OP_CHECKSIG 0xa]
+                        Script script = Script.Create_P2PKH_Script(h160);
                         cmds.AddRange(script._cmds);
                     }
-                    if (Is_P2WSH_ScriptPubkey(stack))
+                    if (Is_P2WSH_ScriptPubkey(stack, true)) // ok
                     {
+                        if (Tools.LOGGING > 0)
+                        {
+                            Console.WriteLine("Script.Evaluate(): P2WSH");
+                        }
                         // [OP_0 (0x00)] [hash256 32 bytes]
+                        // get and save the hash
                         byte[] s256 = stack.Pop()._element;
+                        // remove the OP_0
                         stack.Pop();
+
+                        // append all except the last item
                         cmds.AddRange(witness._cmds.Take(witness._cmds.Count - 1));
+
+                        // the script is the last item
                         byte[] witness_script = witness._cmds[witness._cmds.Count - 1]._element;
                         byte[] sha256 = Tools.SHA256(witness_script);
                         if (!sha256.SequenceEqual(s256))
@@ -609,7 +682,9 @@ namespace BitcoinLib
                             Console.WriteLine($"bad sha256 {Tools.BytesToHexString(s256)} vs {Tools.BytesToHexString(sha256)}");
                             return false;
                         }
-                        Script temp = new Script(witness_script);
+                        byte[] len = Tools.EncodeVarIntToBytes(witness_script.Length);
+                        byte[] lenAndWitness_script = ArrayHelpers.ConcatArrays(len, witness_script);
+                        Script temp = Script.Parse(lenAndWitness_script);
                         cmds.AddRange(temp._cmds);
                     }
                 }
@@ -686,7 +761,8 @@ namespace BitcoinLib
 
         /// <summary>
         /// Is this script a ptsh pay-to-script-hash script?
-        /// Returns whether this follows the OP_HASH160<20 byte hash> OP_EQUAL pattern.
+        /// Returns whether this follows the pattern
+        /// OP_HASH160 <20 byte hash> OP_EQUAL
         /// </summary>
         /// <param name="cmds"></param>
         /// <returns></returns>
@@ -712,9 +788,19 @@ namespace BitcoinLib
 
         public bool Is_P2WPKH_ScriptPubkey()
         {
-            return Is_P2WPKH_ScriptPubkey(_cmds);
+            return Is_P2WPKH_ScriptPubkey(_cmds, false);
         }
-        private bool Is_P2WPKH_ScriptPubkey(OpItems cmds)
+
+        /// <summary>
+        /// there should be exactly 2 cmds
+        /// [OP_0 (0x00)] [hash160 20 bytes]
+        /// in script, OP_0 is an int 0
+        /// on the stack, OP_0 is a byte array of size 0 byte[0]
+        /// </summary>
+        /// <param name="cmds"></param>
+        /// <param name="isStack"></param>
+        /// <returns></returns>
+        private bool Is_P2WPKH_ScriptPubkey(OpItems cmds, bool isStack)
         {
             //
             // there should be exactly 2 cmds
@@ -722,11 +808,25 @@ namespace BitcoinLib
             //
             if (cmds.Count == 2)
             {
-                if (cmds[0].IsOpcode(Script.OP_0)
-                    && cmds[1].IsElement() 
-                    && (cmds[1].Length == 20))
+                if (isStack)
                 {
-                    return true;
+                    // on the stack, OP_0 is a byte array of size 0 byte[0]
+                    if (cmds[0].IsOpZero()
+                        && cmds[1].IsElement()
+                        && (cmds[1].Length == 20))
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    // in script, OP_0 is an int 0
+                    if (cmds[0].IsOpcode(Script.OP_0)
+                        && cmds[1].IsElement()
+                        && (cmds[1].Length == 20))
+                    {
+                        return true;
+                    }
                 }
             }
 
@@ -735,9 +835,9 @@ namespace BitcoinLib
 
         public bool Is_P2WSH_ScriptPubkey()
         {
-            return Is_P2WSH_ScriptPubkey(_cmds);
+            return Is_P2WSH_ScriptPubkey(_cmds, false);
         }
-        private bool Is_P2WSH_ScriptPubkey(OpItems cmds)
+        private bool Is_P2WSH_ScriptPubkey(OpItems cmds, bool isStack)
         {
             //
             // there should be exactly 2 cmds
@@ -745,14 +845,27 @@ namespace BitcoinLib
             //
             if (cmds.Count == 2)
             {
-                if (cmds[0].IsOpcode(Script.OP_0)
-                    && cmds[1].IsElement()
-                    && (cmds[1].Length == 32))
+                if (isStack)
                 {
-                    return true;
+                    // on the stack, OP_0 is a byte array of size 0 byte[0]
+                    if (cmds[0].IsOpZero()
+                        && cmds[1].IsElement()
+                        && (cmds[1].Length == 32))
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    // in script, OP_0 is an int 0
+                    if (cmds[0].IsOpcode(Script.OP_0)
+                        && cmds[1].IsElement()
+                        && (cmds[1].Length == 32))
+                    {
+                        return true;
+                    }
                 }
             }
-
             return false;
         }
 
@@ -896,12 +1009,14 @@ namespace BitcoinLib
             if (Is_P2PKH_ScriptPubkey())
             {
                 // p2pkh
+                // [OP_DUP 0x76] [OP_HASH160 0xa9] [20-byte hash] [OP_EQUALVERIFY 0x88] [OP_CHECKSIG 0xa]
                 byte[] h160 = _cmds[2]._element;
                 address = Base58Encoding.H160To_P2PKH_Address(h160, testnet);
             }
             else if (Is_P2SH_ScriptPubkey())
             {
                 // p2sh
+                // [OP_HASH160 (0xa9)] [20-byte hash] [OP_EQUAL (0x87)]
                 byte[] h160 = _cmds[1]._element;
                 address = Base58Encoding.H160To_P2SH_Address(h160, testnet);
             }

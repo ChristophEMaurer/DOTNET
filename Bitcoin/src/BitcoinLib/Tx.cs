@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Reflection.Emit;
 
 namespace BitcoinLib
 {
@@ -68,6 +69,26 @@ namespace BitcoinLib
             _isSegWit = isSegWit;
         }
 
+        public string PrintWitnessData(byte[][] witness)
+        {
+            string text = string.Empty;
+
+            foreach (byte[] hash in witness)
+            {
+                if (hash != null)
+                {
+                    text += "[" + BitConverter.ToString(hash).Replace("-", string.Empty).Substring(0, 8).ToLower() + "...] ";
+                }
+                else
+                {
+                    text += "[null] ";
+                }
+            }
+            text += Environment.NewLine;
+
+            return text;
+        }
+
         public override string ToString()
         {
             string text;
@@ -90,7 +111,8 @@ namespace BitcoinLib
                 count = 0;
                 foreach (TxIn txin in _txIns)
                 {
-                    witnesses += "witness[" + count++ + "]: " + txin._witness.ToString() + Environment.NewLine;
+                    //witnesses += "witness[" + count++ + "]: " + txin._witness.ToString() + Environment.NewLine;
+                    witnesses += "witness[" + count++ + "]: " + PrintWitnessData(txin._witness);
                 }
                 text = string.Format("tx: {0}\nversion: {1}\nwitness_marker: {2} flags: {3}\ntx_ins:\n{4}tx_outs:\n{5}witnesses:\n{6}locktime= {7}",
                     Id(), _version, _witnessMarker, _flags, txins, txouts, witnesses, _locktime);
@@ -418,7 +440,7 @@ namespace BitcoinLib
             return z;
         }
 
-        public bool VerifyInput(int inputIndex) // TODO: add segwit stuff from chapter 13
+        public bool VerifyInput(int inputIndex)
         {
             TxIn txIn = _txIns[inputIndex];
             Script script_pubkey = txIn.GetPreviousScriptPubKey(_testnet);
@@ -488,11 +510,6 @@ namespace BitcoinLib
                 witnessScript = new Script(witness);
             }
 
-            if (Tools.LOGGING > 2)
-            {
-                Console.WriteLine($"Tx.VerifyInput({inputIndex}) z= {z.ToString()}");
-            }
-
             bool success = combinedScript.Evaluate(z, witnessScript);
 
             return success;
@@ -509,7 +526,7 @@ namespace BitcoinLib
             {
                 if (!VerifyInput(i))
                 { 
-                    return false; 
+                    return false;
                 }
             }
 
@@ -536,7 +553,8 @@ namespace BitcoinLib
         public bool SignInputPtpk(int inputIndex, PrivateKey privateKey)
         {
             BigInteger z = SigHash(inputIndex, null);
-            byte[] bDer = privateKey.Sign(z).Der();
+            Signature signature = privateKey.Sign(z);
+            byte[] bDer = signature.Der();
             byte[] bSighashAll = Tools.ToBytes(Signature.SIGHASH_ALL, 1, "little");
 
             byte[] bSignature = ArrayHelpers.ConcatArrays(bDer, bSighashAll);
