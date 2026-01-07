@@ -30,7 +30,7 @@ namespace BitcoinLib
         public const byte OP_CHECKMULTISIG = 174;
         public const byte OP_CHECKMULTISIGVERIFY = 175;
         
-        public static bool DebugDumpStacks = false;
+        public static bool DEBUG_DUMP_STACKS = false;
         //
         // The stack contains 
         // - a byte -> this is an opcode
@@ -455,15 +455,30 @@ namespace BitcoinLib
         }
 
         /// <summary>
-        /// The data is in a List, but the leftmost bytes is at index 0
+        /// The data is in a List, and the leftmost byte is at index 0
+        /// Script is a list: left to right. In the diagrams index 0 is at the top.
+        ///     Script                  index in cmds diagrams
+        ///     OP_HASH160              2
+        ///     [hash(redeemScript)]    1
+        ///     OP_EQUAL                0
+        ///     
+        /// The stack is a normal stack: there is no index, you can only push() and pop() items.
+        /// Exceptinos are peek(n) which gets the item at index n where 0 is the bottom item
         /// </summary>
         /// <param name="z">the private key</param>
-        /// <returns></returns>
+        /// <returns>true, if after executing the script, the script is empty and the stack does not contain a 0</returns>
         public bool Evaluate(BigInteger z, Script witness)
         {
             if (Tools.LOGGING > 2)
             {
-                Console.WriteLine($"Script.Evaluate() z = {z.ToString()}, witness={witness.ToString()}");
+                if (witness == null)
+                {
+                    Console.WriteLine($"Script.Evaluate() z = {z.ToString()}, witness=null");
+                }
+                else
+                {
+                    Console.WriteLine($"Script.Evaluate() z = {z.ToString()}, witness={witness.ToString()}");
+                }
             }
 
             OpItem cmd;
@@ -477,7 +492,7 @@ namespace BitcoinLib
 
             while (cmds.Count > 0)
             {
-                if (DebugDumpStacks)
+                if (DEBUG_DUMP_STACKS)
                 {
                     DumpStacks(cmds, stack, altstack);
                 }
@@ -566,8 +581,9 @@ namespace BitcoinLib
                     // add the element to the stack
                     stack.Add(cmd);
 
-                    if (Is_P2SH_ScriptPubkey(cmds))
+                    if (Is_P2SH_ScriptPubkey(cmds)) //ok
                     {
+                        // Script contains: [OP_HASH160] [hash(pubkey) 20] [OP_EQUAL]
                         if (Tools.LOGGING > 0)
                         {
                             Console.WriteLine("Script.Evaluate(): P2SH");
@@ -575,10 +591,6 @@ namespace BitcoinLib
                         /*
                          See p 153
                          this code is executed by test case TxTest.test_verify_p2sh() and works.
-                        
-                         Pay-to-Script-Hash special pattern:
-                         [OP_HASH160 (0xa9)] [20-byte hash] [OP_EQUAL (0x87)]
-                        
                          We just added the redeemScript to the stack and have recognized the special p2sh pattern.
                          we have:
                                     Script              Stack
@@ -587,41 +599,33 @@ namespace BitcoinLib
                                     <hash>              <signature>
                                     OP_EQUAL            0
                         */
+                        // cmd is the redeemScript
                         byte[] scriptLen = Op.EncodeNum(cmd.Length);
                         byte[] redeemScript = ArrayHelpers.ConcatArrays(scriptLen, cmd._element);
 
                         // remove OP_HASH160
                         cmds.Pop(0);
-                        // get and remove the hash
+                        // get and save the hash
                         byte[] h160 = cmds.Pop(0)._element;
                         // remove OP_EQUAL
                         cmds.Pop(0);
-                        /*
-                                    Script              Stack
-                                                        <redeemScript>
-                                                        <signature>
-                                                        <signature>
-                                                        0
-                         */
+
                         // calculate the hash value of the script which is on top of the stack
                         if (!Op.op_hash160(stack))
                         {
                             return false;
                         }
-                        // <hash> <signature> <signature> 0
                         stack.Add(new OpItem(h160));
-                        // <hash> <hash> <signature> <signature> 0
                         if (!Op.op_equal(stack))
                         {
                             return false;
                         }
-                        // 1 <signature> <signature> 0
                         // final result should be a 1
+                        // this pops the 1 off the stack
                         if (!Op.op_verify(stack))
                         {
                             return false;
                         }
-                        // <signature> <signature> 0
                         // hashes match! now add the RedeemScript
                         Script script = Script.Parse(redeemScript);
                         cmds.AddRange(script._cmds);
@@ -629,8 +633,9 @@ namespace BitcoinLib
                         // now the redeemScript is the script and the
                         // stack has whatever was necessary to match the redeem script
                     }
-                    if (Is_P2WPKH_ScriptPubkey(stack, true))
+                    else if (Is_P2WPKH_ScriptPubkey(stack, true)) // ok
                     {
+                        // Stack contains: [OP_0(0x00)] [hash160(pubkey) 20 bytes]
                         if (Tools.LOGGING > 0)
                         {
                             Console.WriteLine("Script.Evaluate(): P2WPKH");
@@ -654,18 +659,17 @@ namespace BitcoinLib
 
                         //
                         // ChatGPT says that this should not be calculated via Script, but internally in a normal function
-                        // P2PKH
                         // add the entire [OP_DUP 0x76] [OP_HASH160 0xa9] [20-byte hash] [OP_EQUALVERIFY 0x88] [OP_CHECKSIG 0xa]
                         Script script = Script.Create_P2PKH_Script(h160);
                         cmds.AddRange(script._cmds);
                     }
-                    if (Is_P2WSH_ScriptPubkey(stack, true)) // ok
+                    else if (Is_P2WSH_ScriptPubkey(stack, true)) // ok or not ok?
                     {
+                        // stack contains: [OP_0 (0x00)] [hash256(witnessScript) 32 bytes]
                         if (Tools.LOGGING > 0)
                         {
                             Console.WriteLine("Script.Evaluate(): P2WSH");
                         }
-                        // [OP_0 (0x00)] [hash256 32 bytes]
                         // get and save the hash
                         byte[] s256 = stack.Pop()._element;
                         // remove the OP_0
@@ -690,12 +694,14 @@ namespace BitcoinLib
                 }
             }
             
+            // there must be something on the stack, this can be a lot
             if (stack.Count == 0)
             {
                 //if the stack is empty at the end of processing all the commands we fail
                 return false;
             }
 
+            // the top item on the stack must not be OP_0 (byte() oflength 0.
             cmd = stack.Pop();
             if (!cmd.IsOpcode() && (cmd.Length == 0))
             {
@@ -793,7 +799,7 @@ namespace BitcoinLib
 
         /// <summary>
         /// there should be exactly 2 cmds
-        /// [OP_0 (0x00)] [hash160 20 bytes]
+        /// [OP_0 (0x00)] [hash160(pubkey) 20 bytes]
         /// in script, OP_0 is an int 0
         /// on the stack, OP_0 is a byte array of size 0 byte[0]
         /// </summary>
@@ -804,7 +810,7 @@ namespace BitcoinLib
         {
             //
             // there should be exactly 2 cmds
-            // [OP_0 (0x00)] [hash160 20 bytes]
+            // [OP_0 (0x00)] [hash160(pubkey) 20 bytes]
             //
             if (cmds.Count == 2)
             {
@@ -841,7 +847,7 @@ namespace BitcoinLib
         {
             //
             // there should be exactly 2 cmds
-            // [OP_0 (0x00)] [hash256 32 bytes]
+            // [OP_0 (0x00)] [hash256(witnessScript) 32 bytes]
             //
             if (cmds.Count == 2)
             {
@@ -884,7 +890,7 @@ namespace BitcoinLib
 
         /// <summary>
         /// Creates the P2PKH pay-to-public-key-hash script:
-        /// [OP_DUP 0x76] [OP_HASH160 0xa9] [20-byte hash] [OP_EQUALVERIFY 0x88] [OP_CHECKSIG 0xa]
+        /// [OP_DUP 0x76] [OP_HASH160 0xa9] [20-byte hash(pubkey)] [OP_EQUALVERIFY 0x88] [OP_CHECKSIG 0xa]
         /// </summary>
         /// <param name="hash160"></param>
         /// <returns></returns>
@@ -1000,7 +1006,6 @@ namespace BitcoinLib
 
             return script;
         }
-
 
         public string Address(bool testnet = false)
         {

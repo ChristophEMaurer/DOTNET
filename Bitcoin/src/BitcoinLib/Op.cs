@@ -371,6 +371,7 @@ namespace BitcoinLib
         }
 
         /// <summary>
+        /// We remove the top element from the stack:
         /// Anything other than a 0 is success.
         /// A 0 means failure.
         /// </summary>

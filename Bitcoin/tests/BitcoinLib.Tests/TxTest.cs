@@ -636,7 +636,7 @@ tb1qerzrlxcfu24davlur5sqmgzzgsal6wusda40er
             AssertTrue(tx.Verify());
         }
 
-        public static void test_verify_p2sh_p2wsh()
+        public static void test_verify_p2sh_p2wsh() // ok
         {
             Tx tx = TxFetcher.Fetch("78457666f82c28aa37b74b506745a7c7684dc7842a52a457b09f09446721e11c", true);
 

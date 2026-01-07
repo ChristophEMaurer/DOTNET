@@ -451,20 +451,27 @@ namespace BitcoinLib
 
             if (script_pubkey.Is_P2SH_ScriptPubkey())
             {
+                //
+                // OP_HASH160 <20 byte hash> OP_EQUAL
+                //
+                // top item on stack is the redeemScript
                 OpItem cmd = txIn._script_sig._cmds.Peek();
                 byte[] bLen = Tools.EncodeVarIntToBytes(cmd.Length);
                 OpItem itemLen = new OpItem(bLen);
+                // [len] [script]
                 byte[] raw_redeem = ArrayHelpers.ConcatArrays(itemLen._element, cmd._element);
 
                 redeemScript = Script.Parse(raw_redeem);
 
                 if (redeemScript.Is_P2WPKH_ScriptPubkey())
                 {
+                    // [OP_0 (0x00)] [hash160(pubkey) 20 bytes]
                     z = sig_hash_bip143(inputIndex, redeemScript, null);
                     witness = txIn._witness;
                 }
                 else if (redeemScript.Is_P2WSH_ScriptPubkey())
                 {
+                    // [OP_0(0x00)][hash256(witnessScript) 32 bytes]
                     byte[] bData = txIn._witness[txIn._witness.Length - 1];
                     byte[] lenData = Tools.EncodeVarIntToBytes(bData.Length);
                     byte[] raw_witness = ArrayHelpers.ConcatArrays(lenData, bData);
@@ -481,14 +488,22 @@ namespace BitcoinLib
             else
             {
                 // ScriptPubkey might be a p2wpkh or p2wsh
-                // no redeem script
                 if (script_pubkey.Is_P2WPKH_ScriptPubkey())
                 {
+                    //
+                    // [OP_0 (0x00)] [hash160 20 bytes]
+                    //
+                    // no redeem script
+
                     z = sig_hash_bip143(inputIndex, null, null);
                     witness = txIn._witness;
                 }
                 else if (script_pubkey.Is_P2WSH_ScriptPubkey())
                 {
+                    //
+                    // [OP_0 (0x00)] [hash256(witnessScript) 32 bytes]
+                    //
+                    // top item is the witness program
                     byte[] bData = txIn._witness[txIn._witness.Length - 1];
                     byte[] lenData = Tools.EncodeVarIntToBytes(bData.Length);
                     byte[] raw_witness = ArrayHelpers.ConcatArrays(lenData, bData);
@@ -498,7 +513,7 @@ namespace BitcoinLib
                 }
                 else
                 {
-                    z = SigHash(inputIndex, null);
+                    z = SigHash(inputIndex, null); // ok test_verify_p2pkh()
                     witness = null;
                 }
             }

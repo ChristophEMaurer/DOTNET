@@ -4,7 +4,9 @@ namespace BitcoinLib
     /// <summary>
     /// OPitem is either an opcode stored in an int
     /// or
-    /// an element stored in a byte array, the first byte is at index 0.
+    /// an element stored in a byte array, the first byte is at index 0 and it contains some hex bytes that can mean anything:
+    /// they can be 20 bytes of a public key hash, or 32 bytes of a script hash, or the bytes of a script. etc.
+    ///
     /// Left to right in a hex string <=> index 0 to last index in the byte array
     /// </summary>
     public class OpItem
