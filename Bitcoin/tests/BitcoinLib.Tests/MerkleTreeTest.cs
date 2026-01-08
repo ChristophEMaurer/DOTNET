@@ -262,6 +262,5 @@ namespace BitcoinLib.Test
             string root = Tools.BytesToHexString(tree.Root());
             AssertEqual(want, root);
         }
-
     }
 }

@@ -63,7 +63,7 @@ namespace BitcoinLib.Test
             byte[] bits = [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0];
             byte[] flags = Tools.HexStringToBytes("4000600a080000010940");
 
-            byte[] calculatedFlags = MerkleBlock.BitFieldToFlags(bits);
+            byte[] calculatedFlags = MerkleBlock.BitFieldToFlagBytes(bits);
             AssertEqual(calculatedFlags, flags);
 
             byte[] calculatedBits = MerkleBlock.FlagsToBitField(flags);

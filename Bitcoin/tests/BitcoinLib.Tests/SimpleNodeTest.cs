@@ -187,7 +187,7 @@ namespace BitcoinLib.Test
                         {
                             Tools.WriteLine($"found {tx.Id()}:{i}");
                             found = true;
-                            break;
+                            //break; dont breek, there could be several tx of interest
                         }
                     }
                 }

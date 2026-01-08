@@ -148,7 +148,7 @@ namespace BitcoinLib.Test
                 }
             }
 
-            byte[] bField = MerkleBlock.BitFieldToFlags(bit_field);
+            byte[] bField = MerkleBlock.BitFieldToFlagBytes(bit_field);
             string strField = Tools.BytesToHexString(bField);
             Console.WriteLine(strField);
         }
@@ -159,7 +159,7 @@ namespace BitcoinLib.Test
             byte[] data = Tools.AsciiStringToBytes("Hello World");
             filter.Add(data);
             string expected = "0000000a080000000140";
-            string actual = Tools.BytesToHexString(filter.FilterBytes());
+            string actual = Tools.BytesToHexString(filter.FilterInBytes());
 
             AssertEqual(expected, actual);
         }

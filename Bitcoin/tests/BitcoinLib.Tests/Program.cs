@@ -45,9 +45,10 @@ namespace BitcoinLib.Test
             Tools.LOGGING_TIME = false;
             Tools.LOGGING = 1;
 
-            if (true)
+            if (false)
             {
-                Tools.CallStaticMethod("BitcoinLib.Test.BloomFilterTest", "test_chapter_12_ex_6");
+                Tools.CallStaticMethod("BitcoinLib.Test.SimpleNodeTest", "test_get_transaction_of_interest");
+                //Tools.CallStaticMethod("BitcoinLib.Test.BloomFilterTest", "test_chapter_12_ex_6");
             }
             else
             {

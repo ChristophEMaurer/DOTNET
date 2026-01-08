@@ -9,7 +9,11 @@ using System.Threading.Tasks;
 namespace BitcoinLib.BIP39
 {
     /// <summary>
-    /// BIP39 
+    /// BIP39: this specifies how to create  12/24 words that represent a bit pattern.
+    /// This is used to create words that we can write down from a private key. the bits contain a checksum at the end,
+    /// so we cannot create a random sequence of word, they would not produce a valid checksum! The last word must match the checksum!
+    /// Mnemonic: the word
+    /// Entropy: the 11 bits
     /// </summary>
     public class BIP39
     {

@@ -7,12 +7,20 @@ using System.Threading.Tasks;
 
 namespace BitcoinLib
 {
+    /// <summary>
+    /// We hash an input _functionCount times, and modulo (size of bitfield) this gives us
+    /// up to _functionCountdifferent bits. These are all set in the bitfield.
+    /// This smply reduces the number of item that match the filter.
+    /// </summary>
     public class BloomFilter
     {
+        /// <summary>
+        /// BIP37: use a bloom filter instead of always sending the entire block.
+        /// </summary>
         public const UInt32 BIP37_CONSTANT = 0xfba4c795;
 
         /// <summary>
-        /// how many bits expressed in chunks of bytes: 1 -> 8 bits, 2 -> 16 bits
+        /// how many bits expressed in chunks of bytes/multiples of 8: 1 -> 8 bits, 2 -> 16 bits
         /// </summary>
         public UInt32 _size;
 
@@ -21,10 +29,14 @@ namespace BitcoinLib
         /// </summary>
         public UInt32 _functionCount;
 
+        /// <summary>
+        /// add this to the hash function to make it different
+        /// </summary>
         public UInt32 _tweak;
 
         /// <summary>
-        /// Each bit is stored in one byte for easier programming
+        /// Each bit is stored in one byte for easier programming. Each but is the result of the hash function modulo 
+        /// the size of the bit field.
         /// </summary>
         public byte[] _bitField;
 
@@ -38,11 +50,12 @@ namespace BitcoinLib
 
         /// <summary>
         /// Each bit is stored in one byte. Collect them all into 8-bits-per byte
+        /// [1][1][0][0][1][0][0][1] -> [11001001]
         /// </summary>
         /// <returns></returns>
-        public byte[] FilterBytes()
+        public byte[] FilterInBytes()
         {
-            byte[] bytes = MerkleBlock.BitFieldToFlags(_bitField);
+            byte[] bytes = MerkleBlock.BitFieldToFlagBytes(_bitField);
 
             return bytes;
         }

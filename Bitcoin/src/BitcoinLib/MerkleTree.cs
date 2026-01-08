@@ -201,6 +201,16 @@ namespace BitcoinLib
             return hasRightNode;
         }
 
+        /// <summary>
+        /// The merkle tree must already exist.
+        /// Using the bits and hashes,
+        /// the hash values from the hashes will be put into the merkle tree, and all missing hashes will be calculated.
+        /// This populates the merkle tree where all hashes including the root hash are calculated.
+        /// 'Populate' means: set/calculate all hashes
+        /// </summary>
+        /// <param name="bits"></param>
+        /// <param name="hashes"></param>
+        /// <exception cref="Exception"></exception>
         public void PopulateTree(byte[] bits, byte[][] hashes)
         {
             // populate until we have the root

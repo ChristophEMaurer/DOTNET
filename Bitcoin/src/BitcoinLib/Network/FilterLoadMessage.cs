@@ -40,7 +40,7 @@ namespace BitcoinLib.Network
 
             Tools.EncodeVarInt(data, _size);
 
-            byte[] bytes = MerkleBlock.BitFieldToFlags(_bitField);
+            byte[] bytes = MerkleBlock.BitFieldToFlagBytes(_bitField);
             data.AddRange(bytes);
 
             Tools.UIntToLittleEndian(_function_count, data, 4);

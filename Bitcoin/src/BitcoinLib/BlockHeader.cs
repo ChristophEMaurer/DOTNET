@@ -23,6 +23,19 @@ namespace BitcoinLib
 
         /// <summary>
         /// 4 bytes, LE
+        /// After converting from LE to UInt32, we have:
+        /// 
+        /// By using version as one value, you can only add one feature at a time by incrementing the value
+        /// 1 0x00000001 - original
+        /// 2 0x00000002 - transaction block height feature BIP34
+        /// 3 0x00000003 - strict DER encoding BIP66
+        /// 4 0x00000004 - OP_CHECKLOCKTIMEVERIFY BIP65
+        /// 
+        /// now - bitfield
+        /// 0x2000000000 -  0010 0000 00000000 00000000 0000 0000 -> version bits are used, but nothing is activated
+        /// 0x2000000002 -  0010 0000 00000000 00000000 0000 0010 -> version bits are used, segwit is activated. Old nodes see version 2
+        /// 
+        /// https://learnmeabitcoin.com/technical/block/version/
         /// </summary>
         public UInt32 _version;
 
@@ -117,6 +130,11 @@ namespace BitcoinLib
             return hash;
         }
 
+        /// <summary>
+        /// BIP9 uses bits in the version field instead of using the version field as one integer
+        /// 0010 0000 00000000 00000000 00000000: the leftmost 3 bits must be 001, this indicates what we have a bitfield in version
+        /// </summary>
+        /// <returns></returns>
         public bool Bip9()
         {
             byte b = (byte)(_version >> 29);
@@ -125,6 +143,10 @@ namespace BitcoinLib
             return success;
         }
 
+        /// <summary>
+        /// BIP91 uses bit 4 to indicate something about activating a feature in the version bitfield
+        /// </summary>
+        /// <returns></returns>
         public bool Bip91()
         {
             byte b = (byte)((_version >> 4) & 1);
@@ -132,6 +154,11 @@ namespace BitcoinLib
 
             return success;
         }
+
+        /// <summary>
+        /// BIP141 uses bit 1 to indicate SegWit support in the version bitfield
+        /// </summary>
+        /// <returns></returns>
         public bool Bip141()
         {
             byte b = (byte)((_version >> 1) & 1);

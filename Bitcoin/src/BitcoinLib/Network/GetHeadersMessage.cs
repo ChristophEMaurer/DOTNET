@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace BitcoinLib.Network
 {
+
+    /// <summary>
+    /// this does not use bloom filter
+    /// </summary>
     public class GetHeadersMessage : NetworkMessage
     {
         public static string Command = "getheaders";

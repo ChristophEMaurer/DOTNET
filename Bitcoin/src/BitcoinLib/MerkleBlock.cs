@@ -20,12 +20,15 @@ namespace BitcoinLib
         public BlockHeader _blockHeader;
 
         /// <summary>
-        /// VarInt number of Transactions
+        /// VarInt total number of transactions in this block: all transactions.
+        /// This number is used to create an "empty" merkle tree.
         /// </summary>
         public UInt64 _totalTransactions;
 
         /// <summary>
-        /// number of hashes following
+        /// number of tx hashes following.
+        /// These hashes together with the flag bytes are sufficient to populate the merkle tree
+        /// and then compute the root hash.
         /// </summary>
         public UInt64 _numHashes;
 
@@ -35,7 +38,7 @@ namespace BitcoinLib
         public byte[][] _hashes;
 
         /// <summary>
-        /// Flag bits coded in bytes, these bytes start with one VarInt that indicates how many flag bytes follow
+        /// Flag bits coded/compressed in 8-bits-per-bytes, these bytes start with one VarInt that indicates how many flag bytes follow
         /// </summary>
         public byte[] _flags;
 
@@ -94,7 +97,7 @@ namespace BitcoinLib
         {
             List<byte> bits = new List<byte>();
 
-            // read bytes sequentiallyleft to right
+            // read bytes sequentially left to right
             for (int i = 0; i < flags.Length; i++)
             {
                 byte b = flags[i];
@@ -118,7 +121,7 @@ namespace BitcoinLib
         /// <param name="bits"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static byte[] BitFieldToFlags(byte[] bits)
+        public static byte[] BitFieldToFlagBytes(byte[] bits)
         {
             if (bits.Length % 8 != 0)
             {
@@ -161,9 +164,10 @@ namespace BitcoinLib
 
             byte[][] reversedHashes = _hashes.Select(h => h.Reverse().ToArray()).ToArray();
 
+            // this calulates ALL hashes in the tree
             tree.PopulateTree(bits, reversedHashes);
-            Tools.Reverse(tree.Root());
 
+            Tools.Reverse(tree.Root());
             string calculatedRoot = Tools.BytesToHexString(tree.Root());
             string root = Tools.BytesToHexString(_blockHeader._merkleRoot);
 

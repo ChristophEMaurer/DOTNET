@@ -1,33 +1,28 @@
-﻿using System;
-using System.Buffers.Binary;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace BitcoinLib.Network
 {
     /// <summary>
-    /// 1	MSG_TX
-    /// 2	MSG_BLOCK
-    /// 3	MSG_FILTERED_BLOCK
-    /// 4	MSG_CMPCT_BLOCK
-    /// 0x40000001	MSG_WITNESS_TX
-    /// 0x40000002	MSG_WITNESS_BLOCK
+    /// getdata contains
+    /// MSG_FILTERED_BLOCK and one pubkey hash
+    /// 
+    /// full node does this:
+    /// for all txout in the specified blocks: check if the ScriptPubKey contains the specified pubkey hash (address)
+    /// 
+    /// full node returns:
+    /// MerkleBlock that contains the with that public key hash
     /// </summary>
     public class GetDataMessage : NetworkMessage
     {
         public static string Command = "getdata";
 
         /// <summary>
-        /// the hash is a TXID
+        /// the hash is a TXID. The receiver sends a full TX
         /// </summary>
         public static UInt32 MSG_TX = 0x01;
         public static UInt32 MSG_WITNESS_TX = 0x01000040;
 
         /// <summary>
-        /// the hash is of a block header
+        /// the hash is of a block header. The receiver sends a full block with all transactions
         /// </summary>
         public static UInt32 MSG_BLOCK = 0x02;
         public static UInt32 MSG_WITNESS_BLOCK = 0x02000040;
@@ -40,6 +35,7 @@ namespace BitcoinLib.Network
         /// </summary>
         public static UInt32 MSG_FILTERED_BLOCK = 0x03;
         public static UInt32 MSG_FILTERED_WITNESS_BLOCK = 0x03000040;
+
         public static UInt32 MSG_CMPCT_BLOCK = 0x04;
 
 
