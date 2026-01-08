@@ -12,7 +12,7 @@ namespace BitcoinLib.Network
         public static string Command = "verack";
 
         public VerAckMessage() :
-            base(VerAckMessage.Command)
+            base(Command)
         {
         }
         public static VerAckMessage Parse(byte[] raw)

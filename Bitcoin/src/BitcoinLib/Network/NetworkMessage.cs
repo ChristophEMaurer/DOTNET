@@ -8,6 +8,7 @@ namespace BitcoinLib
 {
     /// <summary>
     /// NetworkMessage is the payload of a NetworkEnvelope. It contains the length, the command and the actual data depending on the command.
+    /// https://developer.bitcoin.org/reference/p2p_networking.html
     /// </summary>
     public class NetworkMessage
     {

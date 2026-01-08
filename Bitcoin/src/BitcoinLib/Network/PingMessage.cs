@@ -14,7 +14,7 @@ namespace BitcoinLib.Network
         public UInt64 _nonce;
 
         public PingMessage(UInt64 nonce) :
-            base(PingMessage.Command)
+            base(Command)
         {
             _nonce = nonce;
         }

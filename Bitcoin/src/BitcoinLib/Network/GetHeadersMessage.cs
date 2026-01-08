@@ -33,7 +33,7 @@ namespace BitcoinLib.Network
         public GetHeadersMessage(UInt32 version, UInt64 hashCount,
             byte[] block_locator_hashes,
             byte[] hash_stop = null)
-            : base(GetHeadersMessage.Command)
+            : base(Command)
         {
             _version = version;
             _hashCount = hashCount;

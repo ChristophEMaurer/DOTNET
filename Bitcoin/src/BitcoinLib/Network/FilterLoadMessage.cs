@@ -25,7 +25,7 @@ namespace BitcoinLib.Network
         public byte _flag;
 
         public FilterLoadMessage(UInt32 size, UInt32 functionCount, UInt32 tweak, byte[] bitField, byte flag) :
-            base(FilterLoadMessage.Command)
+            base(Command)
         {
             _size = size;
             _function_count = functionCount;

@@ -22,7 +22,7 @@ namespace BitcoinLib.Network
         /// </summary>
         /// <param name="nonce"></param>
         public PongMessage(UInt64 nonce) :
-            base(PongMessage.Command)
+            base(Command)
         {
             _nonce = nonce;
         }

@@ -43,16 +43,11 @@ namespace BitcoinLib.Test
         {
             Script.DEBUG_DUMP_STACKS = false;
             Tools.LOGGING_TIME = false;
-            Tools.LOGGING = 3;
+            Tools.LOGGING = 1;
 
-            if (false)
+            if (true)
             {
-                //Tools.CallStaticMethod("BitcoinLib.Test.TxTest", "test_verify_p2pkh"); // ok
-                //Tools.CallStaticMethod("BitcoinLib.Test.TxTest", "test_verify_p2sh"); // ok
-                //Tools.CallStaticMethod("BitcoinLib.Test.TxTest", "test_verify_p2wpkh"); // ok
-                //Tools.CallStaticMethod("BitcoinLib.Test.TxTest", "test_verify_p2sh_p2wpkh"); // OK
-                //Tools.CallStaticMethod("BitcoinLib.Test.TxTest", "test_verify_p2wsh"); //ok
-                Tools.CallStaticMethod("BitcoinLib.Test.TxTest", "test_verify_p2sh_p2wsh"); // ok
+                Tools.CallStaticMethod("BitcoinLib.Test.BloomFilterTest", "test_chapter_12_ex_6");
             }
             else
             {

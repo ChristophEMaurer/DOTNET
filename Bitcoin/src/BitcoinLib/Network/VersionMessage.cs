@@ -70,7 +70,7 @@ namespace BitcoinLib.Network
             UInt64 receiverServices, byte[] receiverIp, UInt16 receiverPort,
             UInt64 senderServices, byte[] senderIp, UInt16 senderPort,
             UInt64 nonce, UInt64 userAgentLength, byte[] userAgent, UInt32 latestBlock, byte relay)
-            : base(VersionMessage.Command)
+            : base(Command)
         {
             _version = version;
             _services = services;

@@ -17,7 +17,7 @@ namespace BitcoinLib.Network
 
         public MerkleBlock _merkleBlock;
 
-        public MerkleBlockMessage(MerkleBlock merkleBlock) : base(MerkleBlockMessage.Command)
+        public MerkleBlockMessage(MerkleBlock merkleBlock) : base(Command)
         {
             _merkleBlock = merkleBlock;
         }

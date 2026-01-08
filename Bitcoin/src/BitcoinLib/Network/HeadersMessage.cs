@@ -14,7 +14,7 @@ namespace BitcoinLib.Network
         public List<BlockHeader> _blockHeaders;
 
         public HeadersMessage(List<BlockHeader> blockHeaders) :
-            base(HeadersMessage.Command)
+            base(Command)
         {
             _blockHeaders = blockHeaders;
         }

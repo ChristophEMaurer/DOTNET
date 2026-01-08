@@ -20,10 +20,27 @@ namespace BitcoinLib.Network
     {
         public static string Command = "getdata";
 
-        public static UInt32 MSG_TX = 1;
-        public static UInt32 MSG_BLOCK = 2;
-        public static UInt32 MSG_FILTERED_BLOCK = 3;
-        public static UInt32 MSG_CMPCT_BLOCK = 4;
+        /// <summary>
+        /// the hash is a TXID
+        /// </summary>
+        public static UInt32 MSG_TX = 0x01;
+        public static UInt32 MSG_WITNESS_TX = 0x01000040;
+
+        /// <summary>
+        /// the hash is of a block header
+        /// </summary>
+        public static UInt32 MSG_BLOCK = 0x02;
+        public static UInt32 MSG_WITNESS_BLOCK = 0x02000040;
+
+        /// <summary>
+        /// The hash is of a block header; identical to “MSG_BLOCK”.
+        /// When used in a “getdata” message, this indicates the response should be a 
+        /// “merkleblock” message rather than a “block” message (but this only works if a bloom filter was previously configured). 
+        /// Only for use in“getdata” messages.
+        /// </summary>
+        public static UInt32 MSG_FILTERED_BLOCK = 0x03;
+        public static UInt32 MSG_FILTERED_WITNESS_BLOCK = 0x03000040;
+        public static UInt32 MSG_CMPCT_BLOCK = 0x04;
 
 
         /// <summary>

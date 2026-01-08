@@ -281,9 +281,8 @@ namespace BitcoinLib.Test
         {
             Tools.CallStaticMethod("BitcoinLib.Test.BloomFilterTest", "test_chapter_12_ex_1");
             Tools.CallStaticMethod("BitcoinLib.Test.BloomFilterTest", "test_chapter_12_ex_2");
+            Tools.CallStaticMethod("BitcoinLib.Test.BloomFilterTest", "test_chapter_12_ex_6");
         }
-        
-
     }
 }
 
