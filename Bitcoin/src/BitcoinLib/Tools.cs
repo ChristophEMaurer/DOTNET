@@ -1,10 +1,12 @@
 ﻿using BitcoinLib.Crypto;
+using BitcoinLib.Visitors;
 using System.Globalization;
 using System.Net.Sockets;
 using System.Numerics;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 
 namespace BitcoinLib
 {
@@ -469,6 +471,27 @@ namespace BitcoinLib
             return Encoding.ASCII.GetBytes(text);
         }
 
+        /// <summary>
+        /// look at the bytes, ignore all that do not seem ASCII and convert the rest to ASCII
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns>sparts of data in ascii, this is for human check only</returns>
+        public static string BytesToSomeAscii(byte[] data)
+        {
+            var sb = new StringBuilder();
+
+            foreach (byte b in data)
+            {
+                // druckbare ASCII-Zeichen: 32–126
+                if (b >= 32 && b <= 126)
+                {
+                    sb.Append((char)b);
+                }
+            }
+
+            return sb.ToString();
+        }
+
         public static byte[] HexStringToBytes(string hex)
         {
             return Enumerable.Range(0, hex.Length)
@@ -761,6 +784,12 @@ namespace BitcoinLib
             Console.Write(DateTime.Now.ToString("HH.mm.ss.fff"));
             Console.Write(":");
             Console.WriteLine(text);
+        }
+
+        public static void PrintJsonObject(object obj)
+        {
+            string result = JsonSerializer.Serialize(obj, new JsonSerializerOptions { WriteIndented = true });
+            Console.WriteLine(result);
         }
     }
 }

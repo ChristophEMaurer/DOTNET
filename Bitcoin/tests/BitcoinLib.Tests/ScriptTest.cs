@@ -31,14 +31,30 @@ namespace BitcoinLib.Test
 
         public static void test_serialize()
         {
-            string raw = "6a47304402207899531a52d59a6de200179928ca900254a36b8dff8bb75f5f5d71b1cdc26125022008b422690b8461cb52c3cc30330b23d574351872b7c361e9aae3649071c1a7160121035d5c93d9ac96881f19ba1f686f15f009ded7c62efe85a872e6a19b43c15a2937";
-            byte[] raw_bytes = Tools.HexStringToBytes(raw);
-            Script script = Script.Parse(new BinaryReader(new MemoryStream(Tools.HexStringToBytes(raw))));
+            string[] data =
+            {
+                "6a47304402207899531a52d59a6de200179928ca900254a36b8dff8bb75f5f5d71b1cdc26125022008b422690b8461cb52c3cc30330b23d574351872b7c361e9aae3649071c1a7160121035d5c93d9ac96881f19ba1f686f15f009ded7c62efe85a872e6a19b43c15a2937",
+                "06767695935687",
+                "434104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac",
+            };
 
-            List<byte> computed = new List<byte>();
-            script.serialize(computed);
+            for (int i = 0; i < data.Length; i++)
+            {
+                string raw = data[i];
+                byte[] raw_bytes = Tools.HexStringToBytes(raw);
+                Script script = Script.Parse(new BinaryReader(new MemoryStream(Tools.HexStringToBytes(raw))));
+                List<byte> computed = new List<byte>();
+                script.serialize(computed);
+                AssertEqual(computed, raw_bytes);
 
-            AssertEqual(computed, raw_bytes);
+                string raw2 = data[i].Substring(2);
+                script = Script.Parse(raw2);
+                string actual = Tools.BytesToHexString(script.serialize());
+                AssertEqual(raw, actual);
+            }
+
+            Script.Parse("04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73");
+
         }
 
         public static void test_chapter_6_checksig_p115()

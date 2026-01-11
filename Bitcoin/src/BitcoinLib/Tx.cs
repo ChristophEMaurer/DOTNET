@@ -1,5 +1,7 @@
-﻿using System.Numerics;
+﻿using BitcoinLib.Visitors;
+using System.Numerics;
 using System.Reflection.Emit;
+using System.Text.Json.Serialization;
 
 namespace BitcoinLib
 {
@@ -29,7 +31,10 @@ namespace BitcoinLib
     {
         public static string Command = "tx";
 
+        public string txid {  get { return Id(); } }
+
         public UInt32 _version;
+        public UInt32 version {  get { return _version; } }
 
         /// <summary>
         /// must be 0x01
@@ -42,15 +47,31 @@ namespace BitcoinLib
         public byte _flags;
 
         public List<TxIn> _txIns;
+        public List<TxIn> vin { get { return _txIns; } }
+
         public List<TxOut> _txOuts;
+        public List<TxOut> vout { get { return _txOuts; } }
+
         public UInt32 _locktime;
+        public UInt32 locktime {  get { return _locktime; } }
         public bool _testnet = false;
+
+        public int size {  get { return TotalSize(); } }
+        public int weight {  get { return Weight(); } }
+        public UInt64 fee {  get { return Fee(); } }
 
         public bool _isSegWit;
 
         public byte[] _hash_prevouts;
         public byte[] _hash_sequence;
         public byte[] _hash_outputs;
+
+        /// <summary>
+        /// _txStatus exists for json serialization. The data can only be set from outside when parsing a block
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public TxStatus status {  get {  return _txStatus; }  }
+        public TxStatus _txStatus;
 
         public Tx(UInt32 version, List<TxIn> txIns, List<TxOut> txOuts, UInt32 locktime, bool isSegWit)
             : this(version, 0, 0, txIns, txOuts, locktime, isSegWit)
@@ -233,19 +254,6 @@ namespace BitcoinLib
         }
 
         /// <summary>
-        /// Serializes this Tx without SegWit data, this is used for creating the hash
-        /// </summary>
-        /// <returns></returns>
-        public byte[] serialize_legacy()
-        {
-            List<byte> data = new List<byte>();
-            serialize_legacy(data);
-            byte[] bytes = data.ToArray();
-
-            return bytes;
-        }
-
-        /// <summary>
         /// Serializes the Tx: this may or may not include segwit data
         /// </summary>
         /// <param name="data"></param>
@@ -259,6 +267,19 @@ namespace BitcoinLib
             {
                 serialize_legacy(data);
             }
+        }
+
+        /// <summary>
+        /// Serializes this Tx without SegWit data, this is used for creating the hash
+        /// </summary>
+        /// <returns></returns>
+        public byte[] serialize_legacy()
+        {
+            List<byte> data = new List<byte>();
+            serialize_legacy(data);
+            byte[] bytes = data.ToArray();
+
+            return bytes;
         }
 
         public void serialize_legacy(List<byte> data)
@@ -327,6 +348,36 @@ namespace BitcoinLib
             Tools.UIntToLittleEndian(_locktime, data, 4);
         }
 
+        /// <summary>
+        /// Calculate the size in bytes of the entire tx: this includes segwit bytes if they are present
+        /// </summary>
+        /// <returns></returns>
+        public int TotalSize()
+        {
+            return serialize().Length;
+        }
+
+        /// <summary>
+        /// X-Größe ohne SegWit-Daten (Inputs/Outputs Scriptsig + Scriptpubkey ohne Witness)
+        /// </summary>
+        /// <returns></returns>
+        public int StrippedSize()
+        {
+            return serialize_legacy().Length;
+        }
+
+        /// <summary>
+        /// weight = stripped_size * 3 + total_size
+        /// </summary>
+        /// <returns></returns>
+        public int Weight()
+        {
+            int weight = StrippedSize() * 3 + TotalSize();
+
+            return weight;
+        }
+
+
         public string Id()
         {
             byte[] data = Hash();
@@ -364,7 +415,13 @@ namespace BitcoinLib
                 output_sum += txout._amount;
             }
 
-            UInt64 fee = input_sum - output_sum;
+            UInt64 fee = 0;
+            
+            if (input_sum > 0)
+            {
+                // the input_sum is 0 in the genesis block: in this block the fee is 0
+                fee = input_sum - output_sum;
+            }
 
             return fee;
         }
@@ -603,14 +660,45 @@ namespace BitcoinLib
         {
             if (!IsCoinbase())
             {
+                // only coinbase Tx contain the block_height of the block it is in.
+                // if we are not a coinbase Tx, we cannot calculate the block_height 
+                // (we would have to count ALL block to do this)
                 return 0;
             }
-            OpItem item = _txIns[0]._script_sig._cmds[0];
 
-            int height = (int) Op.DecodeNum(item._element);
+            // BIP34: the first is the first element in the ScriptSig. It is in little endian and NOT as a varint
+            OpItem item = _txIns[0]._script_sig._cmds[0];
+            // item._element contains the height in little endian
+            int height = (int)Op.DecodeNum(item._element);
+
+            // After block number 227,835 all blocks must include the block height in their coinbase transaction.
+            // how do we know that this value is the block height or just some other value?
+            if (item._element.SequenceEqual(new byte[] {0xff, 0xff, 0x00, 0x1d }))
+            {
+                // the genesis block contains 0x0x1d00ffff
+                return 0;
+            }
+
+            // 1 block every 10 minutes
+            // 6 × 24 × 365 ≈ 52 560 blocks in 1 year
+            // 5,2 million blocks in 100 years.
+            // max number in 4 bytes little endian is 2^32 = 4 294 967 295
+            // max number in 3 bytes little endian is 2^24 = 16.777.216
+            if (item._element.Length > 3)
+            {
+                // any number larger than 16.777.216 (~300 years)  makes no sense
+                return 0;
+            }
+
+            if (height > 10000000)
+            {
+                // 10.000.000 blocks: 190 years
+                height = 0;
+            }
 
             return height;
         }
+
 
         public byte[] HashPrevOuts()
         {
@@ -727,6 +815,11 @@ namespace BitcoinLib
             }
 
             return z;
+        }
+
+        public void Accept(IBitcoinVisitor visitor)
+        {
+            visitor.Visit(this);
         }
     }
 }

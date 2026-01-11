@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BitcoinLib.Storage;
+using BitcoinLib.Visitors;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -10,13 +12,19 @@ namespace BitcoinLib.Network
 {
     public class SimpleNode
     {
-        string _host;
-        int _port;
+        public static string DefaultHost = "65.109.24.172";
+        public string _host = DefaultHost;
+        public int _port;
+
         bool _testnet;
 
         NetworkStream _stream;
 
-        public SimpleNode(string host, bool testnet, int logging)
+        public SimpleNode(bool testnet) : this(DefaultHost, testnet)
+        {
+        }
+
+        public SimpleNode(string host, bool testnet)
         {
             _host = host;
             if (testnet)
@@ -28,7 +36,6 @@ namespace BitcoinLib.Network
                 _port = 8333;
             }
             _testnet = testnet;
-            Tools.LOGGING = logging;
         }
 
         public void Init()
@@ -220,6 +227,103 @@ namespace BitcoinLib.Network
             {
                 Tools.WriteLine("<-- SimpleNode::Handshake()");
             }
+        }
+
+        /// <summary>
+        /// Return the block which has the specified previous hash in its block header.
+        /// This is the successor of the specified hash.
+        /// </summary>
+        /// <param name="prevHash"></param>
+        /// <exception cref="Exception"></exception>
+        public static Block GetBlockWithPrevHash(string prevHash)
+        {
+            byte[] start_block = Tools.HexStringToBytes(prevHash);
+
+            SimpleNode node = new SimpleNode(false); // 02.01.2026: 65.109.24.172 worked in: python, C#
+            node.Init();
+            node.Handshake();
+
+            GetHeadersMessage getHeadersMessage = new GetHeadersMessage(start_block);
+            node.Send(getHeadersMessage);
+            NetworkMessage networkMessage = node.WaitFor(new() { HeadersMessage.Command });
+            HeadersMessage headerMessage = (HeadersMessage)networkMessage;
+
+            GetDataMessage getDataMessage = new GetDataMessage();
+            foreach (BlockHeader blockHeader in headerMessage._blockHeaders)
+            {
+                byte[] currentHash = blockHeader.Hash();
+                string strCurrentHash = Tools.BytesToHexString(currentHash);
+                Console.WriteLine("header: " + strCurrentHash);
+                if (blockHeader.CheckPow())
+                {
+                    Console.WriteLine("header is valid!");
+                }
+                else
+                {
+                    throw new Exception("proof of work is invalid");
+                }
+
+                if (blockHeader._prevBlockHash.SequenceEqual(start_block))
+                {
+                    Console.WriteLine("Found block with specified prevHash!");
+                    getDataMessage.Add(GetDataMessage.MSG_BLOCK, currentHash);
+                    break;
+                }
+            }
+
+            node.Send(getDataMessage);
+            networkMessage = node.WaitFor(new() { BlockMessage.Command });
+            BlockMessage blockMessage = (BlockMessage)networkMessage;
+
+            return blockMessage._block;
+        }
+
+        /// <summary>
+        /// Return the block whose block header has this hash
+        /// </summary>
+        /// <param name="hash"></param>
+        /// <exception cref="Exception"></exception>
+        public static Block GetBlockWithHash(string hash)
+        {
+            byte[] start_block = Tools.HexStringToBytes(hash);
+
+            SimpleNode node = new SimpleNode(false); // 02.01.2026: 65.109.24.172 worked in: python, C#
+            node.Init();
+            node.Handshake();
+
+            GetHeadersMessage getHeadersMessage = new GetHeadersMessage(start_block);
+            node.Send(getHeadersMessage);
+            NetworkMessage networkMessage = node.WaitFor(new() { HeadersMessage.Command });
+            HeadersMessage headerMessage = (HeadersMessage)networkMessage;
+
+            GetDataMessage getDataMessage = new GetDataMessage();
+            foreach (BlockHeader blockHeader in headerMessage._blockHeaders)
+            {
+                byte[] currentHash = blockHeader.Hash();
+                string strCurrentHash = Tools.BytesToHexString(currentHash);
+                Console.WriteLine("header: " + strCurrentHash);
+                if (blockHeader.CheckPow())
+                {
+                    Console.WriteLine("header is valid!");
+                }
+                else
+                {
+                    throw new Exception("proof of work is invalid");
+                }
+
+                if (strCurrentHash.Equals(hash))
+                {
+                    Console.WriteLine("Found block with specified hash");
+                    getDataMessage.Add(GetDataMessage.MSG_BLOCK, currentHash);
+                    break;
+                }
+            }
+
+            node.Send(getDataMessage);
+            networkMessage = node.WaitFor(new() { BlockMessage.Command });
+            BlockMessage blockMessage = (BlockMessage)networkMessage;
+
+            return blockMessage._block;
         }
     }
 }

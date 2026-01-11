@@ -9,7 +9,12 @@
   <ItemGroup>
     <Compile Remove="ByteArray.cs" />
     <Compile Remove="ReaderWriter.cs" />
+    <Compile Remove="Visitors\IBitcoinElement.cs" />
     <Compile Remove="Witness.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LevelDB.Net" Version="1.2.1" />
   </ItemGroup>
 
 </Project>

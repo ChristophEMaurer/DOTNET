@@ -20,10 +20,12 @@ namespace BitcoinLib.Network
             return new VerAckMessage();
         }
 
+        /*
         public static VerAckMessage Parse(BinaryReader input)
         {
             return new VerAckMessage();
         }
+        */
 
         public override byte[] Serialize()
         {

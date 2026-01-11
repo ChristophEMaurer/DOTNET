@@ -32,19 +32,28 @@ namespace BitcoinLib.Test
 
         public static void test_handshake()
         {
-            //
-            // testnet.programmingbitcoin.com: this works in the python code! 24.12.2025
-            //
-            SimpleNode node = new SimpleNode(URL_NODE_TESTNET, true, 1);
-            node.Init();
-            node.Handshake();
+            try
+            {
+                //
+                // testnet.programmingbitcoin.com: this works in the python code! 24.12.2025
+                //
+                Tools.LOGGING = 1;
+                SimpleNode node = new SimpleNode("65.109.24.172", true);
+                node.Init();
+                node.Handshake();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
         }
 
         public static void test_getheaders()
         {
             try
             {
-                SimpleNode node = new SimpleNode(URL_NODE_TESTNET, true, 0);
+                Tools.LOGGING = 0;
+                SimpleNode node = new SimpleNode(URL_NODE_TESTNET, true);
                 node.Init();
                 node.Handshake();
                 BlockHeader genesis = BlockHeader.Parse(Block.GENESIS_BLOCK);
@@ -70,8 +79,8 @@ namespace BitcoinLib.Test
                 Console.WriteLine(string.Format("expected bits: {0:x8}", expected_bits));
 
                 int count = 1;
-
-                SimpleNode node = new SimpleNode("dnsseed.bluematt.me", false, 1); // 29.12.2025: this worked in: Python and C#
+                Tools.LOGGING = 1;
+                SimpleNode node = new SimpleNode("dnsseed.bluematt.me", false); // 29.12.2025: this worked in: Python and C#
                 node.Init();
                 node.Handshake();
 
@@ -127,76 +136,85 @@ namespace BitcoinLib.Test
         /// <exception cref="Exception"></exception>
         public static void test_get_transaction_of_interest()
         {
-            string last_block_hex = "00000000000538d5c2246336644f9a4956551afb44ba47278759ec55ea912e19";
-            string address = "mwJn1YPMq7y5F8J3LkC5Hxg9PHyZ5K4cFv";
-            byte[] h160 = Base58Encoding.DecodeH160(address);
-            //string actual = Tools.BytesToHexString(h160);
-            //string want = "ad346f8eb57dee9a37981716e498120ae80e44f7";
-            SimpleNode node = new SimpleNode("65.109.24.172", true, 1); // 02.01.2026: 65.109.24.172 worked in: python, C#
-            BloomFilter bf = new BloomFilter(30, 5, 90210);
-            bf.Add(h160);
-            node.Init();
-            node.Handshake();
-            FilterLoadMessage filterLoadMessage = bf.CreateFilterLoadMessage(1);
-            byte[] start_block = Tools.HexStringToBytes(last_block_hex);
-            GetHeadersMessage getHeadersMessage = new GetHeadersMessage(start_block);
-            node.Send(getHeadersMessage);
-            NetworkMessage networkMessage = node.WaitFor(new () { HeadersMessage.Command });
-            HeadersMessage headerMessage = (HeadersMessage)networkMessage;
-            Tools.WriteLine("headerMessage has " + headerMessage._blockHeaders.Count + " block headers");
-            GetDataMessage getDataMessage = new GetDataMessage();
-            foreach (BlockHeader blockHeader in headerMessage._blockHeaders)
+            try
             {
-                if (!blockHeader.CheckPow())
+                string last_block_hex = "00000000000538d5c2246336644f9a4956551afb44ba47278759ec55ea912e19";
+                string address = "mwJn1YPMq7y5F8J3LkC5Hxg9PHyZ5K4cFv";
+                byte[] h160 = Base58Encoding.DecodeH160(address);
+                //string actual = Tools.BytesToHexString(h160);
+                //string want = "ad346f8eb57dee9a37981716e498120ae80e44f7";
+                Tools.LOGGING = 1;
+                SimpleNode node = new SimpleNode("65.109.24.172", true); // 02.01.2026: 65.109.24.172 worked in: python, C#
+                BloomFilter bf = new BloomFilter(30, 5, 90210);
+                bf.Add(h160);
+                node.Init();
+                node.Handshake();
+                FilterLoadMessage filterLoadMessage = bf.CreateFilterLoadMessage(1);
+                byte[] start_block = Tools.HexStringToBytes(last_block_hex);
+                GetHeadersMessage getHeadersMessage = new GetHeadersMessage(start_block);
+                node.Send(getHeadersMessage);
+                NetworkMessage networkMessage = node.WaitFor(new() { HeadersMessage.Command });
+                HeadersMessage headerMessage = (HeadersMessage)networkMessage;
+                Tools.WriteLine("headerMessage has " + headerMessage._blockHeaders.Count + " block headers");
+                GetDataMessage getDataMessage = new GetDataMessage();
+                foreach (BlockHeader blockHeader in headerMessage._blockHeaders)
                 {
-                    throw new Exception("proof of work is invalid");
-                }
-                getDataMessage.Add(GetDataMessage.MSG_FILTERED_BLOCK, blockHeader.Hash());
-            }
-
-            //want = "1e000000000448000000000004000000000200000000000000000000000000050000006260010001";
-            //actual = Tools.BytesToHexString(filterLoadMessage.Serialize());
-
-            node.Send(filterLoadMessage);
-            Console.WriteLine("getDataMessage has "+ getDataMessage._items.Count + " items");
-            node.Send(getDataMessage);
-            bool found = false;
-            while (!found)
-            {
-                NetworkMessage msg = node.WaitFor(new () { MerkleBlockMessage.Command, Tx.Command });
-                if (msg._command == MerkleBlockMessage.Command)
-                {
-                    MerkleBlockMessage merkleBlockMessage = (MerkleBlockMessage)msg;
-                    if (!merkleBlockMessage._merkleBlock.IsValid())
+                    if (!blockHeader.CheckPow())
                     {
-                        throw new Exception("invalid merkle proof");
+                        throw new Exception("proof of work is invalid");
+                    }
+                    getDataMessage.Add(GetDataMessage.MSG_FILTERED_BLOCK, blockHeader.Hash());
+                }
+
+                //want = "1e000000000448000000000004000000000200000000000000000000000000050000006260010001";
+                //actual = Tools.BytesToHexString(filterLoadMessage.Serialize());
+
+                node.Send(filterLoadMessage);
+                Console.WriteLine("getDataMessage has " + getDataMessage._items.Count + " items");
+                node.Send(getDataMessage);
+                bool found = false;
+                while (!found)
+                {
+                    NetworkMessage msg = node.WaitFor(new() { MerkleBlockMessage.Command, Tx.Command });
+                    if (msg._command == MerkleBlockMessage.Command)
+                    {
+                        MerkleBlockMessage merkleBlockMessage = (MerkleBlockMessage)msg;
+                        if (!merkleBlockMessage._merkleBlock.IsValid())
+                        {
+                            throw new Exception("invalid merkle proof");
+                        }
+                        else
+                        {
+                            Console.WriteLine("MerkleBlock is valid!");
+                        }
+                    }
+                    else if (msg._command == Tx.Command)
+                    {
+                        Tx tx = (Tx)msg;
+                        Tools.WriteLine("tx has " + tx._txOuts.Count + " txOuts");
+                        for (int i = 0; i < tx._txOuts.Count; i++)
+                        {
+                            TxOut txOut = tx._txOuts[i];
+                            if (txOut._script_pubkey.Address(true).Equals(address))
+                            {
+                                Tools.WriteLine($"found {tx.Id()}:{i}");
+                                found = true;
+                                //break; dont breek, there could be several tx of interest
+                            }
+                        }
                     }
                     else
                     {
-                        Console.WriteLine("MerkleBlock is valid!");
+                        // not possible, do nothing
                     }
                 }
-                else if (msg._command == Tx.Command)
-                {
-                    Tx tx = (Tx)msg;
-                    Tools.WriteLine("tx has " + tx._txOuts.Count + " txOuts");
-                    for (int i = 0; i < tx._txOuts.Count; i++)
-                    {
-                        TxOut txOut = tx._txOuts[i];
-                        if (txOut._script_pubkey.Address(true).Equals(address))
-                        {
-                            Tools.WriteLine($"found {tx.Id()}:{i}");
-                            found = true;
-                            //break; dont breek, there could be several tx of interest
-                        }
-                    }
-                }
-                else
-                {
-                    // not possible, do nothing
-                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
             }
         }
     }
 }
+
 

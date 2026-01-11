@@ -179,7 +179,8 @@ namespace BitcoinLib.Test
             byte[] target_h160 = Base58Encoding.DecodeH160(target_address);
             Script target_script = Script.Create_P2PKH_Script(target_h160);
             UInt64 fee = 5000;
-            SimpleNode node = new SimpleNode("65.109.24.172", true, 3);
+            Tools.LOGGING = 3;
+            SimpleNode node = new SimpleNode("65.109.24.172", true);
             node.Init();
             BloomFilter bf = new BloomFilter(30, 5, 90210);
             bf.Add(h160);

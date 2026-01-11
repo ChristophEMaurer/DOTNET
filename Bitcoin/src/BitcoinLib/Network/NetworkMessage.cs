@@ -26,10 +26,12 @@ namespace BitcoinLib
             { "merkleblock",    "BitcoinLib.Network.MerkleBlockMessage" },
             { "filterload",     "BitcoinLib.Network.FilterloadMessage" },
             { "feefilter",      "BitcoinLib.Network.FeeFilterMessage" },
+            { "block",          "BitcoinLib.Network.BlockMessage" },
             { "tx",             "BitcoinLib.Tx" },
         };
 
         public string _command;
+
         public NetworkMessage(string command)
         {
             _command = command;
@@ -39,6 +41,7 @@ namespace BitcoinLib
         {
             return new byte[0];
         }
+
         public static string GetClassNameForCommand(string command)
         {
             if (CommandToClassMapping.ContainsKey(command))

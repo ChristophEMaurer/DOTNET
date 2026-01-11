@@ -1,11 +1,7 @@
-﻿using System;
-using System.Buffers.Binary;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Numerics;
+using System.Text.Json.Serialization;
+
+using BitcoinLib.Visitors;
 
 namespace BitcoinLib
 {
@@ -20,6 +16,8 @@ namespace BitcoinLib
 
         // MAX_TARGET = 0xFFFF * 256^(0x1D - 3)
         public static readonly BigInteger MAX_TARGET = new BigInteger(0xFFFF) * BigInteger.Pow(256, 0x1D - 3);
+
+        public string id { get { return HashAsString(); } }
 
         /// <summary>
         /// 4 bytes, LE
@@ -38,32 +36,55 @@ namespace BitcoinLib
         /// https://learnmeabitcoin.com/technical/block/version/
         /// </summary>
         public UInt32 _version;
-
+        public UInt32 version { get { return _version; } }
         /// <summary>
         /// 32 bytes, LE. Points to the previous block in the blockchain
         /// </summary>
         public byte[] _prevBlockHash;
+        public string previousblockhash { get { return Tools.BytesToHexString(_prevBlockHash); } }
 
         /// <summary>
         /// 32 bytes, LE.
         /// This is the merkleRoot of all transactions.
         /// </summary>
         public byte[] _merkleRoot;
+        public string merkleRoot { get { return Tools.BytesToHexString(_merkleRoot); } }
 
         /// <summary>
         /// 4 bytes, LE
         /// </summary>
         public UInt32 _timestamp;
+        public UInt32 timestamp { get { return _timestamp; } }
 
-        /// <summary>
+                /// <summary>
         /// 4 byte, LE
         /// </summary>
         public UInt32 _bits;
+        public UInt32 bits { get { return _bits; } }
 
         /// <summary>
         /// 4 byte, LE
         /// </summary>
         public UInt32 _nonce;
+        public UInt32 nonce { get { return _nonce; } }
+
+
+        /// <summary>
+        /// tx_count can only be set from the outside, when the block parses the data
+        /// </summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public UInt64? tx_count { get; set; }
+
+        // this is the total size including segwit data of the entire block. It must be set from the outside
+        public UInt64 size { get; set; }
+
+        /// <summary>
+        ///  weight is for json: must be set from outside
+        /// </summary>
+        public UInt64? weight { get; set; }
+        public int? height { get; set; }
+
+        public double difficulty {  get { return DifficultyAsDouble(); } }
 
         public BlockHeader(UInt32 version, byte[] prev_block, byte[] merkle_root, UInt32 timestamp, UInt32 bits, UInt32 nonce)
         {
@@ -128,6 +149,11 @@ namespace BitcoinLib
             Tools.Reverse(hash);
 
             return hash;
+        }
+
+        public string HashAsString()
+        {
+            return Tools.BytesToHexString(Hash());
         }
 
         /// <summary>
@@ -339,7 +365,6 @@ namespace BitcoinLib
 
             return newBits;
         }
-
         public bool ValidateMerkleRoot(byte[][] hashes)
         {
             // reverse the hashes of all transactions
@@ -352,5 +377,12 @@ namespace BitcoinLib
 
             return success;
         }
+
+        public void Accept(IBitcoinVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+
+
     }
 }

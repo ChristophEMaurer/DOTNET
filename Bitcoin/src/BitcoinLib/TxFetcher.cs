@@ -53,13 +53,17 @@ namespace BitcoinLib
             }
             else
             {
-                folder = folder + "\\..\\..";
-                //
-                // "C:\\cmaurer\\cmaurer\\privat\\develop\\DOT.NET\\Bitcoin"
-                //
-                if (File.Exists(folder + "\\" + CacheFileName))
+                for (int i = 0; i < 10; i++)
                 {
-                    _cacheFileName = folder + "\\" + CacheFileName;
+                    folder = folder + "\\..";
+                    //
+                    // "C:\\cmaurer\\cmaurer\\privat\\develop\\DOT.NET\\Bitcoin"
+                    //
+                    if (File.Exists(folder + "\\" + CacheFileName))
+                    {
+                        _cacheFileName = folder + "\\" + CacheFileName;
+                        break;
+                    }
                 }
             }
 
@@ -163,22 +167,6 @@ namespace BitcoinLib
             }
         }
 
-
-        public static string GetUrlContentNew(string url)
-        {
-            string data = "";
-
-            try
-            {
-                data = _http.GetStringAsync(url).GetAwaiter().GetResult();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("ERROR retrieving " + url);
-            }
-
-            return data;
-        }
         public static string GetUrlContent(string url)
         {
             string data = "";
@@ -191,7 +179,7 @@ namespace BitcoinLib
                     using (WebClient client = new WebClient())
                     {
 
-                        Console.Out.WriteLine("Retrieving URL:" + url);
+                        Console.Out.WriteLine("Retrieving URL [" + tries + "]: " + url);
                         data = client.DownloadString(url);
                         break;
                     }
@@ -200,6 +188,11 @@ namespace BitcoinLib
                 {
                     Console.Out.WriteLine("ERROR!!!: " + e.Message);
                 }
+            }
+
+            if (data.Length < 10)
+            {
+                ; // breakpoint here
             }
         
             return data;
@@ -219,8 +212,17 @@ namespace BitcoinLib
                 response = response.Trim();
                 Console.WriteLine("Received: " + response);
 
-                Tx tx = Tx.Parse(response);
-                tx._testnet = testnet;
+                Tx tx;
+
+                try
+                {
+                    tx = Tx.Parse(response);
+                    tx._testnet = testnet;
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
 
                 //
                 // We get the full tx data from the internet so that we can verify all of it.

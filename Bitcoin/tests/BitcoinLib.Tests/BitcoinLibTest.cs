@@ -114,6 +114,8 @@ namespace BitcoinLib.Test
             Tools.CallStaticMethod("BitcoinLib.Test.BlockHeaderTest", "test_block_header_calculate_new_bits");
             Tools.CallStaticMethod("BitcoinLib.Test.BlockHeaderTest", "test_validate_merkle_root");
 
+            Tools.CallStaticMethod("BitcoinLib.Test.BlockTest", "test_serialize");
+
             Tools.CallStaticMethod("BitcoinLib.Test.NetworkEnvelopeTest", "test_parse");
             Tools.CallStaticMethod("BitcoinLib.Test.NetworkEnvelopeTest", "test_serialize");
 

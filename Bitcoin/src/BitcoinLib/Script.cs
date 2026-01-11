@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BitcoinLib.Visitors;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -6,6 +7,8 @@ using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Security.Policy;
+using System.Text;
+using System.Text.Json.Serialization;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace BitcoinLib
@@ -17,6 +20,11 @@ namespace BitcoinLib
     {
         // See Op.cs for all op codes
         public const byte OP_0 = 0;
+
+        public const byte OP_1 = 81;
+        public const byte OP_PUSHDATA1 = 76;
+        public const byte OP_PUSHDATA2 = 77;
+        public const byte OP_PUSHDATA4 = 78;
         public const byte OP_IF = 99;
         public const byte OP_NOTIF = 100;
         public const byte OP_TOALTSTACK = 107;
@@ -38,6 +46,21 @@ namespace BitcoinLib
         // object is byte[] or byte
         //
         public OpItems _cmds = null;
+
+        public string asm { get { return ToString(); } }
+
+        // property hex is used for json output: the total length of the script is not output.
+        // do not use this for anything else
+        // we remove the first byte which has 2 digits
+        public string hex { get { return Hex(); } }
+        public string ascii { get { return Ascii(); } }
+
+        // dont output this if we return null: 
+        // only ScriptPubkey from TxOut will be not null
+        // ScriptSig from TxIn will be null
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string scriptpubkey_type { get { return ScriptPubKeyType(); } }
+        
 
         /// <summary>
         /// Make a deep copy of another script
@@ -129,10 +152,15 @@ namespace BitcoinLib
 
         public override string ToString()
         {
-            string text = "";
+            StringBuilder sb = new StringBuilder();
 
             foreach (OpItem cmd in _cmds)
             {
+                if (sb.Length > 0)
+                {
+                    sb.Append(" ");
+                }
+
                 if (cmd.IsOpcode())
                 {
                     byte n = (byte) cmd._opCode;
@@ -150,18 +178,20 @@ namespace BitcoinLib
                         //
                         name = string.Format("OP_[{0}]", n);
                     }
-                    text += name;
+                    sb.Append(name);
                 }
                 else
                 {
                     byte[] raw = cmd._element;
+                    string len = "PUSHBYTES_" + raw.Length;
                     string name = Tools.BytesToHexString(raw);
-                    text += " " + name;
+                    sb.Append(len);
+                    sb.Append(" ");
+                    sb.Append(name);
                 }
-                text += " ";
             }
 
-            return text;
+            return sb.ToString();
         }
 
         public void Dump()
@@ -171,7 +201,7 @@ namespace BitcoinLib
 
 
         /// <summary>
-        /// Initialize from string data. We read from left to right, the bytes will in in the array starting at index 0.
+        /// Initialize from string data. We read from left to right, the bytes will be in the array starting at index 0.
         /// The string does NOT contain the lenth of the remaining bytes.
         /// </summary>
         /// <param name="input"></param>
@@ -218,6 +248,7 @@ namespace BitcoinLib
         /// <returns></returns>
         public static Script Parse(BinaryReader input)
         {
+            // the amount of all remaining data in bytes
             UInt64 length = Tools.ReadVarInt(input);
             OpItems cmds = new OpItems();
 
@@ -237,7 +268,7 @@ namespace BitcoinLib
                     count += n;
                     cmds.Add(new OpItem(bytes));
                 }
-                else if (current_byte == 76)
+                else if (current_byte == 76) // 76 op_pushdata1
                 {
                     //
                     // op_pushdata1: 76 <= n <= 255
@@ -253,7 +284,7 @@ namespace BitcoinLib
                     count += n + 1;
                     cmds.Add(new OpItem(bytes));
                 }
-                else if (current_byte == 77)
+                else if (current_byte == 77) // op_pushdata2
                 {
                     //
                     // op_pushdata2: ee
@@ -274,7 +305,7 @@ namespace BitcoinLib
                     count += n + 2;
                     cmds.Add(new OpItem(bytes));
                 }
-                else if (current_byte == 78)
+                else if (current_byte == 78) // op_pushdata4
                 {
                     //
                     // op_pushdata4: the next 4 bytes tells us how many bytes to read 521 <= n <= 4GB - 1
@@ -337,8 +368,9 @@ namespace BitcoinLib
 
         /// <summary>
         /// [len] [bytes]
-        /// Serialized the length of the entire script plus the serial data itself.
-        /// The length is the number of elements. One element is a byte or an array of bytes.
+        /// Serialized the amount of the entire script bytes plus the serial data itself.
+        /// The length is the number of bytes of the remaining script.
+        /// One element is a byte or an array of bytes.
         /// </summary>
         /// <param name="data"></param>
         public void serialize(List<byte> data)
@@ -349,10 +381,7 @@ namespace BitcoinLib
             UInt64 len = (UInt64)raw.Count;
 
             Tools.EncodeVarInt(data, len);
-            foreach (byte b in raw)
-            {
-                data.Add(b);
-            }
+            data.AddRange(raw);
         }
 
         //
@@ -716,6 +745,35 @@ namespace BitcoinLib
 
         /// <summary>
         /// Returns whether this follows the
+        /// [pubKey] [OP_CHECKSIG]
+        /// pattern
+        /// [pubKey] is either compressed (33 bytes) or uncompressed (65 bytes)
+        /// /// </summary>
+        /// <returns></returns>
+        public bool Is_P2PK_ScriptPubkey()
+        {
+            //
+            // there should be exactly 5 cmds
+            // [pubKey] [OP_CHECKSIG]
+            //
+            if (_cmds.Count == 2)
+            {
+                if (
+                       _cmds[0].IsElement()
+                    && ((_cmds[0].Length == 33) || ((_cmds[0].Length == 65)))
+                    && _cmds[1].IsOpcode(OP_CHECKSIG)
+                    )
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+
+        /// <summary>
+        /// Returns whether this follows the
         /// [OP_DUP] [OP_HASH160 <20 byte hash>] [OP_EQUALVERIFY] [OP_CHECKSIG]
         /// pattern
         /// </summary>
@@ -1031,6 +1089,62 @@ namespace BitcoinLib
             }
                 
             return address;
+        }
+
+        /// <summary>
+        /// analyze the script and return the type: p2pkh, p2sh, etc.
+        /// </summary>
+        /// <returns></returns>
+        public string ScriptPubKeyType()
+        {
+            string scriptType = null;
+
+            if (Is_P2PK_ScriptPubkey())
+            {
+                scriptType = "p2pk";
+            }
+            else if (Is_P2PKH_ScriptPubkey())
+            {
+                scriptType = "p2pkh";
+            }
+            else if (Is_P2SH_ScriptPubkey())
+            {
+                scriptType = "p2sh";
+            }
+            else if (Is_P2WPKH_ScriptPubkey())
+            {
+                scriptType = "p2wpkh";
+            }
+            else if (Is_P2WSH_ScriptPubkey())
+            {
+                scriptType = "p2wsh";
+            }
+
+            return scriptType;
+        }
+        public void Accept(IBitcoinVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+
+        public string Hex()
+        {
+            byte[] bData = serialize();
+
+            string strData = Tools.BytesToHexString(bData);
+
+            strData = strData.Substring(2);
+
+            return strData;
+        }
+
+        public string Ascii()
+        {
+            byte[] bData = serialize();
+
+            string strData = Tools.BytesToSomeAscii(bData);
+
+            return strData;
         }
     }
 }

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "BitcoinLibTest": {
+      "commandName": "Project",
+      "commandLineArgs": "--runTests"
+    }
+  }
+}

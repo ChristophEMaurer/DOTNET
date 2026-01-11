@@ -16,9 +16,19 @@ namespace BitcoinLib
     {
 
         public byte[] _prev_tx;
+        public string txid { get { return Tools.BytesToHexString(_prev_tx); } }
+
         public UInt32 _prev_index;
+        public UInt32 prevout { get { return _prev_index; } }
+        public UInt32 vout { get { return _prev_index; } }
+
         public Script _script_sig;
+        public Script scriptsig { get { return _script_sig; } }
+
         public UInt32 _sequence;
+        public UInt32 sequence { get { return _sequence; } }
+        public bool is_coinbase { get { return IsCoinbase(); } }
+
 
         //
         // _witness is populated and serialized by Tx
@@ -97,9 +107,19 @@ namespace BitcoinLib
 
         public UInt64 Value(bool testnet = false)
         {
-            Tx tx = FetchPreviousTx(testnet);
+            UInt64 amount = 0;
 
-            UInt64 amount = tx._txOuts[(int)_prev_index]._amount;
+            // if _prev_tx is all 0, we are the genesis block and there are no previous txs
+            if (!_prev_tx.SequenceEqual(new byte[32]))
+            {
+                Tx tx = FetchPreviousTx(testnet);
+
+                if (tx != null)
+                {
+                    // must check because FetchPreviousTx() fails often
+                    amount = tx._txOuts[(int)_prev_index]._amount;
+                }
+            }
 
             return amount;
         }
@@ -111,6 +131,20 @@ namespace BitcoinLib
             Script script = tx._txOuts[(int)_prev_index]._script_pubkey;
 
             return script;
+        }
+
+        public bool IsCoinbase()
+        {
+            if (!_prev_tx.SequenceEqual(new byte[32]))
+            {
+                return false;
+            }
+            if (_prev_index != 0xffffffff)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

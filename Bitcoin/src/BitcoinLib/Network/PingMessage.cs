@@ -19,6 +19,7 @@ namespace BitcoinLib.Network
             _nonce = nonce;
         }
 
+        /*
         public static PingMessage Parse(BinaryReader input)
         {
             UInt64 nonce = Tools.ReadUInt64LittleEndian(input);
@@ -27,6 +28,8 @@ namespace BitcoinLib.Network
 
             return ping;
         }
+        */
+
         public override byte[] Serialize()
         {
             List<byte> data = new List<byte>();
