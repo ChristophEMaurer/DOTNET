@@ -135,7 +135,7 @@ namespace BitcoinLib.Network
             UInt32 payloadSize = Tools.ReadUInt32LittleEndian(reader);
             UInt32 checksum = Tools.ReadUInt32BigEndian(reader);
 
-            if (Tools.LOGGING > 1)
+            if (Tools.DebugLogLevel > 1)
             {
                 Tools.WriteLine($"NetworkEnvelope.ParseHeader: magic={magic:X8}, command={command}, payloadSize={payloadSize}, checksum={checksum:X8}");
             }
@@ -153,14 +153,14 @@ namespace BitcoinLib.Network
         /// <exception cref="Exception"></exception>
         public void ParsePayload(BinaryReader reader)
         {
-            if (Tools.LOGGING > 2)
+            if (Tools.DebugLogLevel > 2)
             {
                 Tools.WriteLine($"NetworkEnvelope.ParsePayload: _payloadSize={_payloadSize}");
             }
             int payloadSize = (int)_payloadSize;
             _payload = reader.ReadBytes(payloadSize);
 
-            if (Tools.LOGGING > 2)
+            if (Tools.DebugLogLevel > 2)
             {
                 string strPayloadHex = Tools.BytesToHexString(_payload);
                 Tools.WriteLine($"NetworkEnvelope.ParsePayload: byte[] _payload: {_payload.Length} bytes");
@@ -169,7 +169,7 @@ namespace BitcoinLib.Network
             byte[] bCalculatedChecksum = Tools.Hash256FirstFourBytes(_payload);
             UInt32 calculatedChecksum = BinaryPrimitives.ReadUInt32BigEndian(bCalculatedChecksum);
 
-            if (Tools.LOGGING > 2)
+            if (Tools.DebugLogLevel > 2)
             {
                 Tools.WriteLine($"NetworkEnvelope.ParsePayload: calculatedChecksum={calculatedChecksum:x8}");
             }

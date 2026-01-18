@@ -38,7 +38,7 @@ namespace BitcoinLib
         public const byte OP_CHECKMULTISIG = 174;
         public const byte OP_CHECKMULTISIGVERIFY = 175;
         
-        public static bool DEBUG_DUMP_STACKS = false;
+        public static bool DebugDumpScriptStacks = false;
         //
         // The stack contains 
         // - a byte -> this is an opcode
@@ -498,7 +498,7 @@ namespace BitcoinLib
         /// <returns>true, if after executing the script, the script is empty and the stack does not contain a 0</returns>
         public bool Evaluate(BigInteger z, Script witness)
         {
-            if (Tools.LOGGING > 2)
+            if (Tools.DebugLogLevel > 2)
             {
                 if (witness == null)
                 {
@@ -521,7 +521,7 @@ namespace BitcoinLib
 
             while (cmds.Count > 0)
             {
-                if (DEBUG_DUMP_STACKS)
+                if (DebugDumpScriptStacks)
                 {
                     DumpStacks(cmds, stack, altstack);
                 }
@@ -613,7 +613,7 @@ namespace BitcoinLib
                     if (Is_P2SH_ScriptPubkey(cmds)) //ok
                     {
                         // Script contains: [OP_HASH160] [hash(pubkey) 20] [OP_EQUAL]
-                        if (Tools.LOGGING > 0)
+                        if (Tools.DebugLogLevel > 0)
                         {
                             Console.WriteLine("Script.Evaluate(): P2SH");
                         }
@@ -665,7 +665,7 @@ namespace BitcoinLib
                     else if (Is_P2WPKH_ScriptPubkey(stack, true)) // ok
                     {
                         // Stack contains: [OP_0(0x00)] [hash160(pubkey) 20 bytes]
-                        if (Tools.LOGGING > 0)
+                        if (Tools.DebugLogLevel > 0)
                         {
                             Console.WriteLine("Script.Evaluate(): P2WPKH");
                         }
@@ -695,7 +695,7 @@ namespace BitcoinLib
                     else if (Is_P2WSH_ScriptPubkey(stack, true)) // ok or not ok?
                     {
                         // stack contains: [OP_0 (0x00)] [hash256(witnessScript) 32 bytes]
-                        if (Tools.LOGGING > 0)
+                        if (Tools.DebugLogLevel > 0)
                         {
                             Console.WriteLine("Script.Evaluate(): P2WSH");
                         }

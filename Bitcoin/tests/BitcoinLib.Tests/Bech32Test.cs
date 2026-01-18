@@ -10,7 +10,7 @@ namespace BitcoinLib.Test
 {
     public class Bech32Test : UnitTest
     {
-        public static void test_bech32()
+        public static void test_bech32_encode_decode()
         {
             object[] data = 
             {
@@ -25,16 +25,31 @@ namespace BitcoinLib.Test
 
             for (int i = 0; i < data.Length;)
             {
-                byte[] bytes = Tools.HexStringToBytes((string)data[i++]);
+                string strBytes = (string)data[i++];
+                byte[] bBytes = Tools.HexStringToBytes(strBytes);
                 int version = (int) data[i++];
                 string mainnet = (string) data[i++];
                 string testnet = (string) data[i++];
 
-                string actualMainnet = Bech32.Encode("bc", version, bytes);
-                string actualTestnet = Bech32.Encode("tb", version, bytes);
+                string actualMainnet = Bech32.Encode("bc", version, bBytes);
+                string actualTestnet = Bech32.Encode("tb", version, bBytes);
 
                 AssertEqual(actualMainnet, mainnet);
                 AssertEqual(actualTestnet, testnet);
+
+                Console.WriteLine($"encoded bc, {version}, bytes:{strBytes}:");
+                Console.WriteLine($"encoded mainnet: {actualMainnet}");
+                Console.WriteLine($"decoded mainnet  {mainnet}: ");
+                Bech32Decoded decoded = Bech32.Decode(mainnet);
+                Tools.PrintJsonObject(decoded);
+                AssertTrue(strBytes.Equals(decoded.WitnessProgramm));
+
+                Console.WriteLine($"encoded tb, {version}, bytes:{strBytes}:");
+                Console.WriteLine($"encoded testnet: {actualTestnet}");
+                Console.WriteLine($"decoded testnet  {testnet}:");
+                decoded = Bech32.Decode(testnet);
+                Tools.PrintJsonObject(decoded);
+                AssertTrue(strBytes.Equals(decoded.WitnessProgramm));
             }
         }
     }

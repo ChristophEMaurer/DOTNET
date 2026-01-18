@@ -1,15 +1,6 @@
-﻿using BitcoinLib;
-using BitcoinLib.Network;
-using System;
-using System.Buffers.Binary;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Security;
+﻿using BitcoinLib.Network;
 using System.Numerics;
 using System.Text;
-using System.Threading.Tasks;
-using System.Transactions;
 
 namespace BitcoinLib.Test
 {
@@ -179,7 +170,6 @@ namespace BitcoinLib.Test
             byte[] target_h160 = Base58Encoding.DecodeH160(target_address);
             Script target_script = Script.Create_P2PKH_Script(target_h160);
             UInt64 fee = 5000;
-            Tools.LOGGING = 3;
             SimpleNode node = new SimpleNode("65.109.24.172", true);
             node.Init();
             BloomFilter bf = new BloomFilter(30, 5, 90210);

@@ -152,6 +152,8 @@ namespace BitcoinLib.Test
             Tools.CallStaticMethod("BitcoinLib.Test.MerkleBlockMessageTest", "test_is_Valid");
 
             Tools.CallStaticMethod("BitcoinLib.Test.BloomFilterTest", "test_chapter_12_p212");
+            Tools.CallStaticMethod("BitcoinLib.Test.BloomFilterTest", "test_chapter_12_p213");
+            Tools.CallStaticMethod("BitcoinLib.Test.BloomFilterTest", "test_chapter_12_p214");
             Tools.CallStaticMethod("BitcoinLib.Test.BloomFilterTest", "test_chapter_12_p215");
             Tools.CallStaticMethod("BitcoinLib.Test.BloomFilterTest", "test_add");
 
@@ -162,8 +164,7 @@ namespace BitcoinLib.Test
 
             Tools.CallStaticMethod("BitcoinLib.Test.GetDataMessageTest", "test_serialize");
 
-            Tools.CallStaticMethod("BitcoinLib.Test.Bech32Test", "test_bech32");
-            
+            Tools.CallStaticMethod("BitcoinLib.Test.Bech32Test", "test_bech32_encode_decode");
         }
 
         public static void RunChapters()

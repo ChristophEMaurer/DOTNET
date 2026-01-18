@@ -127,11 +127,11 @@ namespace BitcoinLib.Test
         }
         public static void ConsoleOutWriteLine(string text)
         {
-            Console.Out.WriteLine(text);
+            Console.WriteLine(text);
         }
         public static void ConsoleOutWrite(string text)
         {
-            Console.Out.Write(text);
+            Console.Write(text);
         }
     }
 }

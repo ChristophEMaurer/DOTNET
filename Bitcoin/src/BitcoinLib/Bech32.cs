@@ -8,10 +8,37 @@ using System.Text;
 
 namespace BitcoinLib
 {
+    public class Bech32Decoded
+    {
+        public string Hrp { get; set; }
+        public int WitnessVersion { get; set; }
+        public byte[] _witnessProgram;
+        public string WitnessProgramm { get { return Tools.BytesToHexString(_witnessProgram); } }
+        public bool IsBech32m { get; set; }
+    }
+
     public static class Bech32
     {
         const string CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l";
 
+        private static byte CharToValue(char c)
+        {
+            int index = CHARSET.IndexOf(c);
+            if (index < 0)
+                throw new FormatException($"Ungültiges Bech32-Zeichen: '{c}'");
+            return (byte)index;
+        }
+
+        /// <summary>
+        /// Bech32 is used for SegWit addresses
+        /// [HRP]1[DATA][CHECKSUM]
+        /// [HRP]: bc mainnet | tb testnet
+        /// </summary>
+        /// <param name="hrp"></param>
+        /// <param name="witVer"></param>
+        /// <param name="prog"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public static string Encode(string hrp, int witVer, byte[] prog)
         {
             if (witVer < 0 || witVer > 16) throw new ArgumentException("Invalid witness version");
@@ -33,6 +60,88 @@ namespace BitcoinLib
             string check = string.Concat(checksum.Select(b => CHARSET[b]));
             return hrp + "1" + payload + check;
         }
+
+        public static Bech32Decoded Decode(string address)
+        {
+            if (string.IsNullOrWhiteSpace(address))
+                throw new ArgumentException("Adresse leer");
+
+            address = address.ToLowerInvariant();
+
+            int sep = address.LastIndexOf('1');
+            if (sep < 1 || sep + 7 > address.Length)
+                throw new Exception("Ungültige Bech32-Adresse");
+
+            string hrp = address.Substring(0, sep);
+            string dataPart = address.Substring(sep + 1);
+
+            // Bech32 charset → 5-bit Werte
+            byte[] data = dataPart.Select(CharToValue).ToArray();
+
+            // Checksum prüfen
+            int polymod = Polymod(
+    HrpExpand(hrp)
+        .Concat(data.Select(b => (int)b))
+        .ToArray()
+);
+
+            bool isBech32;
+            bool isBech32m;
+
+            if (polymod == 1)
+            {
+                isBech32 = true;
+                isBech32m = false;
+            }
+            else if (polymod == 0x2bc830a3)
+            {
+                isBech32 = false;
+                isBech32m = true;
+            }
+            else
+            {
+                throw new Exception("Ungültige Checksum");
+            }
+
+            // Payload ohne Checksum (letzte 6 Werte)
+            byte[] payload = data.Take(data.Length - 6).ToArray();
+
+            int witnessVersion = payload[0];
+            if (witnessVersion > 16)
+                throw new Exception("Ungültige Witness Version");
+
+            // 5 Bit → 8 Bit
+            byte[] witnessProgram =
+                ConvertBits(payload.Skip(1).ToArray(), 5, 8, false);
+
+            // Bitcoin-Regeln
+            if (witnessProgram.Length < 2 || witnessProgram.Length > 40)
+                throw new Exception("Ungültige Witness Program Länge");
+
+            if (witnessVersion == 0 &&
+                witnessProgram.Length != 20 &&
+                witnessProgram.Length != 32)
+                throw new Exception("Ungültiges SegWit v0 Programm");
+
+            if (witnessVersion == 1 && witnessProgram.Length != 32)
+                throw new Exception("Ungültiges Taproot Programm");
+
+            // Bech32 vs Bech32m Konsistenz
+            if (witnessVersion == 0 && !isBech32)
+                throw new Exception("SegWit v0 muss Bech32 sein");
+
+            if (witnessVersion > 0 && !isBech32m)
+                throw new Exception("SegWit v1+ muss Bech32m sein");
+
+            return new Bech32Decoded
+            {
+                Hrp = hrp,
+                WitnessVersion = witnessVersion,
+                _witnessProgram = witnessProgram,
+                IsBech32m = isBech32m
+            };
+        }
+
 
         static byte[] ConvertBits(byte[] data, int fromBits, int toBits, bool pad)
         {

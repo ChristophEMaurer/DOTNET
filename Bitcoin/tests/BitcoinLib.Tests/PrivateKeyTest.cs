@@ -71,9 +71,9 @@ namespace BitcoinLib.Test
             string strAddressCompressed = privateKey._point.Address(true, true);
             string strAddressUncompressed = privateKey._point.Address(false, true);
 
-            Console.Out.WriteLine("privateKey=" + privateKey.ToString());
-            Console.Out.WriteLine("strAddressCompressed=" + strAddressCompressed.ToString());
-            Console.Out.WriteLine("strAddressUncompressed=" + strAddressUncompressed.ToString());
+            Console.WriteLine("privateKey=" + privateKey.ToString());
+            Console.WriteLine("strAddressCompressed=" + strAddressCompressed.ToString());
+            Console.WriteLine("strAddressUncompressed=" + strAddressUncompressed.ToString());
         }
     }
 }

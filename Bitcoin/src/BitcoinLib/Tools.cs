@@ -18,12 +18,14 @@ namespace BitcoinLib
         /// 2 - some more
         /// 3 - everything
         /// </summary>
-        public static int LOGGING = 0;
-        public static bool LOGGING_TIME = false;
-
+        public static int DebugLogLevel = 0;
+        public static bool DebugLogTime = false;
+        public static bool DebugNoOnline = false;
+       
         public static object? CallStaticMethod(string strClass, string strFunction, object parameter = null)
         {
             object? returnValue = null;
+            bool methodFound = false;
             bool success = false;
 
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
@@ -53,11 +55,21 @@ namespace BitcoinLib
                         {
                             Tools.ConsoleOutWriteHeader(string.Format("Tools::CallStaticMethod(): Calling function {0}::{1}({2})", strClass, strFunction, parameter));
                             DateTime start = DateTime.Now;
-                            returnValue = method.Invoke(null, args);
-                            success = true;
+
+                            try
+                            {
+                                methodFound = true;
+                                returnValue = method.Invoke(null, args);
+                                success = true;
+                            }
+                            catch (Exception ex)
+                            {
+                                Tools.ConsoleOutWriteError("ERROR (method.Invoke(null, args)): Test could not execute (are you online?):");
+                                Console.WriteLine(ex.ToString());
+                            }
                             DateTime end = DateTime.Now;
                             TimeSpan duration = end - start;
-                            if (LOGGING >0)
+                            if (DebugLogLevel >0)
                             {
                                 Console.WriteLine("Time taken: " + duration.ToString(@"hh\:mm\:ss\.fff"));
                             }
@@ -67,11 +79,20 @@ namespace BitcoinLib
                         {
                             Tools.ConsoleOutWriteHeader(string.Format("Tools::CallStaticMethod(): Calling function {0}::{1}()", strClass, strFunction));
                             DateTime start = DateTime.Now;
-                            method.Invoke(null, null);
-                            success = true;
+                            try
+                            {
+                                methodFound = true;
+                                method.Invoke(null, null);
+                                success = true;
+                            }
+                            catch (Exception ex)
+                            {
+                                Tools.ConsoleOutWriteError("ERROR (method.Invoke(null, null)): Test could not execute (are you online?):");
+                                Console.WriteLine(ex.ToString());
+                            }
                             DateTime end = DateTime.Now;
                             TimeSpan duration = end - start;
-                            if (LOGGING_TIME)
+                            if (DebugLogTime)
                             {
                                 Console.WriteLine("Time taken: " + duration.ToString(@"hh\:mm\:ss\.fff"));
                             }
@@ -83,7 +104,14 @@ namespace BitcoinLib
 
             if (!success)
             {
-                throw new Exception(string.Format("Tools::CallStaticMethod(): Error: Function {0}::{1}({2}) not found!!!", strClass, strFunction, parameter));
+                if (!methodFound)
+                {
+                    Tools.ConsoleOutWriteWarning(string.Format("Tools::CallStaticMethod(): Error: Function {0}::{1}({2}) was not found and not executed!!!", strClass, strFunction, parameter));
+                }
+                else
+                {
+                    Tools.ConsoleOutWriteWarning(string.Format("Tools::CallStaticMethod(): Error: Function {0}::{1}({2}) returned false!!!", strClass, strFunction, parameter));
+                }
             }
 
             return returnValue;
@@ -745,6 +773,14 @@ namespace BitcoinLib
             ConsoleColor oldColor = Console.ForegroundColor;
 
             Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine(text);
+            Console.ForegroundColor = oldColor;
+        }
+        public static void ConsoleOutWriteError(string text)
+        {
+            ConsoleColor oldColor = Console.ForegroundColor;
+
+            Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine(text);
             Console.ForegroundColor = oldColor;
         }

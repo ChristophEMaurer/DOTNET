@@ -809,7 +809,7 @@ namespace BitcoinLib
 
             BigInteger z = Tools.BigIntegerFromBytes(hash, "big");
 
-            if (Tools.LOGGING > 1)
+            if (Tools.DebugLogLevel > 1)
             {
                 Console.WriteLine("sig_hash_bip143() z = " + z.ToString());
             }

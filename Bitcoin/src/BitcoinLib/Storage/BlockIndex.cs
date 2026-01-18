@@ -68,6 +68,32 @@ namespace BitcoinLib.Storage
             BlockIndex.AddBlock(block);
         }
 
+        public static void PrintAllBlocks(string includeBlockInfo)
+        {
+            var options = new Options();
+            var readOptions = new ReadOptions();
+
+            using (DB db = DB.Open(_blockIndexDbName, options))
+            {
+                using (var iterator = db.NewIterator(readOptions))
+                {
+                    for (iterator.SeekToFirst(); iterator.Valid(); iterator.Next())
+                    {
+                        byte[] key = iterator.Key().ToArray();
+                        Console.WriteLine($"Block hash: {Tools.BytesToHexString(key)}");
+                        if (includeBlockInfo == "1")
+                        {
+                            byte[] value = iterator.Value().ToArray();
+                            BlockIndexEntry entry = BlockIndexEntry.Parse(value);
+                            byte[] raw = BlockIndex.ReadBlockBytes(entry);
+                            Block block = Block.Parse(raw);
+                            Tools.PrintJsonObject(block);
+                        }
+                    }
+                }
+            }
+        }
+
         public static void AddBlockWithPrevHash(string hash)
         {
             // we cannot check if we already have this block because we do not have the hash
@@ -262,7 +288,7 @@ namespace BitcoinLib.Storage
                 int bytesRead = fs.Read(header, 0, 8);
                 if (bytesRead < 8)
                 {
-                    Console.WriteLine($"Error: could not read header bytes (8 bytes)");
+                    Tools.ConsoleOutWriteWarning($"Error: could not read header bytes (8 bytes)");
                     return null;
                 }
                 UInt32 magicLE = BinaryPrimitives.ReadUInt32LittleEndian(header.AsSpan(0, 4));
@@ -271,19 +297,19 @@ namespace BitcoinLib.Storage
 
                 if (magicLE != magic)
                 {
-                    Console.WriteLine($"Error: invalid magic number, expected {magic}, read {magicLE}");
+                    Tools.ConsoleOutWriteWarning($"Error: invalid magic number, expected {magic}, read {magicLE}");
                     return null;
                 }
                 if (blockSizeLE != requiredSize)
                 {
-                    Console.WriteLine($"Error: invalid block size, expected {requiredSize}, read {blockSizeLE}");
+                    Tools.ConsoleOutWriteWarning($"Error: invalid block size, expected {requiredSize}, read {blockSizeLE}");
                     return null;
                 }
 
                 bytesRead = fs.Read(buffer, 0, requiredSize);
                 if (bytesRead < requiredSize)
                 {
-                    Console.WriteLine($"Error: could not read block bytes ({requiredSize} bytes)");
+                    Tools.ConsoleOutWriteWarning($"Error: could not read block bytes ({requiredSize} bytes)");
                     return null;
                 }
             }

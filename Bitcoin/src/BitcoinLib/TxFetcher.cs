@@ -179,14 +179,14 @@ namespace BitcoinLib
                     using (WebClient client = new WebClient())
                     {
 
-                        Console.Out.WriteLine("Retrieving URL [" + tries + "]: " + url);
+                        Console.WriteLine("Retrieving URL [" + tries + "]: " + url);
                         data = client.DownloadString(url);
                         break;
                     }
                 }
                 catch (Exception e)
                 {
-                    Console.Out.WriteLine("ERROR!!!: " + e.Message);
+                    Tools.ConsoleOutWriteWarning("ERROR!!!: " + e.Message);
                 }
             }
 

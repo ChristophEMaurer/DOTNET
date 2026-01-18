@@ -8,8 +8,11 @@ using System.Threading.Tasks;
 namespace BitcoinLib.Visitors
 {
     // check this output with 
-    // https://blockstream.info/api/block/000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
+    // https://blockstream.info/api/block/000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f OK!
 
+    /// <summary>
+    /// I did not know that class JsonSerializer existed! So this visitor is not really needed!
+    /// </summary>
     public class JsonVisitor : IBitcoinVisitor
     {
         public string _result;

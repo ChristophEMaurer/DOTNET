@@ -119,6 +119,15 @@ namespace BitcoinLib
             return S256Point.Parse(new BinaryReader(new MemoryStream(data)));
         }
 
+        /// <summary>
+        /// Parses a public key which must start with
+        /// 0x04 uncompressed
+        /// 0x02 compressed y even
+        /// 0x03 compressed y odd
+        /// The input must NOT include the length of the following bytes
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public static S256Point Parse(BinaryReader input)
         {
             byte prefix = input.ReadByte();
@@ -175,6 +184,7 @@ namespace BitcoinLib
                     point = new S256Point(x, odd_beta);
                 }
             }
+
             return point;
         }
 

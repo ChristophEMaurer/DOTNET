@@ -37,7 +37,6 @@ namespace BitcoinLib.Test
                 //
                 // testnet.programmingbitcoin.com: this works in the python code! 24.12.2025
                 //
-                Tools.LOGGING = 1;
                 SimpleNode node = new SimpleNode("65.109.24.172", true);
                 node.Init();
                 node.Handshake();
@@ -52,7 +51,6 @@ namespace BitcoinLib.Test
         {
             try
             {
-                Tools.LOGGING = 0;
                 SimpleNode node = new SimpleNode(URL_NODE_TESTNET, true);
                 node.Init();
                 node.Handshake();
@@ -79,7 +77,6 @@ namespace BitcoinLib.Test
                 Console.WriteLine(string.Format("expected bits: {0:x8}", expected_bits));
 
                 int count = 1;
-                Tools.LOGGING = 1;
                 SimpleNode node = new SimpleNode("dnsseed.bluematt.me", false); // 29.12.2025: this worked in: Python and C#
                 node.Init();
                 node.Handshake();
@@ -143,7 +140,6 @@ namespace BitcoinLib.Test
                 byte[] h160 = Base58Encoding.DecodeH160(address);
                 //string actual = Tools.BytesToHexString(h160);
                 //string want = "ad346f8eb57dee9a37981716e498120ae80e44f7";
-                Tools.LOGGING = 1;
                 SimpleNode node = new SimpleNode("65.109.24.172", true); // 02.01.2026: 65.109.24.172 worked in: python, C#
                 BloomFilter bf = new BloomFilter(30, 5, 90210);
                 bf.Add(h160);
