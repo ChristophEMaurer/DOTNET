@@ -137,17 +137,23 @@ namespace BitcoinLib
             Tools.UIntToLittleEndian(_nonce, data, 4);
         }
 
+
+        private byte[] _cachedHash;
+
         /// <summary>
         /// The Hash256 of all the serialized block header fields
         /// </summary>
         /// <returns>256 bit, 32 bytes</returns>
         public byte[] Hash()
         {
-            byte[] raw = serialize();
-            byte[] hash = Tools.Hash256(raw);
-            Tools.Reverse(hash);
+            if (_cachedHash == null)
+            {
+                byte[] raw = serialize();
+                _cachedHash = Tools.Hash256(raw);
+                Tools.Reverse(_cachedHash);
+            }
 
-            return hash;
+            return _cachedHash;
         }
 
         public string HashAsString()
