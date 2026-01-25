@@ -10,12 +10,12 @@ namespace BitcoinLib.Test
         {
             string url = TxFetcher.UrlRealnet + "/tx/ee51510d7bbabe28052038d1deb10c03ec74f06a79e21913c6fcf48d56217c87/hex";
 
-            Tools.ConsoleOutWriteHeader("Forcing online read of tx id " + url);
+            Tools.ConsoleWriteHeader("Forcing online read of tx id " + url);
             
             string data = TxFetcher.GetUrlContent(url);
             if (data.Length < 10)
             {
-                Tools.ConsoleOutWriteHeader("Test result unknown, could not retrieve tx for url " + url);
+                Tools.ConsoleWriteHeader("Test result unknown, could not retrieve tx for url " + url);
             }
             else
             {

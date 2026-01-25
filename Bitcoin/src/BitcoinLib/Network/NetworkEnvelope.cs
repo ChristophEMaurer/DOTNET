@@ -137,7 +137,7 @@ namespace BitcoinLib.Network
 
             if (Tools.DebugLogLevel > 1)
             {
-                Tools.WriteLine($"NetworkEnvelope.ParseHeader: magic={magic:X8}, command={command}, payloadSize={payloadSize}, checksum={checksum:X8}");
+                Tools.ConsoleWriteLine($"NetworkEnvelope.ParseHeader: magic={magic:X8}, command={command}, payloadSize={payloadSize}, checksum={checksum:X8}");
             }
 
             NetworkEnvelope env = new NetworkEnvelope(magic, command, payloadSize, checksum, false);
@@ -155,7 +155,7 @@ namespace BitcoinLib.Network
         {
             if (Tools.DebugLogLevel > 2)
             {
-                Tools.WriteLine($"NetworkEnvelope.ParsePayload: _payloadSize={_payloadSize}");
+                Tools.ConsoleWriteLine($"NetworkEnvelope.ParsePayload: _payloadSize={_payloadSize}");
             }
             int payloadSize = (int)_payloadSize;
             _payload = reader.ReadBytes(payloadSize);
@@ -163,7 +163,7 @@ namespace BitcoinLib.Network
             if (Tools.DebugLogLevel > 2)
             {
                 string strPayloadHex = Tools.BytesToHexString(_payload);
-                Tools.WriteLine($"NetworkEnvelope.ParsePayload: byte[] _payload: {_payload.Length} bytes");
+                Tools.ConsoleWriteLine($"NetworkEnvelope.ParsePayload: byte[] _payload: {_payload.Length} bytes");
                 //Tools.WriteLine($"NetworkEnvelope.ParsePayload: strPayloadHex: {strPayloadHex}");
             }
             byte[] bCalculatedChecksum = Tools.Hash256FirstFourBytes(_payload);
@@ -171,11 +171,11 @@ namespace BitcoinLib.Network
 
             if (Tools.DebugLogLevel > 2)
             {
-                Tools.WriteLine($"NetworkEnvelope.ParsePayload: calculatedChecksum={calculatedChecksum:x8}");
+                Tools.ConsoleWriteLine($"NetworkEnvelope.ParsePayload: calculatedChecksum={calculatedChecksum:x8}");
             }
             if (_checksum != calculatedChecksum)
             {
-                Tools.WriteLine($"NetworkEnvelope.ParsePayload: calculatedChecksum={calculatedChecksum:x8}, _checksum={_checksum}");
+                Tools.ConsoleWriteLine($"NetworkEnvelope.ParsePayload: calculatedChecksum={calculatedChecksum:x8}, _checksum={_checksum}");
                 throw new Exception("Checksum does not match");
             }
         }

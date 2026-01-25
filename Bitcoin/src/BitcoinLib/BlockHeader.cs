@@ -68,7 +68,6 @@ namespace BitcoinLib
         public UInt32 _nonce;
         public UInt32 nonce { get { return _nonce; } }
 
-
         /// <summary>
         /// tx_count can only be set from the outside, when the block parses the data
         /// </summary>

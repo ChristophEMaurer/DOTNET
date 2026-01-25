@@ -138,7 +138,7 @@ namespace BitcoinLib
             if (File.Exists(_cacheFileName))
             {
                 string text = string.Format("Reading transactions from cache file {0}", _cacheFileName);
-                Tools.ConsoleOutWriteHeader(text);
+                Tools.ConsoleWriteHeader(text);
 
                 // populate cache from a file
                 using (StreamReader reader = new StreamReader(_cacheFileName))
@@ -163,7 +163,7 @@ namespace BitcoinLib
                         }
                     }
                 }
-                Tools.ConsoleOutWriteHeader("...done");
+                Tools.ConsoleWriteHeader("...done");
             }
         }
 
@@ -186,7 +186,7 @@ namespace BitcoinLib
                 }
                 catch (Exception e)
                 {
-                    Tools.ConsoleOutWriteWarning("ERROR!!!: " + e.Message);
+                    Tools.ConsoleWriteWarning("ERROR!!!: " + e.Message);
                 }
             }
 

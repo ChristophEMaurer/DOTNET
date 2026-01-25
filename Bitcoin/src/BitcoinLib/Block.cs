@@ -129,6 +129,14 @@ namespace BitcoinLib
             }
         }
 
+        public bool IsGenesisBlock()
+        {
+            byte[] blockHash = _blockHeader.Hash();
+
+            bool success = blockHash.SequenceEqual(GENESIS_BLOCK_HASH);
+            return success;
+        }
+
         public void Accept(IBitcoinVisitor visitor)
         {
             visitor.Visit(this);

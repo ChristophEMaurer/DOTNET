@@ -535,7 +535,7 @@ namespace BitcoinLib
                     {
                         if (!Op.op_if(stack, cmds))
                         {
-                            Tools.ConsoleOutWriteWarning("bad op: " + Op.OpCodeNames[opCode]);
+                            Tools.ConsoleWriteWarning("bad op: " + Op.OpCodeNames[opCode]);
                             return false;
                         }
                     }
@@ -543,7 +543,7 @@ namespace BitcoinLib
                     {
                         if (!Op.op_notif(stack, cmds))
                         {
-                            Tools.ConsoleOutWriteWarning("bad op: " + Op.OpCodeNames[opCode]);
+                            Tools.ConsoleWriteWarning("bad op: " + Op.OpCodeNames[opCode]);
                             return false;
                         }
                     }
@@ -551,7 +551,7 @@ namespace BitcoinLib
                     {
                         if (!Op.op_toaltstack(stack, altstack))
                         {
-                            Tools.ConsoleOutWriteWarning("bad op: " + Op.OpCodeNames[opCode]);
+                            Tools.ConsoleWriteWarning("bad op: " + Op.OpCodeNames[opCode]);
                             return false;
                         }
                     }
@@ -559,7 +559,7 @@ namespace BitcoinLib
                     {
                         if (!Op.op_fromaltstack(stack, altstack))
                         {
-                            Tools.ConsoleOutWriteWarning("bad op: " + Op.OpCodeNames[opCode]);
+                            Tools.ConsoleWriteWarning("bad op: " + Op.OpCodeNames[opCode]);
                             return false;
                         }
                     }
@@ -567,7 +567,7 @@ namespace BitcoinLib
                     {
                         if (!Op.op_checksig(stack, z))
                         {
-                            Tools.ConsoleOutWriteWarning("bad op: " + Op.OpCodeNames[opCode]);
+                            Tools.ConsoleWriteWarning("bad op: " + Op.OpCodeNames[opCode]);
                             return false;
                         }
                     }
@@ -575,7 +575,7 @@ namespace BitcoinLib
                     {
                         if (!Op.op_checksigverify(stack, z))
                         {
-                            Tools.ConsoleOutWriteWarning("bad op: " + Op.OpCodeNames[opCode]);
+                            Tools.ConsoleWriteWarning("bad op: " + Op.OpCodeNames[opCode]);
                             return false;
                         }
                     }
@@ -583,7 +583,7 @@ namespace BitcoinLib
                     {
                         if (!Op.op_checkmultisig(stack, z))
                         {
-                            Tools.ConsoleOutWriteWarning("bad op: " + Op.OpCodeNames[opCode]);
+                            Tools.ConsoleWriteWarning("bad op: " + Op.OpCodeNames[opCode]);
                             return false;
                         }
                     }
@@ -591,7 +591,7 @@ namespace BitcoinLib
                     {
                         if (!Op.op_checkmultisigverify(stack, z))
                         {
-                            Tools.ConsoleOutWriteWarning("bad op: " + Op.OpCodeNames[opCode]);
+                            Tools.ConsoleWriteWarning("bad op: " + Op.OpCodeNames[opCode]);
                             return false;
                         }
                     }
@@ -600,7 +600,7 @@ namespace BitcoinLib
                         Op.OpFunction opFunction = Op.OpCodeFunctions[opCode];
                         if (!opFunction(stack))
                         {
-                            Tools.ConsoleOutWriteWarning("bad op: " + Op.OpCodeNames[opCode]);
+                            Tools.ConsoleWriteWarning("bad op: " + Op.OpCodeNames[opCode]);
                             return false;
                         }
                     }

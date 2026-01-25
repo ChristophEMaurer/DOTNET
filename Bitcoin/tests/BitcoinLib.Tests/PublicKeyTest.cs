@@ -30,12 +30,12 @@ namespace BitcoinLib.Test
             Console.WriteLine($"pubkey_hex {pubkey_hex}");
             Console.WriteLine($"decoded: {actual}");
             
-            pubkey_hex = "bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kygt080";
+            pubkey_hex = "bc1qetlt40k2l6atajh7h2lv4l46hm90aw476h9vq9";
             actual = new PublicKey().DecodePublicKey(pubkey_hex);
             Console.WriteLine($"pubkey_hex {pubkey_hex}");
             Console.WriteLine($"decoded: {actual}");
 
-            pubkey_hex = "bc1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3q0sl5k7";
+            pubkey_hex = "bc1qhysluleppcz8m3wwtj7a6uwaxru7rss3knqnh3aa7lryhqg0fs7sz4vpf2";
             actual = new PublicKey().DecodePublicKey(pubkey_hex);
             Console.WriteLine($"pubkey_hex {pubkey_hex}");
             Console.WriteLine($"decoded: {actual}");

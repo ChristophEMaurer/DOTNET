@@ -76,6 +76,8 @@ namespace BitcoinLib.Test
             Tools.CallStaticMethod("BitcoinLib.Test.PrivateKeyTest", "test_wif");
             Tools.CallStaticMethod("BitcoinLib.Test.PrivateKeyTest", "test_public_key_hash160");
 
+            Tools.CallStaticMethod("BitcoinLib.Test.PublicKeyTest", "test_decode");
+            
             Tools.CallStaticMethod("BitcoinLib.Test.ToolsTest", "test_join_array");
             Tools.CallStaticMethod("BitcoinLib.Test.ToolsTest", "test_to_byte");
             Tools.CallStaticMethod("BitcoinLib.Test.ToolsTest", "test_hash256");

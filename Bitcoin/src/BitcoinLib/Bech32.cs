@@ -19,6 +19,10 @@ namespace BitcoinLib
 
     public static class Bech32
     {
+        //
+        // https://slowli.github.io/bech32-buffer/
+        //
+
         const string CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l";
 
         private static byte CharToValue(char c)
@@ -39,7 +43,7 @@ namespace BitcoinLib
         /// <param name="prog"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public static string Encode(string hrp, int witVer, byte[] prog)
+        public static string Encode(string hrp, int witVer, byte[] prog, bool useBech32m)
         {
             if (witVer < 0 || witVer > 16) throw new ArgumentException("Invalid witness version");
             if (prog.Length < 2 || prog.Length > 40) throw new ArgumentException("Invalid witness program length");
@@ -53,7 +57,7 @@ namespace BitcoinLib
             for (int i = 0; i < prog5.Length; i++) data[i + 1] = prog5[i];
 
             // Checksumme berechnen
-            int[] checksum = CreateChecksum(hrp, data);
+            int[] checksum = CreateChecksum(hrp, data, useBech32m);
 
             // Payload + Checksumme → Bech32-String
             string payload = string.Concat(data.Select(b => CHARSET[b]));
@@ -179,12 +183,16 @@ namespace BitcoinLib
                       .ToArray();
         }
 
-        static int[] CreateChecksum(string hrp, int[] data)
+        static int[] CreateChecksum(string hrp, int[] data, bool useBech32m)
         {
+            // Bech32 vs Bech32m
+            int xorConstant = useBech32m ? 0x2bc830a3 : 1;
+
             int[] values = HrpExpand(hrp).Concat(data).Concat(new int[6]).ToArray();
-            int mod = Polymod(values) ^ 1;
+            int mod = Polymod(values) ^ xorConstant;
             int[] ret = new int[6];
-            for (int i = 0; i < 6; i++) ret[i] = (mod >> (5 * (5 - i))) & 31;
+            for (int i = 0; i < 6; i++) 
+                ret[i] = (mod >> (5 * (5 - i))) & 31;
             return ret;
         }
 

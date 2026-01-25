@@ -151,7 +151,7 @@ namespace BitcoinLib.Test
                 node.Send(getHeadersMessage);
                 NetworkMessage networkMessage = node.WaitFor(new() { HeadersMessage.Command });
                 HeadersMessage headerMessage = (HeadersMessage)networkMessage;
-                Tools.WriteLine("headerMessage has " + headerMessage._blockHeaders.Count + " block headers");
+                Tools.ConsoleWriteLine("headerMessage has " + headerMessage._blockHeaders.Count + " block headers");
                 GetDataMessage getDataMessage = new GetDataMessage();
                 foreach (BlockHeader blockHeader in headerMessage._blockHeaders)
                 {
@@ -187,13 +187,13 @@ namespace BitcoinLib.Test
                     else if (msg._command == Tx.Command)
                     {
                         Tx tx = (Tx)msg;
-                        Tools.WriteLine("tx has " + tx._txOuts.Count + " txOuts");
+                        Tools.ConsoleWriteLine("tx has " + tx._txOuts.Count + " txOuts");
                         for (int i = 0; i < tx._txOuts.Count; i++)
                         {
                             TxOut txOut = tx._txOuts[i];
                             if (txOut._script_pubkey.Address(true).Equals(address))
                             {
-                                Tools.WriteLine($"found {tx.Id()}:{i}");
+                                Tools.ConsoleWriteLine($"found {tx.Id()}:{i}");
                                 found = true;
                                 //break; dont breek, there could be several tx of interest
                             }

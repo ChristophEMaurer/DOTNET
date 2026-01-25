@@ -123,7 +123,7 @@ namespace BitcoinLib.Test
 
         public static void ConsoleOutWriteHeader(string text)
         {
-            Tools.ConsoleOutWriteHeader(text);
+            Tools.ConsoleWriteHeader(text);
         }
         public static void ConsoleOutWriteLine(string text)
         {

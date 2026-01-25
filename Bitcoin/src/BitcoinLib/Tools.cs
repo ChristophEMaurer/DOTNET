@@ -53,7 +53,7 @@ namespace BitcoinLib
                     {
                         if (parameter != null)
                         {
-                            Tools.ConsoleOutWriteHeader(string.Format("Tools::CallStaticMethod(): Calling function {0}::{1}({2})", strClass, strFunction, parameter));
+                            Tools.ConsoleWriteHeader(string.Format("Tools::CallStaticMethod(): Calling function {0}::{1}({2})", strClass, strFunction, parameter));
                             DateTime start = DateTime.Now;
 
                             try
@@ -64,7 +64,7 @@ namespace BitcoinLib
                             }
                             catch (Exception ex)
                             {
-                                Tools.ConsoleOutWriteError("ERROR (method.Invoke(null, args)): Test could not execute (are you online?):");
+                                Tools.ConsoleWriteError("ERROR (method.Invoke(null, args)): Test could not execute (are you online?):");
                                 Console.WriteLine(ex.ToString());
                             }
                             DateTime end = DateTime.Now;
@@ -77,7 +77,7 @@ namespace BitcoinLib
                         }
                         else
                         {
-                            Tools.ConsoleOutWriteHeader(string.Format("Tools::CallStaticMethod(): Calling function {0}::{1}()", strClass, strFunction));
+                            Tools.ConsoleWriteHeader(string.Format("Tools::CallStaticMethod(): Calling function {0}::{1}()", strClass, strFunction));
                             DateTime start = DateTime.Now;
                             try
                             {
@@ -87,7 +87,7 @@ namespace BitcoinLib
                             }
                             catch (Exception ex)
                             {
-                                Tools.ConsoleOutWriteError("ERROR (method.Invoke(null, null)): Test could not execute (are you online?):");
+                                Tools.ConsoleWriteError("ERROR (method.Invoke(null, null)): Test could not execute (are you online?):");
                                 Console.WriteLine(ex.ToString());
                             }
                             DateTime end = DateTime.Now;
@@ -106,11 +106,11 @@ namespace BitcoinLib
             {
                 if (!methodFound)
                 {
-                    Tools.ConsoleOutWriteWarning(string.Format("Tools::CallStaticMethod(): Error: Function {0}::{1}({2}) was not found and not executed!!!", strClass, strFunction, parameter));
+                    Tools.ConsoleWriteWarning(string.Format("Tools::CallStaticMethod(): Error: Function {0}::{1}({2}) was not found and not executed!!!", strClass, strFunction, parameter));
                 }
                 else
                 {
-                    Tools.ConsoleOutWriteWarning(string.Format("Tools::CallStaticMethod(): Error: Function {0}::{1}({2}) returned false!!!", strClass, strFunction, parameter));
+                    Tools.ConsoleWriteWarning(string.Format("Tools::CallStaticMethod(): Error: Function {0}::{1}({2}) returned false!!!", strClass, strFunction, parameter));
                 }
             }
 
@@ -170,6 +170,11 @@ namespace BitcoinLib
             result = (b4 << 24) | (b3 << 16) | (b2 << 8) | b1;
 
             return result;
+        }
+
+        public static Int32 ReadInt32LittleEndian(BinaryReader input)
+        {
+            return (Int32)ReadUInt32LittleEndian(input);
         }
 
         public static UInt32 ReadUInt32BigEndian(BinaryReader input)
@@ -760,29 +765,39 @@ namespace BitcoinLib
             Console.ForegroundColor = ConsoleColor.Yellow;
         }
 
-        public static void ConsoleOutWriteHeader(string text)
+        public static void ConsoleWriteHeader(string text, bool withTimestamp = true)
         {
             ConsoleColor oldColor = Console.ForegroundColor;
 
             Console.ForegroundColor = ConsoleColor.Blue;
-            Console.WriteLine(text);
+            Tools.ConsoleWriteLine(text, withTimestamp);
             Console.ForegroundColor = oldColor;
         }
-        public static void ConsoleOutWriteWarning(string text)
+        public static void ConsoleWriteWarning(string text)
         {
             ConsoleColor oldColor = Console.ForegroundColor;
 
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(text);
+            Tools.ConsoleWriteLine(text);
             Console.ForegroundColor = oldColor;
         }
-        public static void ConsoleOutWriteError(string text)
+        public static void ConsoleWriteError(string text)
         {
             ConsoleColor oldColor = Console.ForegroundColor;
 
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(text);
+            Tools.ConsoleWriteLine(text);
             Console.ForegroundColor = oldColor;
+        }
+
+        public static void ConsoleWriteLine(string text, bool withTimestamp = true)
+        {
+            if (withTimestamp)
+            {
+                Console.Write(DateTime.Now.ToString("HH.mm.ss.fff"));
+                Console.Write(":");
+            }
+            Console.WriteLine(text);
         }
 
         public static void SerializeLittleEndian(List<byte> list, byte[] data, int length)
@@ -815,17 +830,17 @@ namespace BitcoinLib
             return buffer;
         }
 
-        public static void WriteLine(string text)
-        {
-            Console.Write(DateTime.Now.ToString("HH.mm.ss.fff"));
-            Console.Write(":");
-            Console.WriteLine(text);
-        }
 
         public static void PrintJsonObject(object obj)
         {
             string result = JsonSerializer.Serialize(obj, new JsonSerializerOptions { WriteIndented = true });
             Console.WriteLine(result);
+        }
+
+        public static string CreateJsonObjectAsString(object obj)
+        {
+            string result = JsonSerializer.Serialize(obj, new JsonSerializerOptions { WriteIndented = true });
+            return result;
         }
     }
 }

@@ -45,15 +45,15 @@ namespace BitcoinLib.Network
                 Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 if (Tools.DebugLogLevel > 0)
                 {
-                    Tools.WriteLine("connecting to " + _host + ":" + _port);
+                    Tools.ConsoleWriteLine("connecting to " + _host + ":" + _port);
                 }
                 socket.Connect(_host, _port);
                 _stream = new NetworkStream(socket, ownsSocket: false);
             }
             catch (Exception ex)
             {
-                Tools.ConsoleOutWriteError("Error: in catch block");
-                Tools.WriteLine(ex.Message);
+                Tools.ConsoleWriteError("Error: in catch block");
+                Tools.ConsoleWriteLine(ex.Message);
             }
         }
 
@@ -80,8 +80,8 @@ namespace BitcoinLib.Network
 
             if (Tools.DebugLogLevel > 3)
             {
-                Tools.WriteLine("sending bytes for " + message._command);
-                Tools.WriteLine(strData);
+                Tools.ConsoleWriteLine("sending bytes for " + message._command);
+                Tools.ConsoleWriteLine(strData);
             }
 
             _stream.Write(bEnvelope, 0, bEnvelope.Length);
@@ -89,7 +89,7 @@ namespace BitcoinLib.Network
 
             if (Tools.DebugLogLevel > 0)
             {
-                Tools.WriteLine("sent " + envelope._command);
+                Tools.ConsoleWriteLine("sent " + envelope._command);
                 //Tools.WriteLine(strData);
             }
 
@@ -100,20 +100,20 @@ namespace BitcoinLib.Network
         {
             if (Tools.DebugLogLevel > 2)
             {
-                Tools.WriteLine("--> NetworkEnvelope Read()");
+                Tools.ConsoleWriteLine("--> NetworkEnvelope Read()");
             }
             if (_stream == null)
             {
                 if (Tools.DebugLogLevel > 2)
                 {
-                    Tools.WriteLine("NetworkEnvelope Read(): _stream == null , exiting");
+                    Tools.ConsoleWriteLine("NetworkEnvelope Read(): _stream == null , exiting");
                 }
                 return null;
             }
 
             if (Tools.DebugLogLevel > 2)
             {
-                Tools.WriteLine("Reading 24 bytes...");
+                Tools.ConsoleWriteLine("Reading 24 bytes...");
             }
 
             byte[] header = Tools.ReadExactly(_stream, 24);
@@ -121,20 +121,20 @@ namespace BitcoinLib.Network
 
             if (Tools.DebugLogLevel > 1)
             {
-                Tools.WriteLine("Received NetworkEnvelope: " + envelope._command);
-                Tools.WriteLine("Reading payload: " + envelope._payloadSize + " bytes");
+                Tools.ConsoleWriteLine("Received NetworkEnvelope: " + envelope._command);
+                Tools.ConsoleWriteLine("Reading payload: " + envelope._payloadSize + " bytes");
             }
 
             byte[] payload = Tools.ReadExactly(_stream, (int)envelope._payloadSize);
             if (Tools.DebugLogLevel > 1)
             {
-                Tools.WriteLine("Read byte[] payload: " + payload.Length + " bytes");
+                Tools.ConsoleWriteLine("Read byte[] payload: " + payload.Length + " bytes");
             }
             envelope.ParsePayload(new BinaryReader(new MemoryStream(payload)));
 
             if (Tools.DebugLogLevel > 2)
             {
-                Tools.WriteLine("<-- NetworkEnvelope Read()");
+                Tools.ConsoleWriteLine("<-- NetworkEnvelope Read()");
             }
 
             return envelope;
@@ -153,7 +153,7 @@ namespace BitcoinLib.Network
 
             if (Tools.DebugLogLevel > 2)
             {
-                Tools.WriteLine("--> NetworkMessage WaitFor()" + commands);
+                Tools.ConsoleWriteLine("--> NetworkMessage WaitFor()" + commands);
             }
 
             NetworkEnvelope envelope = new NetworkEnvelope();
@@ -164,15 +164,15 @@ namespace BitcoinLib.Network
                 DateTime end = DateTime.Now;
                 TimeSpan duration = end - start;
                 int waitSeconds = 10;
-                if (duration.Seconds > waitSeconds)
+                if (duration.TotalSeconds > waitSeconds)
                 {
-                    Tools.ConsoleOutWriteWarning($"WaitFor(): no response after {waitSeconds} seconds, aborting");
+                    Tools.ConsoleWriteWarning($"WaitFor(): no response after {waitSeconds} seconds, aborting");
                     return null;
                 }
 
                 if (Tools.DebugLogLevel > 0)
                 {
-                    Tools.WriteLine("waiting for: " + string.Join(", ", commands));
+                    Tools.ConsoleWriteLine("waiting for: " + string.Join(", ", commands));
                 }
 
                 // this reads the header and the payload.
@@ -184,7 +184,7 @@ namespace BitcoinLib.Network
 
                 if (Tools.DebugLogLevel > 0)
                 {
-                    Tools.WriteLine("received " + envelope._command);
+                    Tools.ConsoleWriteLine("received " + envelope._command);
                 }
 
                 if (envelope._command == VersionMessage.Command)
@@ -208,7 +208,7 @@ namespace BitcoinLib.Network
 
             if (Tools.DebugLogLevel > 2)
             {
-                Tools.WriteLine("<-- NetworkMessage WaitFor()" + commands);
+                Tools.ConsoleWriteLine("<-- NetworkMessage WaitFor()" + commands);
             }
 
             return message;
@@ -221,12 +221,12 @@ namespace BitcoinLib.Network
         {
             if (Tools.DebugLogLevel > 0)
             {
-                Tools.WriteLine("--> SimpleNode::Handshake()");
+                Tools.ConsoleWriteLine("--> SimpleNode::Handshake()");
             }
 
             if (_stream == null)
             {
-                Tools.ConsoleOutWriteError("Error (_Stream == null): exiting...");
+                Tools.ConsoleWriteError("Error (_Stream == null): exiting...");
             }
             else
             {
@@ -237,7 +237,7 @@ namespace BitcoinLib.Network
 
             if (Tools.DebugLogLevel > 0)
             {
-                Tools.WriteLine("<-- SimpleNode::Handshake()");
+                Tools.ConsoleWriteLine("<-- SimpleNode::Handshake()");
             }
         }
 
@@ -249,7 +249,8 @@ namespace BitcoinLib.Network
         /// <exception cref="Exception"></exception>
         public static Block GetBlockWithPrevHash(string prevHash)
         {
-            byte[] start_block = Tools.HexStringToBytes(prevHash);
+            byte[] bPrevHash = Tools.HexStringToBytes(prevHash);
+            byte[] start_block = BlockIndex.CreateBlockLocatorHashes(prevHash);
 
             SimpleNode node = new SimpleNode(false); // 02.01.2026: 65.109.24.172 worked in: python, C#
             node.Init();
@@ -261,26 +262,47 @@ namespace BitcoinLib.Network
             HeadersMessage headerMessage = (HeadersMessage)networkMessage;
 
             GetDataMessage getDataMessage = new GetDataMessage();
+            if(Tools.DebugLogLevel > 0)
+            {
+                Tools.ConsoleWriteLine("Received: " + headerMessage._blockHeaders.Count + " block headers");
+            }
+
+            bool found = false;
             foreach (BlockHeader blockHeader in headerMessage._blockHeaders)
             {
                 byte[] currentHash = blockHeader.Hash();
                 string strCurrentHash = Tools.BytesToHexString(currentHash);
-                Console.WriteLine("header: " + strCurrentHash);
+                if (Tools.DebugLogLevel > 2)
+                {
+                    Tools.ConsoleWriteLine("header: " + strCurrentHash);
+                }
                 if (blockHeader.CheckPow())
                 {
-                    Console.WriteLine("header is valid!");
+                    if (Tools.DebugLogLevel > 2)
+                    {
+                        Tools.ConsoleWriteLine("header is valid!");
+                    }
                 }
                 else
                 {
                     throw new Exception("proof of work is invalid");
                 }
 
-                if (blockHeader._prevBlockHash.SequenceEqual(start_block))
+                if (blockHeader._prevBlockHash.SequenceEqual(bPrevHash))
                 {
-                    Console.WriteLine("Found block with specified prevHash!");
+                    found = true;
                     getDataMessage.Add(GetDataMessage.MSG_BLOCK, currentHash);
+                    if (Tools.DebugLogLevel > 0)
+                    {
+                        Tools.ConsoleWriteLine("Found block header with specified prevHash!");
+                    }
                     break;
                 }
+            }
+
+            if (!found)
+            {
+                throw new Exception("Could not find block with specified prevHash");
             }
 
             node.Send(getDataMessage);
@@ -297,45 +319,44 @@ namespace BitcoinLib.Network
         /// <exception cref="Exception"></exception>
         public static Block GetBlockWithHash(string hash)
         {
-            byte[] start_block = Tools.HexStringToBytes(hash);
+            byte[] bHash = Tools.HexStringToBytes(hash);
 
             SimpleNode node = new SimpleNode(false); // 02.01.2026: 65.109.24.172 worked in: python, C#
             node.Init();
             node.Handshake();
 
+            GetDataMessage getDataMessage = new GetDataMessage();
+            getDataMessage.Add(GetDataMessage.MSG_BLOCK, bHash);
+
+            node.Send(getDataMessage);
+            NetworkMessage networkMessage = node.WaitFor(new() { BlockMessage.Command });
+            BlockMessage blockMessage = (BlockMessage)networkMessage;
+
+            return blockMessage._block;
+        }
+
+        /// <summary>
+        /// Get all blocks from the blockchain after the specified block hash
+        /// </summary>
+        public static List<BlockHeader> GetBlockHeaders(string hash)
+        {
+            byte[] start_block = BlockIndex.CreateBlockLocatorHashes(hash);
             GetHeadersMessage getHeadersMessage = new GetHeadersMessage(start_block);
+
+            SimpleNode node = new SimpleNode(false); // 02.01.2026: 65.109.24.172 worked in: python, C#
+            node.Init();
+            node.Handshake();
+
             node.Send(getHeadersMessage);
             NetworkMessage networkMessage = node.WaitFor(new() { HeadersMessage.Command });
             HeadersMessage headerMessage = (HeadersMessage)networkMessage;
 
-            GetDataMessage getDataMessage = new GetDataMessage();
-            foreach (BlockHeader blockHeader in headerMessage._blockHeaders)
+            if (Tools.DebugLogLevel > 0)
             {
-                byte[] currentHash = blockHeader.Hash();
-                string strCurrentHash = Tools.BytesToHexString(currentHash);
-                Console.WriteLine("header: " + strCurrentHash);
-                if (blockHeader.CheckPow())
-                {
-                    Console.WriteLine("header is valid!");
-                }
-                else
-                {
-                    throw new Exception("proof of work is invalid");
-                }
-
-                if (strCurrentHash.Equals(hash))
-                {
-                    Console.WriteLine("Found block with specified hash");
-                    getDataMessage.Add(GetDataMessage.MSG_BLOCK, currentHash);
-                    break;
-                }
+                Tools.ConsoleWriteLine("Received: " + headerMessage._blockHeaders.Count + " block headers");
             }
 
-            node.Send(getDataMessage);
-            networkMessage = node.WaitFor(new() { BlockMessage.Command });
-            BlockMessage blockMessage = (BlockMessage)networkMessage;
-
-            return blockMessage._block;
+            return headerMessage._blockHeaders;
         }
     }
 }

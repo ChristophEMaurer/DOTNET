@@ -9,6 +9,7 @@ namespace BitcoinLib.Network
     public class VersionMessage : NetworkMessage
     {
         public static string Command = "version";
+        public static UInt32 CurrentVersion = 70015;
 
         /// <summary>
         /// protocol version, little-endian
@@ -90,7 +91,7 @@ namespace BitcoinLib.Network
             _relay = relay;
         }
         public VersionMessage(string userAgent = "/Christoph:0.1/") :
-            this(70015, 0, 0,
+            this(VersionMessage.CurrentVersion, 0, 0,
                 0, new byte[4], 8333,
                 0, new byte[4], 8333,
                 0, (UInt64)userAgent.Length, Encoding.ASCII.GetBytes(userAgent), 0, 0x00)

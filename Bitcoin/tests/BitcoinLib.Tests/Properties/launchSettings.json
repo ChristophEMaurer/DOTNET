@@ -1,7 +1,8 @@
 {
   "profiles": {
     "BitcoinLibTest": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "--addGenesisBlock"
     }
   }
 }

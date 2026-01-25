@@ -221,7 +221,7 @@ namespace BitcoinLib.Test
                     // TX
                     Tx tx = (Tx)message;
                     tx._testnet = true;
-                    Tools.WriteLine("tx has " + tx._txOuts.Count + " txOuts");
+                    Tools.ConsoleWriteLine("tx has " + tx._txOuts.Count + " txOuts");
                     for (int i = 0; i < tx._txOuts.Count; i++)
                     {
                         TxOut txOut = tx._txOuts[i];
@@ -231,7 +231,7 @@ namespace BitcoinLib.Test
                             prev_index = (UInt32) i;
                             prev_amount = txOut._amount;
 
-                            Tools.WriteLine($"found {Tools.BytesToHexString(prev_tx)}:{prev_index}");
+                            Tools.ConsoleWriteLine($"found {Tools.BytesToHexString(prev_tx)}:{prev_index}");
                             found = true;
                             break;
                             // found: b2cddd41d18d00910f88c31aa58c6816a190b8fc30fe7c665e1cd2ec60efdf3f:7
@@ -246,9 +246,9 @@ namespace BitcoinLib.Test
             Tx tx_obj = new Tx(1, new() { tx_in }, new() { tx_out }, 0, false);
             tx_obj._testnet = true;
             bool success = tx_obj.SignInputPtpkh(0, private_key);
-            Tools.WriteLine($"SignInputPtpkh success = {success}");
+            Tools.ConsoleWriteLine($"SignInputPtpkh success = {success}");
             string tx_obj_seralized = Tools.BytesToHexString(tx_obj.serialize());
-            Tools.WriteLine($"tx_obj_seralized = {tx_obj_seralized}");
+            Tools.ConsoleWriteLine($"tx_obj_seralized = {tx_obj_seralized}");
             // 01000000013fdfef60ecd21c5e667cfe30fcb890a116688ca51ac3880f91008dd141ddcdb2070000006b483045022100ff77d2559261df5490ed00d231099c4b8ea867e6ccfe8e3e6d077313ed4f1428022033a1db8d69eb0dc376f89684d1ed1be75719888090388a16f1e8eedeb8067768012103dc585d46cfca73f3a75ba1ef0c5756a21c1924587480700c6eb64e3f75d22083ffffffff019334e500000000001976a914ad346f8eb57dee9a37981716e498120ae80e44f788ac00000000
             node.Send(tx_obj);
             Thread.Sleep(2000);
@@ -259,7 +259,7 @@ namespace BitcoinLib.Test
             if (received_tx.Id() == tx_obj.Id())
             {
                 // "380c9484d577eec7339c98b5c09d7ab72561ff9344ac817c3aef7a9e05d48663"
-                Tools.WriteLine("success!");
+                Tools.ConsoleWriteLine("success!");
             }
         }
     }

@@ -30,11 +30,17 @@ namespace BitcoinLib
             }
             else if (hex.StartsWith("bc1") && hex.Length == 42)
             {
-                // ptwpkh TODO
+                // ptwpkh
+                Bech32Decoded bech32 = Bech32.Decode(hex);
+                result = "ptwpkh: ";
+                result += Tools.CreateJsonObjectAsString(bech32);
             }
             else if (hex.StartsWith("bc1") && hex.Length == 62)
             {
-                // ptwsh TODO
+                // ptwsh
+                Bech32Decoded bech32 = Bech32.Decode(hex);
+                result = "ptwsh: ";
+                result += Tools.CreateJsonObjectAsString(bech32);
             }
 
             return result;
