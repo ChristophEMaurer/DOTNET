@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <StartupObject>CaiSiGpxGenerator.Program</StartupObject>
+	<ApplicationIcon>Surgeon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="resources\togpx-0.5.4.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Surgeon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="resources\togpx-0.5.4.js" />
+  </ItemGroup>
+
+</Project>

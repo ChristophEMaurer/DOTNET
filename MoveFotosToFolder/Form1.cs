@@ -53,9 +53,9 @@ namespace MoveFotosToFolder
         }
         private void Form1_Shown(object sender, EventArgs e)
         {
-            DateTime dtStart = new DateTime(2025, 5, 2);
+            DateTime dtStart = new DateTime(2026, 9, 6);
 
-            DirectoryInfo directoryInfo = new DirectoryInfo(@"d:\temp");
+            DirectoryInfo directoryInfo = new DirectoryInfo(@"c:\temp");
 
             FileInfo[] arFileInfo = directoryInfo.GetFiles();
 

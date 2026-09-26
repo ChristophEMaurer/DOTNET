@@ -1,0 +1,74 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="BusinessLayerBase.cs" />
+    <Compile Remove="ColumnDescription.cs" />
+    <Compile Remove="combobox.cs" />
+    <Compile Remove="common.cs" />
+    <Compile Remove="DatabaseForm.cs" />
+    <Compile Remove="DatabaseImplementation.cs" />
+    <Compile Remove="DatabaseImplementationOracle.cs" />
+    <Compile Remove="DatabaseLayerBase.cs" />
+    <Compile Remove="db.cs" />
+    <Compile Remove="def.cs" />
+    <Compile Remove="Email.cs" />
+    <Compile Remove="forms.cs" />
+    <Compile Remove="IntegritySupport.cs" />
+    <Compile Remove="MksChangePackage.cs" />
+    <Compile Remove="MksChangePackageEntry.cs" />
+    <Compile Remove="MksItem.cs" />
+    <Compile Remove="MksProjectSheetLine.cs" />
+    <Compile Remove="MksSafeData.cs" />
+    <Compile Remove="MksSandbox.cs" />
+    <Compile Remove="MksUserData.cs" />
+    <Compile Remove="MksWorkItem.cs" />
+    <Compile Remove="OP2Project.cs" />
+    <Compile Remove="Properties\AssemblyInfo.cs" />
+    <Compile Remove="script.cs" />
+    <Compile Remove="scriptgenerator.cs" />
+    <Compile Remove="testcase.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="combobox.resx" />
+    <EmbeddedResource Remove="DatabaseForm.resx" />
+    <EmbeddedResource Remove="forms.resx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Corona.jfif" />
+    <None Remove="Corona.png" />
+    <None Remove="corona_bur_icon.ico" />
+    <None Remove="countries.txt" />
+    <None Remove="country_mapping.txt" />
+    <None Remove="country_mapping_all.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+</Project>

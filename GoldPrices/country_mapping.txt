@@ -1,0 +1,126 @@
+﻿Ägypten|Egypt
+&#196;gypten|Egypt
+Albanien|Albania
+Algerien|Algeria
+Antigua und Barbuda|Antigua and Barbuda
+Äquatorialguinea|Aequatorialguinea
+&#196;quatorialguinea|Aequatorialguinea
+Argentinien|Argentina
+Armenien|Armenia
+Aserbaidschan|Azerbaijan
+Äthiopien|Ethiopia
+&#196;thiopien|Ethiopia
+Australien|Australia
+Österreich|Austria
+&#214;sterreich|Austria
+Bangladesch|Bangladesh
+Belgien|Belgium
+Bolivien|Bolivia
+Bosnien und Herzegowina|Bosnia and Herzegovina
+Botsuana|Botswana
+Brasilien|Brazil
+Brunei Darussalam|Brunei
+Bulgarien|Bulgaria
+Côte d'Ivoire|Ivory Coast
+C&ocirc;te d'Ivoire|Ivory Coast
+C&#244;te d&#39;Ivoire|Ivory Coast
+Kambodscha|Cambodia
+Kamerun|Cameroon
+Kanada|Canada
+Cura&ccedil;ao|Curaceao
+Curaçao|Curaceao
+Czech Republic (Czechia)|Czechia
+Dänemark|Denmark
+D&#228;nemark|Denmark
+Dominikanische Republik|Dominican Republic
+DRC|DR Congo
+Europäische Union|European Union
+Färöer|Faeroe Islands
+Fidschi|Fiji
+Finnland|Finland
+Frankreich|France
+Französisch-Guayana|French Guiana
+Französisch-Polynesien|French Polynesia
+Gabon|Gabun
+Georgien|Georgia
+Germany|Deutschland
+Griechenland|Greece
+Grönland|Greenland
+Gr&#246;nland|Greenland
+Großbritannien|Greatbritain
+Hongkong|Hong Kong
+Indien|India
+Indonesien|Indonesia
+Irak|Iraq
+Irland|Ireland
+Italien|Italy
+Jamaika|Jamaica
+Jordanien|Jordan
+Kaimaninseln|Cayman Islands
+Kasachstan|Kazakhstan
+Kenia|Kenya
+Kolumbien|Colombia
+Kongo|Congo
+Korea, Demokratische Volksrepublik|North Korea
+Korea, Republik|South Korea
+Kroatien|Croatia
+Kuba|Cuba
+Libanon|Lebanon
+Libyen|Libya
+Litauen|Lithuania
+Luxemburg|Luxembourg
+ehemalige jugoslawische Republik Mazedonien|Macedonia
+Madagaskar|Madagascar
+Malediven|Maldives
+Mauretanien|Mauritania
+Mexiko|Mexico
+Moldau|Moldova
+Mongolei|Mongolia
+Mosambik|Mozambique
+Niederlande|Netherlands
+Neukaledonien|New Caledonia
+Neuseeland|New Zealand
+Niederländischendische Antillen|Niederlaendische Antillen
+Nördlicherdliche Marianen|Noerdliche Marianen
+Nordmazedonien|North Macedonia
+Norwegen|Norway
+Papua-Neuguinea|Papua New Guinea
+Philippinen|Philippines
+Polen|Poland
+R&eacute;union|Reunion
+Réunion|Reunion
+Rumänien|Romania
+Rum&#227;nien|Romania
+Russische Föderation|Russia
+Russische F&#246;deration|Russia
+S. Korea|South Korea
+Sao Tome &amp; Principe|San Tom and Principe
+São Tomé und Príncipe|San Tom and Principe
+S&#227;o Tom&#233; und Pr&#237;ncipe|San Tom and Principe
+Saudi-Arabien|Saudi Arabia
+Schweiz|Switzerland
+Serbien|Serbia
+Seychellen|Seychelles
+Singapur|Singapore
+Slowakei|Slovakia
+Slowenien|Slovenia
+Spanien|Spain
+St. Barthélemy|St. Barth
+St. Vincent &amp; Grenadines|St. Vincent Grenadines
+St. Vincent und die Grenadinen|St. Vincent Grenadines
+Südafrika|South Africa
+S&#252;dafrika|South Africa
+Sweden|Schweden
+Syrien|Syria
+Tadschikistan|Tajikistan
+Tanzania|Tansania
+Trinidad und Tobago|Trinidad and Tobago
+Tschad|Chad
+Tunesien|Tunisia
+Türkei|Turkey
+T&#252;rkei|Turkey
+UK|United Kingdom
+United States|USA
+Vereinigte Staaten|USA
+Uzbekistan|Usbekistan
+Westsahara|Western Sahara
